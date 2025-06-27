@@ -1,0 +1,909 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/ba.jpg">
+  <link rel="icon" href="/img/ba.jpg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#373737">
+  <meta name="author" content="霸天">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、理论1. 导图：Map：Spring Cloud 2. Spring Cloud 组件图  3. Spring Cloud 流程图 Spring Cloud LoadBalancer 是一种客户端负载均衡工具，用于在多个服务实例间分配请求。 OpenFeign 是一种声明式的 Web 服务客户端，简化 REST API 调用，可与 LoadBalancer 集成以实现负载均衡。 两者可配合使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="笔记：Spring Cloud">
+<meta property="og:url" content="https://wangjia5289.github.io/2025/03/14/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20Cloud/index.html">
+<meta property="og:site_name" content="夜阑卧听风吹雨,一枝梨花压心头">
+<meta property="og:description" content="一、理论1. 导图：Map：Spring Cloud 2. Spring Cloud 组件图  3. Spring Cloud 流程图 Spring Cloud LoadBalancer 是一种客户端负载均衡工具，用于在多个服务实例间分配请求。 OpenFeign 是一种声明式的 Web 服务客户端，简化 REST API 调用，可与 LoadBalancer 集成以实现负载均衡。 两者可配合使用">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/14/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20Cloud/image-20250427142937834.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/14/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20Cloud/image-20250427165021312.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/14/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20Cloud/image-20250427192909664.png">
+<meta property="article:published_time" content="2025-03-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-05-03T07:36:26.741Z">
+<meta property="article:author" content="Ba Tian">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wangjia5289.github.io/2025/03/14/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20Cloud/image-20250427142937834.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>笔记：Spring Cloud - 夜阑卧听风吹雨,一枝梨花压心头</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangjia5289.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/%E3%80%90%E5%93%B2%E9%A3%8E%E5%A3%81%E7%BA%B8%E3%80%91%E5%85%89%E5%BD%B1%E7%BE%8E%E5%AD%A6-%E5%90%8A%E5%B8%A6%E8%A3%99.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="笔记：Spring Cloud"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-14 00:00" pubdate>
+          March 14, 2025 am
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.6k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 mins
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> views
+        </span>
+        
+
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">笔记：Spring Cloud</h1>
+            
+              <p id="updated-time" class="note note-info" style="display: none">
+                
+                  
+                    Last updated on 2025-05-03T15:36:26+08:00
+                  
+                  
+
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、理论"><a href="#一、理论" class="headerlink" title="一、理论"></a>一、理论</h1><h3 id="1-导图：Map：Spring-Cloud"><a href="#1-导图：Map：Spring-Cloud" class="headerlink" title="1. 导图：Map：Spring Cloud"></a>1. 导图：<a href="../../maps/Map%EF%BC%9ASpringCloud.xmind">Map：Spring Cloud</a></h3><hr>
+<h3 id="2-Spring-Cloud-组件图"><a href="#2-Spring-Cloud-组件图" class="headerlink" title="2. Spring Cloud 组件图"></a>2. Spring Cloud 组件图</h3><p><img src="/2025/03/14/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20Cloud/image-20250427142937834.png" srcset="/img/loading.gif" lazyload></p>
+<hr>
+<h3 id="3-Spring-Cloud-流程图"><a href="#3-Spring-Cloud-流程图" class="headerlink" title="3. Spring Cloud 流程图"></a>3. Spring Cloud 流程图</h3><ul>
+<li>Spring Cloud LoadBalancer 是一种客户端负载均衡工具，用于在多个服务实例间分配请求。</li>
+<li>OpenFeign 是一种声明式的 Web 服务客户端，简化 REST API 调用，可与 LoadBalancer 集成以实现负载均衡。</li>
+<li>两者可配合使用：OpenFeign 定义客户端接口，LoadBalancer 处理请求分发。</li>
+</ul>
+<hr>
+<h3 id="4-Consul"><a href="#4-Consul" class="headerlink" title="4. Consul"></a>4. Consul</h3><h4 id="4-1-Consul-概述"><a href="#4-1-Consul-概述" class="headerlink" title="4.1. Consul 概述"></a>4.1. Consul 概述</h4><p>&#x3D;&#x3D;1.现有问题&#x3D;&#x3D;<br>在微服务 A 调用微服务 B 的过程中，如果把 B 的 IP 和端口写死在 A 的代码里，就容易遇到一堆大麻烦：</p>
+<ol>
+<li><font color="#00b0f0">服务发现困难</font>：<ol>
+<li>微服务 B 的 IP 或端口一旦变更，A 就懵了，找不到 B，调用失败。</li>
+</ol>
+</li>
+<li><font color="#00b0f0">无法负载均衡</font>：<ol>
+<li>系统里明明有好几个 B，A 却只能连固定的一个，导致这个 B 被打爆，其他 B 闲得发慌。</li>
+</ol>
+</li>
+<li><font color="#00b0f0">服务健康状态未知</font>：<ol>
+<li>B 已经“阵亡”了，A 还傻乎乎地发请求过去，结果超时、报错、出事故，谁也不好受。</li>
+</ol>
+</li>
+</ol>
+<p>即便我们可能有一些解决方案，例如 <code>Keepalived + Haproxy</code>，也还会存在一些问题：</p>
+<ol>
+<li><font color="#00b0f0">配置管理混乱</font>：<ol>
+<li>服务多到飞起，每个服务都要配置一堆地址，配置文件满天飞，一改就头大，发布流程慢得像蜗牛。</li>
+<li>有没有一种更清爽的方式？比如通用配置统一从一个固定位置拉取，大家只需要修改那个位置就行；而各服务的个性化配置则保留在各自的 <code>application.yml</code> 文件中，既集中管理，又保留灵活性。</li>
+</ol>
+</li>
+<li><font color="#00b0f0">安全通信复杂</font>：<ol>
+<li>服务间通信加密、证书管理，麻烦得让人怀疑人生。</li>
+</ol>
+</li>
+</ol>
+<p>&#x3D;&#x3D;2.Consul 解决方案&#x3D;&#x3D;<br>Consul 是 HashiCorp 家出品的一款神器，把<strong>服务发现</strong>、<strong>配置管理</strong>和<strong>服务网格</strong>统统打包到一起，靠着 HTTP API、DNS 和灵活的健康检查机制，轻松搞定上述痛点：</p>
+<ol>
+<li><font color="#00b0f0">服务发现困难？</font>：<ol>
+<li>微服务一启动，就自己“报到”注册到 Consul，以后 A 直接问 Consul 要地址，妈妈再也不用担心我找不到 B！</li>
+</ol>
+</li>
+<li><font color="#00b0f0">无法负载均衡？</font>：<ol>
+<li>搭配 Gateway、OpenFeign、LoadBalancer 等组件，可以优雅实现负载均衡，自动把请求合理分发给多个 B。</li>
+</ol>
+</li>
+<li><font color="#00b0f0">服务健康状态未知？</font>：<ol>
+<li>Consul 自带健康探测机制，服务挂了就“踢出群聊”，服务要注册就“过来拜码头”</li>
+</ol>
+</li>
+<li><font color="#00b0f0">配置管理混乱？</font>：<ol>
+<li>配置集中托管在 Consul，微服务可以动态拉取或订阅更新，改配置就像改朋友圈状态一样轻松。</li>
+</ol>
+</li>
+<li><font color="#00b0f0">安全通信复杂？</font>：<ol>
+<li>Consul 内置证书颁发和管理，轻松搞定服务间的加密通信（Mutual TLS），安全又省心。</li>
+</ol>
+</li>
+</ol>
+<hr>
+<h4 id="4-2-搭建-Consul-环境"><a href="#4-2-搭建-Consul-环境" class="headerlink" title="4.2. 搭建 Consul 环境"></a>4.2. 搭建 Consul 环境</h4><h5 id="4-2-1-高可用实现"><a href="#4-2-1-高可用实现" class="headerlink" title="4.2.1. 高可用实现"></a>4.2.1. 高可用实现</h5><h5 id="4-2-2-单体测试环境搭建"><a href="#4-2-2-单体测试环境搭建" class="headerlink" title="4.2.2. 单体测试环境搭建"></a>4.2.2. 单体测试环境搭建</h5><p>&#x3D;&#x3D;1.下载 Consul 安装包&#x3D;&#x3D;<br>从 <a target="_blank" rel="noopener" href="https://developer.hashicorp.com/consul/install">Consul 下载地址</a> 下载 Consul 安装包：<br><img src="/2025/03/14/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20Cloud/image-20250427165021312.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>[!NOTE] 注意事项</p>
+<ol>
+<li>根据自己的 CPU 架构选择合适的下载方式</li>
+<li>查看 CPU 架构：<code>uname -m</code></li>
+</ol>
+</blockquote>
+<p>&#x3D;&#x3D;2.将 Consul 安装包上传到服务器并解压&#x3D;&#x3D;<br>在此步骤中，我将 Consul 安装包上传至 <code>/mystudy/consul</code> 目录，并直接在该目录中进行了解压。</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># 1. 进入目录</span><br><span class="hljs-attribute">cd</span> /mystudy/consul<br><br><br><span class="hljs-comment"># 2. 解压</span><br><span class="hljs-attribute">unzip</span> consul_1.<span class="hljs-number">20</span>.<span class="hljs-number">5</span>_linux_amd64.zip<br></code></pre></td></tr></table></figure>
+
+
+<p>&#x3D;&#x3D;3.启动 Consul&#x3D;&#x3D;</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs 1c"><span class="hljs-meta"># 1. 前台启动</span><br>./consul agent <span class="hljs-punctuation">-</span>dev <span class="hljs-punctuation">-</span>client <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span><br><br><br><span class="hljs-meta"># 2. 后台启动（把所有日志（标准输出 + 错误输出）都写到 consul.log 文件）</span><br><span class="hljs-meta"># 2.1. 后台启动 Consul</span><br>nohup ./consul agent <span class="hljs-punctuation">-</span>dev <span class="hljs-punctuation">-</span>client <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span> &gt; consul.<span class="hljs-built_in">log</span> <span class="hljs-number">2</span>&gt;<span class="hljs-meta">&amp;1 &amp;</span><br><br><span class="hljs-meta"># 2.2. 查询是否正确启动</span><br>ps <span class="hljs-punctuation">-</span>ef <span class="hljs-string">| grep consul</span><br><br><br><span class="hljs-meta"># 2.3. 查询是否监听 8500</span><br>ss <span class="hljs-punctuation">-</span>lntp <span class="hljs-string">| grep 8500</span><br></code></pre></td></tr></table></figure>
+
+
+<p>&#x3D;&#x3D;4.访问 Consul UI&#x3D;&#x3D;</p>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-symbol">http:</span><span class="hljs-comment">//192.168.136.200:8500</span><br></code></pre></td></tr></table></figure>
+
+
+<p>&#x3D;&#x3D;5.补充：关闭 Consul&#x3D;&#x3D;</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># 1. 查看 Consul 进程号</span><br><span class="hljs-attribute">ps</span> -ef | grep consul<br><br><br><span class="hljs-comment"># 2. 杀死 Consul</span><br><span class="hljs-attribute">kill</span> -<span class="hljs-number">9</span> <span class="hljs-number">641001</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h5 id="4-2-3-高可用集群搭建（传统方案）"><a href="#4-2-3-高可用集群搭建（传统方案）" class="headerlink" title="4.2.3. 高可用集群搭建（传统方案）"></a>4.2.3. 高可用集群搭建（传统方案）</h5><hr>
+<h5 id="4-2-4-高可用集群搭建（K8S，推荐）"><a href="#4-2-4-高可用集群搭建（K8S，推荐）" class="headerlink" title="4.2.4. 高可用集群搭建（K8S，推荐）"></a>4.2.4. 高可用集群搭建（K8S，推荐）</h5><hr>
+<h4 id="4-3-使用-Spring-Cloud-Consul"><a href="#4-3-使用-Spring-Cloud-Consul" class="headerlink" title="4.3. 使用 Spring Cloud Consul"></a>4.3. 使用 Spring Cloud Consul</h4><h5 id="4-3-1-创建-Spring-Boot-Consul-项目"><a href="#4-3-1-创建-Spring-Boot-Consul-项目" class="headerlink" title="4.3.1. 创建 Spring Boot Consul 项目"></a>4.3.1. 创建 Spring Boot Consul 项目</h5><p>这里采用 IDEA 提供的脚手架创建 Spring Boot 项目，分别勾选：</p>
+<ol>
+<li>&#x3D;&#x3D;Web&#x3D;&#x3D;<ol>
+<li>Spring Web</li>
+</ol>
+</li>
+<li>&#x3D;&#x3D;Spring Cloud Config&#x3D;&#x3D;：<ol>
+<li>Consul Configuration</li>
+</ol>
+</li>
+<li>&#x3D;&#x3D;Spring Cloud Discovery&#x3D;&#x3D;<ol>
+<li>Consul Discovery</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<p>[!NOTE] 注意事项</p>
+<ol>
+<li><font color="#00b0f0">Consul Configuration</font>：<ol>
+<li>把应用的配置（比如数据库地址、密码、环境变量）存到 Consul，Spring Boot 启动时自动从 Consul 读配置，这样就不用放本地 <code>application.yml</code> 了</li>
+</ol>
+</li>
+<li><font color="#00b0f0">Consul Discovery</font>：<ol>
+<li>把你的服务注册到 Consul，让别人发现你，同时你也可以发现别人</li>
+</ol>
+</li>
+</ol>
+</blockquote>
+<hr>
+<h5 id="4-3-2-进行项目配置"><a href="#4-3-2-进行项目配置" class="headerlink" title="4.3.2. 进行项目配置"></a>4.3.2. 进行项目配置</h5><h6 id="4-3-2-1-Spring-Boot-如何加载配置文件"><a href="#4-3-2-1-Spring-Boot-如何加载配置文件" class="headerlink" title="4.3.2.1. Spring Boot 如何加载配置文件"></a>4.3.2.1. Spring Boot 如何加载配置文件</h6><p>在项目配置之前，我们必须了解 Spring Boot 如何加载配置文件，详情见：</p>
+<hr>
+<h6 id="4-3-2-2-创建配置文件"><a href="#4-3-2-2-创建配置文件" class="headerlink" title="4.3.2.2. 创建配置文件"></a>4.3.2.2. 创建配置文件</h6><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span>  <br>  <span class="hljs-attr">application:</span>  <br>    <span class="hljs-attr">name:</span> <span class="hljs-string">first_test</span>                                <span class="hljs-comment"># 项目名称，一般也作为 Consul 注册的名称</span><br>  <span class="hljs-attr">cloud:</span>  <br>    <span class="hljs-attr">consul:</span>  <br>      <span class="hljs-attr">host:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.136</span><span class="hljs-number">.8</span>                           <span class="hljs-comment"># Consul 节点的 IP 地址</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">8500</span>                                    <span class="hljs-comment"># Consul 节点的端口号</span><br>      <span class="hljs-attr">discovery:</span>  <br>        <span class="hljs-attr">service-name:</span> <span class="hljs-string">$&#123;spring.application.name&#125;</span>    <span class="hljs-comment"># 本服务在 Consul 注册的名称，一般与 application.name 一致</span><br>        <span class="hljs-attr">prefer-ip-address:</span> <span class="hljs-literal">true</span>                     <span class="hljs-comment"># 以本服务所在 IP 地址优先，否则会自动使用主机名</span><br>      <span class="hljs-attr">config:</span>  <br>        <span class="hljs-attr">enabled:</span> <span class="hljs-literal">false</span>  <br></code></pre></td></tr></table></figure>
+<p><img src="/2025/03/14/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20Cloud/image-20250427192909664.png" srcset="/img/loading.gif" lazyload alt="|475"></p>
+<hr>
+<h5 id="4-3-3-为主类标注-EnableDiscoveryClient"><a href="#4-3-3-为主类标注-EnableDiscoveryClient" class="headerlink" title="4.3.3. 为主类标注 @EnableDiscoveryClient"></a>4.3.3. 为主类标注 @EnableDiscoveryClient</h5><p><code>@EnableDiscoveryClient</code> 使得服务能够向注册中心（如 Eureka、Consul、Zookeeper 等）注册，并能够从注册中心发现其他服务。</p>
+<p>当你启动这个 Spring Boot 应用时，它会自动将服务信息注册到 Consul 中，包括服务的名称、IP 地址和端口等。Consul 会维护这个服务的注册信息，其他服务可以通过 Consul 来发现该服务。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@SpringBootApplication</span>  <br><span class="hljs-variable">@EnableDiscoveryClient</span>  <br>public class CloudApplication &#123;  <br>  <br>    <span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">static</span> <span class="hljs-selector-tag">void</span> <span class="hljs-selector-tag">main</span>(String[] args) &#123;  <br>        <span class="hljs-selector-tag">SpringApplication</span><span class="hljs-selector-class">.run</span>(CloudApplication.class, args);  <br>    &#125;  <br>  <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="LoadBalancer-OpenFeign"><a href="#LoadBalancer-OpenFeign" class="headerlink" title="LoadBalancer + OpenFeign"></a>LoadBalancer + OpenFeign</h3><h4 id="使用步骤"><a href="#使用步骤" class="headerlink" title="使用步骤"></a>使用步骤</h4><h5 id="创建并配置-OpenFeign-配置类"><a href="#创建并配置-OpenFeign-配置类" class="headerlink" title="创建并配置 OpenFeign 配置类"></a>创建并配置 OpenFeign 配置类</h5><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs"><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="5-Spring-Cloud-LoadBalancer"><a href="#5-Spring-Cloud-LoadBalancer" class="headerlink" title="5. Spring Cloud LoadBalancer"></a>5. Spring Cloud LoadBalancer</h3><h4 id="5-1-Spring-Cloud-LoadBalancer-概述"><a href="#5-1-Spring-Cloud-LoadBalancer-概述" class="headerlink" title="5.1. Spring Cloud LoadBalancer 概述"></a>5.1. Spring Cloud LoadBalancer 概述</h4><ul>
+<li>Spring Cloud LoadBalancer 是一种客户端负载均衡工具，用于在多个服务实例间分配请求。</li>
+<li>OpenFeign 是一种声明式的 Web 服务客户端，简化 REST API 调用，可与 LoadBalancer 集成以实现负载均衡。</li>
+<li>两者可配合使用：OpenFeign 定义客户端接口，LoadBalancer 处理请求分发。</li>
+</ul>
+<hr>
+<h1 id="实操"><a href="#实操" class="headerlink" title="实操"></a>实操</h1><h1 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h1><h3 id="6-1-1-相关网站"><a href="#6-1-1-相关网站" class="headerlink" title="6.1.1. 相关网站"></a>6.1.1. 相关网站</h3><ol>
+<li>&#x3D;&#x3D;Consul 官网&#x3D;&#x3D;：<ol>
+<li><a target="_blank" rel="noopener" href="https://developer.hashicorp.com/consul">https://developer.hashicorp.com/consul</a></li>
+</ol>
+</li>
+<li>&#x3D;&#x3D;Consul 下载地址&#x3D;&#x3D;：<ol>
+<li><a target="_blank" rel="noopener" href="https://developer.hashicorp.com/consul/install">https://developer.hashicorp.com/consul/install</a></li>
+</ol>
+</li>
+</ol>
+<hr>
+<h3 id="6-1-2-常见注册中心"><a href="#6-1-2-常见注册中心" class="headerlink" title="6.1.2. 常见注册中心"></a>6.1.2. 常见注册中心</h3><table>
+<thead>
+<tr>
+<th>注册中心</th>
+<th>开发语言</th>
+<th>CAP 架构</th>
+<th>对外暴露接口</th>
+<th>是否支持服务健康检查</th>
+<th>是否与 Spring Cloud 继承</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Eureka</strong></td>
+<td>Java</td>
+<td>AP</td>
+<td>可配置支持</td>
+<td>HTTP</td>
+<td>已集成</td>
+</tr>
+<tr>
+<td><strong>Consul</strong></td>
+<td>Go</td>
+<td>CP</td>
+<td>支持</td>
+<td>HTTP&#x2F;DNS</td>
+<td>已集成</td>
+</tr>
+<tr>
+<td><strong>Zookeeper</strong></td>
+<td>Java</td>
+<td>CP</td>
+<td>支持</td>
+<td>客户端</td>
+<td>已集成</td>
+</tr>
+</tbody></table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Java/" class="category-chain-item">Java</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Java/Spring-%E7%94%9F%E6%80%81/" class="category-chain-item">Spring 生态</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Java/Spring-%E7%94%9F%E6%80%81/Spring-Cloud/" class="category-chain-item">Spring Cloud</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>笔记：Spring Cloud</div>
+      <div>https://wangjia5289.github.io/2025/03/14/笔记：Spring Cloud/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>霸天</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>March 14, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/03/15/%E7%AC%94%E8%AE%B0%EF%BC%9ALinux/" title="笔记：Linux">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">笔记：Linux</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/03/12/%E7%AC%94%E8%AE%B0%EF%BC%9ADocker/" title="笔记：Docker">
+                        <span class="hidden-mobile">笔记：Docker</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  var relativeDate = function() {
+    var updatedTime = document.getElementById('updated-time');
+    if (updatedTime) {
+      var text = updatedTime.textContent;
+      var reg = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})/;
+      var matchs = text.match(reg);
+      if (matchs) {
+        var relativeTime = moment(matchs[0]).fromNow();
+        updatedTime.textContent = text.replace(reg, relativeTime);
+      }
+      updatedTime.style.display = '';
+    }
+  };
+  Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/moment.min.js', function() {
+    if (!'en'.startsWith('en')) {
+      Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/locale/en.min.js', function() {
+        relativeDate();
+      });
+    } else {
+      relativeDate();
+    }
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"scale":1,"hHeadPos":0.5,"vHeadPos":0.618,"display":{"superSample":2,"width":200,"height":350,"position":"left","hOffset":40,"vOffset":-20},"mobile":{"show":false,"scale":0.5},"react":{"opacityDefault":1,"opacityOnHover":0.5},"log":false});</script></body>
+</html>

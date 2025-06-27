@@ -1,0 +1,1448 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/ba.jpg">
+  <link rel="icon" href="/img/ba.jpg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#373737">
+  <meta name="author" content="霸天">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. 背包问题1.1. 分数背包1.1.1. 题目描述给定一个背包，其最大承重为 10，且有 3 件物品可供选择。每件物品的重量和价值如下：  物品 1：重量 2，价值 3 物品 2：重量 3，价值 4 物品 3：重量 4，价值 7物品可以进行分割，但不能无限取，请求解能够放入背包的最大价值。   1.1.2. 贪心法（代码）&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;  首先计算">
+<meta property="og:type" content="article">
+<meta property="og:title" content="笔记：算法分析与设计">
+<meta property="og:url" content="https://wangjia5289.github.io/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="夜阑卧听风吹雨,一枝梨花压心头">
+<meta property="og:description" content="1. 背包问题1.1. 分数背包1.1.1. 题目描述给定一个背包，其最大承重为 10，且有 3 件物品可供选择。每件物品的重量和价值如下：  物品 1：重量 2，价值 3 物品 2：重量 3，价值 4 物品 3：重量 4，价值 7物品可以进行分割，但不能无限取，请求解能够放入背包的最大价值。   1.1.2. 贪心法（代码）&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;  首先计算">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250423145007380.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250423193649866.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250423195358074.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250422163923899.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250423200052721.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250424122744535.png">
+<meta property="article:published_time" content="2025-04-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-05-04T03:19:54.882Z">
+<meta property="article:author" content="Ba Tian">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wangjia5289.github.io/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250423145007380.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>笔记：算法分析与设计 - 夜阑卧听风吹雨,一枝梨花压心头</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangjia5289.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/%E3%80%90%E5%93%B2%E9%A3%8E%E5%A3%81%E7%BA%B8%E3%80%91%E5%85%89%E5%BD%B1%E7%BE%8E%E5%AD%A6-%E5%90%8A%E5%B8%A6%E8%A3%99.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="笔记：算法分析与设计"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-04-20 00:00" pubdate>
+          April 20, 2025 am
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.5k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          55 mins
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> views
+        </span>
+        
+
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">笔记：算法分析与设计</h1>
+            
+              <p id="updated-time" class="note note-info" style="display: none">
+                
+                  
+                    Last updated on 2025-05-04T11:19:54+08:00
+                  
+                  
+
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="1-背包问题"><a href="#1-背包问题" class="headerlink" title="1. 背包问题"></a>1. 背包问题</h3><h4 id="1-1-分数背包"><a href="#1-1-分数背包" class="headerlink" title="1.1. 分数背包"></a>1.1. 分数背包</h4><h5 id="1-1-1-题目描述"><a href="#1-1-1-题目描述" class="headerlink" title="1.1.1. 题目描述"></a>1.1.1. 题目描述</h5><p>给定一个背包，其最大承重为 10，且有 3 件物品可供选择。每件物品的重量和价值如下：</p>
+<ul>
+<li>物品 1：重量 2，价值 3</li>
+<li>物品 2：重量 3，价值 4</li>
+<li>物品 3：重量 4，价值 7<br><strong>物品可以进行分割，但不能无限取</strong>，请求解能够放入背包的最大价值。</li>
+</ul>
+<hr>
+<h5 id="1-1-2-贪心法（代码）"><a href="#1-1-2-贪心法（代码）" class="headerlink" title="1.1.2. 贪心法（代码）"></a>1.1.2. 贪心法（代码）</h5><p>&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;</p>
+<ol>
+<li>首先计算每个物品的单位重量价值（即 <code>v/w</code>），并根据该比值将物品<strong>按从高到低的顺序排序</strong>。这是因为单位价值越高的物品，在有限的背包容量中越“划算”，优先选择可以最大化总价值。</li>
+<li>接着，从单位价值最高的物品开始，<strong>依次尽可能多地放入背包</strong>。若当前物品还能全部装下，就全部取走；<font color="#ff0000">若背包容量不足，则只取其中的一部分（也就是“分数”）</font>，<font color="#ff0000">直到背包装满为止</font>（与 0&#x2F;1 背包的区别就这一点，0&#x2F;1 背包不能取其中的一部分，背包可能装不满）。</li>
+</ol>
+<p>&#x3D;&#x3D;2.代码示例&#x3D;&#x3D;</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> n = <span class="hljs-number">3</span>;                                       <span class="hljs-comment">// 物品的数量</span><br>    <span class="hljs-type">int</span> capacity = <span class="hljs-number">10</span>;                               <span class="hljs-comment">// 背包的容量</span><br>    <span class="hljs-type">int</span> weight[<span class="hljs-number">4</span>] = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;                    <span class="hljs-comment">// 物品的重量，下标从1开始</span><br>    <span class="hljs-type">int</span> value[<span class="hljs-number">4</span>]  = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>&#125;;                    <span class="hljs-comment">// 物品的价值，下标从1开始</span><br>    <span class="hljs-type">double</span> ratio[<span class="hljs-number">4</span>] = &#123;<span class="hljs-number">0</span>&#125;;                           <span class="hljs-comment">// 用于存放物品的 价值/重量 比</span><br><br>    <span class="hljs-type">int</span> i, j;<br><br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">1</span>; i &lt;= n; i++) &#123;                       <span class="hljs-comment">// 计算每个物品的 价值/重量 比</span><br>        ratio[i] = (<span class="hljs-type">double</span>)value[i] / weight[i];<br>    &#125;<br><br><br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">1</span>; i &lt;= n - <span class="hljs-number">1</span>; i++) &#123;                   <span class="hljs-comment">// 冒泡排序：按价值重量比 ratio 降序排列，同时交换 weight 和 value</span><br>        <span class="hljs-keyword">for</span> (j = <span class="hljs-number">1</span>; j &lt;= n - i; j++) &#123;<br>            <span class="hljs-keyword">if</span> (ratio[j] &lt; ratio[j + <span class="hljs-number">1</span>]) &#123;<br>                <span class="hljs-comment">// 交换 ratio</span><br>                <span class="hljs-type">double</span> tmpRatio = ratio[j];<br>                ratio[j] = ratio[j + <span class="hljs-number">1</span>];<br>                ratio[j + <span class="hljs-number">1</span>] = tmpRatio;<br><br>                <span class="hljs-comment">// 交换 weight</span><br>                <span class="hljs-type">int</span> tmpW = weight[j];<br>                weight[j] = weight[j + <span class="hljs-number">1</span>];<br>                weight[j + <span class="hljs-number">1</span>] = tmpW;<br><br>                <span class="hljs-comment">// 交换 value</span><br>                <span class="hljs-type">int</span> tmpV = value[j];<br>                value[j] = value[j + <span class="hljs-number">1</span>];<br>                value[j + <span class="hljs-number">1</span>] = tmpV;<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-type">double</span> maxValue = <span class="hljs-number">0.0</span>;<br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">1</span>; i &lt;= n &amp;&amp; capacity &gt; <span class="hljs-number">0</span>; i++) &#123;    <span class="hljs-comment">// 在物品未遍历完且背包仍有剩余容量的情况下，循环遍历已排序的物品列表</span><br>        <span class="hljs-keyword">if</span> (weight[i] &lt;= capacity) &#123;              <span class="hljs-comment">// 如果当前物品重量小于或等于背包神域容量，则完全放入该物品</span><br>            capacity -= weight[i];<br>            maxValue += value[i];<br>        &#125; <span class="hljs-keyword">else</span> &#123;                                  <span class="hljs-comment">// 如果当前物品重量大于背包剩余容量，则按比例放入该物品</span><br>            maxValue += ratio[i] * capacity;<br>            capacity = <span class="hljs-number">0</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;能够放入背包的最大价值 = %.2f\n&quot;</span>, maxValue);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="1-2-0-1-背包"><a href="#1-2-0-1-背包" class="headerlink" title="1.2. 0&#x2F;1 背包"></a>1.2. 0&#x2F;1 背包</h4><h5 id="1-2-1-题目描述"><a href="#1-2-1-题目描述" class="headerlink" title="1.2.1. 题目描述"></a>1.2.1. 题目描述</h5><p>给定一个背包，其最大承重为 10，且有 3 件物品可供选择。每件物品的重量和价值如下：</p>
+<ul>
+<li>物品 1：重量 2，价值 3</li>
+<li>物品 2：重量 3，价值 4</li>
+<li>物品 3：重量 4，价值 7<br><strong>每个物品只能取一次，且不能分割</strong>，请求能够放入背包的最大价值。</li>
+</ul>
+<hr>
+<h5 id="1-2-2-贪心法"><a href="#1-2-2-贪心法" class="headerlink" title="1.2.2. 贪心法"></a>1.2.2. 贪心法</h5><p>&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;</p>
+<ol>
+<li>首先计算每个物品的单位重量价值（即 <code>v/w</code>），并根据该比值将物品<strong>按从高到低的顺序排序</strong>。这是因为单位价值越高的物品，在有限的背包容量中越“划算”，优先选择可以最大化总价值。</li>
+<li>接着，从单位价值最高的物品开始，<strong>依次尽可能多地放入背包</strong>。若当前物品还能全部装下，就全部取走；<font color="#ff0000">若背包容量不足，则找重量更小的物品</font>，<font color="#ff0000">背包可能装不满</font>（与分数背包的区别就这一点，分数背包可以取其中的一部分，背包要装满）</li>
+</ol>
+<hr>
+<h5 id="1-2-3-动态规划法（代码）"><a href="#1-2-3-动态规划法（代码）" class="headerlink" title="1.2.3. 动态规划法（代码）"></a>1.2.3. 动态规划法（代码）</h5><p>&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;<br>根据当前背包容量判断是否可以放入第 <code>i</code> 个物品，分两种情况讨论：</p>
+<ol>
+<li><font color="#00b0f0">不能放</font>：<ol>
+<li>如果当前容量小于物品 <code>i</code> 的重量，说明放不下，直接继承「相同容量下、前一个物品」的最优解。</li>
+</ol>
+</li>
+<li><font color="#00b0f0">可以放</font>：<ol>
+<li>如果当前容量足够放下物品 <code>i</code>，则需要判断是否“值得”放，对比下面两种选择，取最大值作为当前状态的最优解</li>
+<li><font color="#7030a0">不放当前物品</font>：<ol>
+<li>直接继承「相同容量下、前一个物品」的最优解；</li>
+</ol>
+</li>
+<li><font color="#7030a0">放当前物品</font>：<ol>
+<li>考虑当前物品的价值 + 「剩余容量下、<font color="#ff0000">前一个物品</font>」的最优解</li>
+<li>和完全背包的区别就仅仅在于（☆☆☆）：<ol>
+<li><strong>0&#x2F;1 背包中每种物品只能取一次</strong>，一旦选择就不能再取，因此状态转移时需要参考「<strong>剩余容量下，前一个物品</strong>」的最优解；</li>
+<li>而在<strong>完全背包问题中，物品可以无限次取用</strong>，所以只需考虑「<strong>当前物品在剩余容量下</strong>」的最优解即可。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>&#x3D;&#x3D;2.举例说明&#x3D;&#x3D;<br>在分析问题时，我们通常会构造出一个如下的动态规划表。</p>
+<p>以坐标 (1, 1) 为例，表示当前考虑第 1 个物品，背包容量为 1。由于物品的重量为 2，超过了当前背包容量，因此无法放入，只能继承「相同容量下、前一个物品」的最优解，即 (0, 1) 处的值。</p>
+<p>例如 (2, 6)，表示当前考虑第 2 个物品，背包容量为 6，物品重量为 3。此时我们有两种选择：</p>
+<ul>
+<li><strong>不放该物品</strong>：直接继承「相同容量下、前一个物品」的最优解，即 (1, 6)；</li>
+<li><strong>放入该物品</strong>：当前物品价值为 4，放入后剩余容量为 3，此时我们还可以使用「剩余容量下、<font color="#ff0000">前一个物品</font>」的最优解，即 (1, 3)。因此，总价值为 4 + (1, 3)。<br>最终在这两种选择中取最大值，作为状态 (2, 6) 的最优解。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>物品\容量</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>0</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>1（2,3）</strong></td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>2（3,4）</strong></td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+</tr>
+<tr>
+<td><strong>3（4,7）</strong></td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td>7</td>
+<td>7</td>
+<td>10</td>
+<td>11</td>
+<td>11</td>
+<td>11</td>
+<td>11</td>
+</tr>
+</tbody></table>
+<p>&#x3D;&#x3D;3.代码示例&#x3D;&#x3D;</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">max</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;                <span class="hljs-comment">// 工具函数，取两个数中的最大值</span><br>    <span class="hljs-keyword">return</span> a &gt; b ? a : b;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> n = <span class="hljs-number">3</span>;                        <span class="hljs-comment">// 物品个数</span><br>    <span class="hljs-type">int</span> capacity = <span class="hljs-number">10</span>;                <span class="hljs-comment">// 背包容量</span><br>    <span class="hljs-type">int</span> weight[<span class="hljs-number">4</span>] = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;     <span class="hljs-comment">// 物品重量，下标从1开始</span><br>    <span class="hljs-type">int</span> value[<span class="hljs-number">4</span>]  = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>&#125;;     <span class="hljs-comment">// 物品价值，下标从1开始</span><br><br>    <span class="hljs-type">int</span> a[<span class="hljs-number">4</span>][<span class="hljs-number">11</span>] = &#123;<span class="hljs-number">0</span>&#125;;               <span class="hljs-comment">// 动态规划数组 a[i][j] 表示在考虑前 i 个物品时，背包容量为 j 时的最大价值。（相当于我们列的表格的每一行，11 是因为虽然最大容量是 10，但容量是从 0 开始的，所以需要 11 个容量点）</span><br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt;= n; ++i) &#123;               <span class="hljs-comment">// 遍历每一个物品</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt;= capacity; ++j) &#123;    <span class="hljs-comment">// 遍历每一种容量</span><br>            <span class="hljs-keyword">if</span> (j &lt; weight[i]) &#123;                 <span class="hljs-comment">// 必然不选当前物品的情况</span><br>                a[i][j] = a[i - <span class="hljs-number">1</span>][j];<br>            &#125; <span class="hljs-keyword">else</span> &#123;                             <span class="hljs-comment">// 可能选当前物品的情况</span><br>                a[i][j] = <span class="hljs-built_in">max</span>(a[i - <span class="hljs-number">1</span>][j], a[i<span class="hljs-number">-1</span>][j - weight[i]] + value[i]); <span class="hljs-comment">// a[i-1]是核心</span><br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;max = %d\n&quot;</span>, a[n][capacity]);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h5 id="1-2-4-回溯法（代码）"><a href="#1-2-4-回溯法（代码）" class="headerlink" title="1.2.4. 回溯法（代码）"></a>1.2.4. 回溯法（代码）</h5><p>&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;<br>回溯法的核心思想是使用 <strong>“深度优先搜索（DFS）+ 剪枝函数”</strong> 构建决策树：</p>
+<ol>
+<li><font color="#00b0f0">深度优先搜索</font>：<ol>
+<li>一路“选选选”到底，选不动了就尝试更新一次最大价值（<code>maxv</code>）和最优选择记录（<code>x[]</code>）。然后回溯到上一个分叉，改走“不选”的那条路，继续深入，再回溯……直到走遍了从根节点出发的每一条路径。</li>
+</ol>
+</li>
+<li><font color="#00b0f0">剪枝函数</font>：<ol>
+<li>为了避免无效或冗余的路径搜索，引入剪枝函数进行预判和提前终止</li>
+</ol>
+</li>
+</ol>
+<p>下图展示的是仅采用深度优先搜索（DFS）但未进行剪枝处理所生成的表达图：</p>
+<pre class="mermaid">graph TD
+    A[(0,0)] -->|选物品1| B[(2,3)]
+    A -->|不选物品1| C[(0,0)]
+    B -->|选物品2| D[(5,7)]
+    B -->|不选物品2| E[(2,3)]
+    C -->|选物品2| F[(3,4)]
+    C -->|不选物品2| G[(0,0)]
+    D -->|选物品3| H[(9,14)]
+    D -->|不选物品3| I[(5,7)]
+    E -->|选物品3| J[(6,10)]
+    E -->|不选物品3| K[(2,3)]
+    F -->|选物品3| L[(7,11)]
+    F -->|不选物品3| M[(3,4)]
+    G -->|选物品3| N[(4,7)]
+    G -->|不选物品3| O[(0,0)]</pre>
+
+<p>在原图的基础上，稍微增加一点注解，方便理解：<br><img src="/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250423145007380.png" srcset="/img/loading.gif" lazyload></p>
+<p>&#x3D;&#x3D;2.代码示例&#x3D;&#x3D;</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-comment">// 1. 定义变量</span><br><span class="hljs-type">int</span> n = <span class="hljs-number">3</span>;                                       <span class="hljs-comment">// 物品数量</span><br><span class="hljs-type">int</span> capacity = <span class="hljs-number">10</span>;                               <span class="hljs-comment">// 背包容量</span><br><span class="hljs-type">int</span> weight[<span class="hljs-number">4</span>] = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;                    <span class="hljs-comment">// 物品重量（下标从1开始）</span><br><span class="hljs-type">int</span> value[<span class="hljs-number">4</span>]  = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>&#125;;                    <span class="hljs-comment">// 物品价值（洗标从1开始）</span><br><br><span class="hljs-type">int</span> maxValue = <span class="hljs-number">0</span>;                                <span class="hljs-comment">// 用来存放最大价值（不断赋值更新，直到找到最大价值）</span><br><span class="hljs-type">int</span> currSelect[<span class="hljs-number">4</span>] = &#123;<span class="hljs-number">0</span>&#125;;                         <span class="hljs-comment">// 当前选择路径</span><br><span class="hljs-type">int</span> bestSelect[<span class="hljs-number">4</span>] = &#123;<span class="hljs-number">0</span>&#125;;                         <span class="hljs-comment">// 最优选择路径（不断赋值更新，直到找到最优选择路径）</span><br><br><br><span class="hljs-comment">// 2. 深度优先搜索函数</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">backtrack</span><span class="hljs-params">(<span class="hljs-type">int</span> i, <span class="hljs-type">int</span> currWeight, <span class="hljs-type">int</span> currValue)</span> </span>&#123; <span class="hljs-comment">// 核心函数，做深度优先遍历，逐个尝试选还是不选物品</span><br>    <span class="hljs-keyword">if</span> (i &gt; n) &#123;                                       <span class="hljs-comment">// 如果已经考虑完所有物品了</span><br>        <span class="hljs-keyword">if</span> (currValue &gt; maxValue) &#123;                    <span class="hljs-comment">// 看看当前选择的物品总价值 currValue 是否大于之前记录的最大价值 maxValue，如果大，则更新 maxValue 和 bestSelect</span><br>            maxValue = currValue;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> k = <span class="hljs-number">1</span>; k &lt;= n; k++) &#123;<br>                bestSelect[k] = currSelect[k];<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (currWeight + weight[i] &lt;= capacity) &#123;          <span class="hljs-comment">// 如果没有考虑所有物品，现在考虑第 i 个物品选不选，如果 已选重量 + 本物品重量 不超过背包最大容量，则选择当前物品，并递归调用 backtrack 方法，考虑下一个物品</span><br>    <br>        currSelect[i] = <span class="hljs-number">1</span>;<br>        <span class="hljs-built_in">backtrack</span>(i + <span class="hljs-number">1</span>, currWeight + weight[i], currValue + value[i]);<br>    &#125;<br><br>    currSelect[i] = <span class="hljs-number">0</span>;                                 <span class="hljs-comment">// 回溯法的关键一步：即便尝试过“选当前物品”，并进行了一系列递归，当递归完成后，也必须回到这一层继续探索“不选当前物品”的可能</span><br>    <span class="hljs-built_in">backtrack</span>(i + <span class="hljs-number">1</span>, currWeight, currValue);<br>&#125;<br><br><br><span class="hljs-comment">// 3. 主方法</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">backtrack</span>(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);                                <span class="hljs-comment">// 从第一个物品开始考虑</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;能够放入背包的最大价值 = %d\n&quot;</span>, maxValue);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;选择的物品有：&quot;</span>);<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt;= n; i++) &#123;<br>        <span class="hljs-keyword">if</span> (bestSelect[i]) &#123;<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;物品%d(重%d,值%d) &quot;</span>, i, weight[i], value[i]);<br>        &#125;<br>    &#125;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><br><br><span class="hljs-comment">// 在贪心法中，由于我们是取完就行了，而且取的必然是最优解，所以直接使用capacity，即便改全局也没有事情，但是这个是不知道最优解，在找最优解，要循环很多次，所以我们引入一个currWeight，不通过改变capacity 的方式</span><br></code></pre></td></tr></table></figure>
+
+
+<hr>
+<h5 id="1-2-5-分支限界法"><a href="#1-2-5-分支限界法" class="headerlink" title="1.2.5. 分支限界法"></a>1.2.5. 分支限界法</h5><p>&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;</p>
+<ol>
+<li>首先计算每个物品的单位重量价值（即 <code>v/w</code>），并根据该比值将物品<strong>按从高到低的顺序排序</strong>。这是因为单位价值越高的物品，在有限的背包容量中越“划算”，优先选择可以最大化总价值。</li>
+<li>接着使用分支限界法构建决策树，分支限界法的核心思想是使用 <strong>“广度优先搜索 + 限界函数”</strong> 构建决策树：<ol>
+<li><font color="#00b0f0">广度优先搜索</font>：<ol>
+<li>不像回溯法，一路选选选，先考虑选的问题，再回溯考虑不选的问题，而是两者一起考虑，选此物品和不选此物品，一起深入，直到走遍了每一条节点</li>
+</ol>
+</li>
+<li><font color="#00b0f0">限界函数</font>：<ol>
+<li>在每一步选择时，计算当前路径下的上界，上界即本路径最大可能价值 &#x3D; 当前价值 + 剩余容量能获得的最大价值</li>
+<li>如果某个节点的上界 ≤ 当前已知的最优解（拿到的最高价值），就直接剪枝，不再深入（你最好的路劲还没我已经拿到的多，那我还走个狗屁啊）</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>接着，从单位价值最高的物品开始，<strong>依次尽可能多地放入背包</strong>， <strong>一个物品只能放一次</strong>，如果某个节点的上界 ≤ 当前已知的最优解（最高的价值），就直接剪枝，不再深入。</li>
+</ol>
+<blockquote>
+<p>[!NOTE] 注意事项</p>
+<ol>
+<li>一般贪心法、分支限界法会根据单位重量价值为物品排序</li>
+</ol>
+</blockquote>
+<p>&#x3D;&#x3D;2.举例说明&#x3D;&#x3D;<br>例如，我们可以先计算每个物品的单位价值（即价值与重量的比值）如下：</p>
+<ul>
+<li>物品1：3 ÷ 2 &#x3D; 1.5</li>
+<li>物品2：4 ÷ 3 ≈ 1.33</li>
+<li>物品3：7 ÷ 4 &#x3D; 1.75</li>
+</ul>
+<p>根据单位价值从高到低排序，结果为：物品3 → 物品1 → 物品2</p>
+<pre class="mermaid">graph TD
+    A[(currWeight=0, currValue=0, UB14)] -->|选物品3| B[(4, 7, 14)]
+    A -->|不选物品3| C[(0, 0, 7)]
+    B -->|选物品1| D[(6, 10, 13.5)] 
+    B -->|不选物品1| E[(4, 7, 10.5)]
+    D -->|选物品2| F[(9, 14, 14)]
+    D -->|不选物品2| G[(6, 10, 10)]
+    E -->|选物品2| H[(7, 11, 11)]
+    C -->|选物品1| I[(2, 3, 6.5)]
+    C -->|不选物品1| J[(0, 0, 3)]</pre>
+
+
+<p>在原图的基础上，稍微增加一点注解，方便理解：<br><img src="/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250423193649866.png" srcset="/img/loading.gif" lazyload></p>
+<hr>
+<h4 id="1-3-完全背包"><a href="#1-3-完全背包" class="headerlink" title="1.3. 完全背包"></a>1.3. 完全背包</h4><h5 id="1-3-1-题目描述"><a href="#1-3-1-题目描述" class="headerlink" title="1.3.1. 题目描述"></a>1.3.1. 题目描述</h5><p>给定一个背包，其最大承重为 10，且有 3 件物品可供选择。每件物品的重量和价值如下：</p>
+<ul>
+<li>物品 1：重量 2，价值 3</li>
+<li>物品 2：重量 3，价值 4</li>
+<li>物品 3：重量 4，价值 7<br><strong>每个物品无限取，但不能分割</strong>，请求能够放入背包的最大价值。</li>
+</ul>
+<hr>
+<h5 id="1-3-2-动态规划法（代码）"><a href="#1-3-2-动态规划法（代码）" class="headerlink" title="1.3.2. 动态规划法（代码）"></a>1.3.2. 动态规划法（代码）</h5><p>&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;<br>根据当前背包容量判断是否可以放入第 <code>i</code> 个物品，分两种情况讨论：</p>
+<ol>
+<li><font color="#00b0f0">不能放</font>：<ol>
+<li>如果当前容量小于物品 <code>i</code> 的重量，说明放不下，直接继承「相同容量下、前一个物品」的最优解。</li>
+</ol>
+</li>
+<li><font color="#00b0f0">可以放</font>：<ol>
+<li>如果当前容量足够放下物品 <code>i</code>，则需要判断是否“值得”放，对比下面两种选择，取最大值作为当前状态的最优解</li>
+<li><font color="#7030a0">不放当前物品</font>：<ol>
+<li>直接继承「相同容量下、前一个物品」的最优解；</li>
+</ol>
+</li>
+<li><font color="#7030a0">放当前物品</font>：<ol>
+<li>考虑当前物品的价值 + 「剩余容量下、<font color="#ff0000">当前物品</font>」的最优解</li>
+<li>和 0&#x2F;1 背包的区别就仅仅在于（☆☆☆）：<ol>
+<li><strong>0&#x2F;1 背包中每种物品只能取一次</strong>，一旦选择就不能再取，因此状态转移时需要参考「<strong>剩余容量下，前一个物品</strong>」的最优解；</li>
+<li>而在<strong>完全背包问题中，物品可以无限次取用</strong>，所以只需考虑「<strong>当前物品在剩余容量下</strong>」的最优解即可。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>&#x3D;&#x3D;2.举例说明&#x3D;&#x3D;<br>在分析问题时，我们通常会构造出一个如下的动态规划表。</p>
+<p>以坐标 (1, 1) 为例，表示当前考虑第 1 个物品，背包容量为 1。由于物品的重量为 2，超过了当前背包容量，因此无法放入，只能继承「相同容量下、前一个物品」的最优解，即 (0, 1) 处的值。</p>
+<p>例如 (2, 6)，表示当前考虑第 2 个物品，背包容量为 6，物品重量为 3。此时我们有两种选择：</p>
+<ul>
+<li><strong>不放该物品</strong>：直接继承「相同容量下、前一个物品」的最优解，即 (1, 6)；</li>
+<li><strong>放入该物品</strong>：当前物品价值为 4，放入后剩余容量为 3，此时我们还可以使用「剩余容量下、<font color="#ff0000">当前物品</font>」的最优解，即 (2, 3)。因此，总价值为 4 + (2,3)。<br>最终在这两种选择中取最大值，作为状态 (2, 6) 的最优解。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>物品\容量</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>0</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>1（2,3）</strong></td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+<td>6</td>
+<td>6</td>
+<td>9</td>
+<td>9</td>
+<td>12</td>
+<td>12</td>
+<td>15</td>
+</tr>
+<tr>
+<td><strong>2（3,4）</strong></td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td>6</td>
+<td>7</td>
+<td>9</td>
+<td>10</td>
+<td>12</td>
+<td>13</td>
+<td>15</td>
+</tr>
+<tr>
+<td><strong>3（4,7）</strong></td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td>7</td>
+<td>7</td>
+<td>10</td>
+<td>11</td>
+<td>14</td>
+<td>14</td>
+<td>17</td>
+</tr>
+</tbody></table>
+<p>&#x3D;&#x3D;3.代码示例&#x3D;&#x3D;</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">max</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;                <span class="hljs-comment">// 工具函数，取两个数中的最大值</span><br>    <span class="hljs-keyword">return</span> a &gt; b ? a : b;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> n = <span class="hljs-number">3</span>;                        <span class="hljs-comment">// 物品个数</span><br>    <span class="hljs-type">int</span> capacity = <span class="hljs-number">10</span>;                <span class="hljs-comment">// 背包容量</span><br>    <span class="hljs-type">int</span> weight[<span class="hljs-number">4</span>] = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;     <span class="hljs-comment">// 物品重量，下标从1开始</span><br>    <span class="hljs-type">int</span> value[<span class="hljs-number">4</span>]  = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>&#125;;     <span class="hljs-comment">// 物品价值，下标从1开始</span><br><br>    <span class="hljs-type">int</span> a[<span class="hljs-number">4</span>][<span class="hljs-number">11</span>] = &#123;<span class="hljs-number">0</span>&#125;;               <span class="hljs-comment">// 动态规划数组 a[i][j] 表示在考虑前 i 个物品时，背包容量为 j 时的最大价值。（相当于我们列的表格的每一行，11 是因为虽然最大容量是 10，但容量是从 0 开始的，所以需要 11 个容量点）</span><br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt;= n; ++i) &#123;               <span class="hljs-comment">// 遍历每一个物品</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt;= capacity; ++j) &#123;    <span class="hljs-comment">// 遍历每一种容量</span><br>            <span class="hljs-keyword">if</span> (j &lt; weight[i]) &#123;                 <span class="hljs-comment">// 必然不选当前物品的情况</span><br>                a[i][j] = a[i - <span class="hljs-number">1</span>][j];<br>            &#125; <span class="hljs-keyword">else</span> &#123;                             <span class="hljs-comment">// 可能选当前物品的情况</span><br>                a[i][j] = <span class="hljs-built_in">max</span>(a[i - <span class="hljs-number">1</span>][j], a[i][j - weight[i]] + value[i]);   <span class="hljs-comment">// a[i] 是核心</span><br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;max = %d\n&quot;</span>, a[n][capacity]);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h5 id="1-3-3-分支限界法"><a href="#1-3-3-分支限界法" class="headerlink" title="1.3.3. 分支限界法"></a>1.3.3. 分支限界法</h5><p>&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;</p>
+<ol>
+<li>首先计算每个物品的单位重量价值（即 <code>v/w</code>），并根据该比值将物品<strong>按从高到低的顺序排序</strong>。这是因为单位价值越高的物品，在有限的背包容量中越“划算”，优先选择可以最大化总价值。</li>
+<li>接着使用分支限界法构建决策树，分支限界法的核心思想是使用 <strong>“广度优先搜索 + 限界函数”</strong> 构建决策树：<ol>
+<li><font color="#00b0f0">广度优先搜索</font>：<ol>
+<li>不像回溯法，一路选选选，先考虑选的问题，再回溯考虑不选的问题，而是两者一起考虑，选此物品和不选此物品，一起深入，直到走遍了每一条节点</li>
+</ol>
+</li>
+<li><font color="#00b0f0">限界函数</font>：<ol>
+<li>在每一步选择时，计算当前路径下的上界，上界即本路径最大可能价值 &#x3D; 当前价值 + 剩余容量能获得的最大价值</li>
+<li>如果某个节点的上界 ≤ 当前已知的最优解（拿到的最高价值），就直接剪枝，不再深入（你最好的路劲还没我已经拿到的多，那我还走个狗屁啊）</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>接着，从单位价值最高的物品开始，<strong>依次尽可能多地放入背包</strong>，<strong>一个物品可能放多次</strong>， 如果某个节点的上界 ≤ 当前已知的最优解（最高的价值），就直接剪枝，不再深入。</li>
+</ol>
+<p>&#x3D;&#x3D;2.举例说明&#x3D;&#x3D;<br>例如，我们可以先计算每个物品的单位价值（即价值与重量的比值）如下：</p>
+<ul>
+<li>物品1：3 ÷ 2 &#x3D; 1.5</li>
+<li>物品2：4 ÷ 3 ≈ 1.33</li>
+<li>物品3：7 ÷ 4 &#x3D; 1.75</li>
+</ul>
+<p>根据单位价值从高到低排序，结果为：物品3 → 物品1 → 物品2</p>
+<pre class="mermaid">graph TD
+    %% 根节点：还没选任何物品（i=3 表示下一个要选的是物品3）
+    A[( currWeight=0, currValue=0,  UB=17)] 
+    %% 枚举物品3 放 0、1、2 件
+    A -->|放 0 件3号| B[(0,  0, 15)]
+    A -->|放 1 件3号| C[(4, 7, 16)]
+    A -->|放 2 件3号| D[(8, 14, 17)]
+    
+    %% 对 D 节点（最优上界17）继续枚举物品1
+    D -->|放 0 件1号| E[( 8, 14, 14)]
+    D -->|放 1 件1号| F[(10, 17, 17)]</pre>
+
+<hr>
+<h3 id="2-矩阵链乘法"><a href="#2-矩阵链乘法" class="headerlink" title="2. 矩阵链乘法"></a>2. 矩阵链乘法</h3><h4 id="2-1-题目描述"><a href="#2-1-题目描述" class="headerlink" title="2.1. 题目描述"></a>2.1. 题目描述</h4><p>计算矩阵连乘积 A1A2A3A4A5 的最佳求积顺序（即 数乘次数最少的计算次序），各矩阵的维数分别是：</p>
+<table>
+<thead>
+<tr>
+<th>矩阵</th>
+<th>A1</th>
+<th>A2</th>
+<th>A3</th>
+<th>A4</th>
+<th>A5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>维数</strong></td>
+<td>2 X 3</td>
+<td>3 X 6</td>
+<td>6 X 4</td>
+<td>4 X 2</td>
+<td>2 X 7</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="2-2-动态规划法"><a href="#2-2-动态规划法" class="headerlink" title="2.2. 动态规划法"></a>2.2. 动态规划法</h4><p>&#x3D;&#x3D;1.解题思路&#x3D;&#x3D;<br>根据<strong>动态规划</strong>的转移公式，填写 <code>m[i][j]</code> 表格。该表格的含义是：从矩阵 <code>Aᵢ</code> 到 <code>Aⱼ</code> 连乘时，所需的<strong>最少标量乘法次数</strong>。</p>
+<p><img src="/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250423195358074.png" srcset="/img/loading.gif" lazyload></p>
+<p>下表展示了一个典型的 <code>m[i][j]</code> 表：</p>
+<table>
+<thead>
+<tr>
+<th>i \ j</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><font color="#00b0f0">0</font></td>
+<td><font color="#7030a0">p₀p₁p₂</font></td>
+<td><font color="#00b050">下 + 左 + p₀&lt;p₁、p₂&gt;p₃</font></td>
+<td><font color="#de7802">下 + 左 + p₀&lt;p₁、p₂、p₃&gt;p₄</font></td>
+<td>下 + 左 + p₀&lt;p₁、p₂、p₃、p₄&gt;p₅</td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td><font color="#00b0f0">0</font></td>
+<td><font color="#7030a0">p₁p₂p₃</font></td>
+<td><font color="#00b050">下 + 左 + p₁&lt;p₂、p₃&gt;p₄</font></td>
+<td><font color="#de7802">下 + 左 + p₁&lt;p₂、p₃、p₄&gt;p₅</font></td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td></td>
+<td><font color="#00b0f0">0</font></td>
+<td><font color="#7030a0">p₂p₃p₄</font></td>
+<td><font color="#00b050">下 + 左 + p₂&lt;p₃、p₄&gt;p₅</font></td>
+</tr>
+<tr>
+<td>4</td>
+<td></td>
+<td></td>
+<td></td>
+<td><font color="#00b0f0">0</font></td>
+<td><font color="#7030a0">p₃p₄p₅</font></td>
+</tr>
+<tr>
+<td>5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><font color="#00b0f0">0</font></td>
+</tr>
+</tbody></table>
+<p><img src="/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250422163923899.png" srcset="/img/loading.gif" lazyload></p>
+<p>接下来，依据每个区间的最优断开位置 <code>k</code>，我们填充另一个表格 <code>s[i][j]</code>，用于记录最优括号化方式：</p>
+<table>
+<thead>
+<tr>
+<th>i \ j</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1</strong></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td></td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p>最终，通过查找 <code>m[1][n]</code>，即可得到整个矩阵链乘法的<strong>最少计算次数</strong>。</p>
+<p>&#x3D;&#x3D;2.举例说明&#x3D;&#x3D;<br><img src="/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250423200052721.png" srcset="/img/loading.gif" lazyload></p>
+<hr>
+<h3 id="3-循环赛问题"><a href="#3-循环赛问题" class="headerlink" title="3. 循环赛问题"></a>3. 循环赛问题</h3><h4 id="3-1-题目描述"><a href="#3-1-题目描述" class="headerlink" title="3.1. 题目描述"></a>3.1. 题目描述</h4><p>设有n&#x3D;2^k个运动员要进行循环赛，现设计一个满足以下要求的比赛日程表： </p>
+<ol>
+<li>每个选手必须与其他n-1名选手比赛各一次； </li>
+<li>每个选手一天至多只能赛一次；</li>
+<li>循环赛要在最短时间内完成。</li>
+</ol>
+<p>问题如下：<br>（1）如果n&#x3D;2^k，循环赛最少需要进行几天<br>（2）当n&#x3D;2^3&#x3D;8时，请画出循环赛日程表。<br>（3）时间复杂度是多少。</p>
+<hr>
+<h4 id="3-2-分治法"><a href="#3-2-分治法" class="headerlink" title="3.2. 分治法"></a>3.2. 分治法</h4><p>&#x3D;&#x3D;1.问题(1)&#x3D;&#x3D;<br>循环赛至少要进行 2^k -1 天（结论，记住就行）</p>
+<p>&#x3D;&#x3D;2.问题(2)&#x3D;&#x3D;</p>
+<table>
+<thead>
+<tr>
+<th>选手\天数</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>4</td>
+<td>3</td>
+<td>6</td>
+<td>5</td>
+<td>8</td>
+<td>7</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td>1</td>
+<td>2</td>
+<td>7</td>
+<td>8</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+<td>8</td>
+<td>7</td>
+<td>6</td>
+<td>5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td>6</td>
+<td>5</td>
+<td>8</td>
+<td>7</td>
+<td>2</td>
+<td>1</td>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr>
+<td>7</td>
+<td>8</td>
+<td>5</td>
+<td>6</td>
+<td>3</td>
+<td>4</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>8</td>
+<td>7</td>
+<td>6</td>
+<td>5</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p><img src="/2025/04/20/%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/image-20250424122744535.png" srcset="/img/loading.gif" lazyload></p>
+<p>&#x3D;&#x3D;3.问题(3)&#x3D;&#x3D;</p>
+<p>时间复杂度为：O(n^2)</p>
+<hr>
+<h3 id="4-N-皇后（代码）"><a href="#4-N-皇后（代码）" class="headerlink" title="4. N 皇后（代码）"></a>4. N 皇后（代码）</h3><figure class="highlight stan"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs stan"><span class="hljs-meta">#include &lt;<span class="hljs-string">stdio.h</span>&gt;</span><br><span class="hljs-meta">#include &lt;<span class="hljs-string">stdlib.h</span>&gt;</span><br><br><span class="hljs-comment">#define N 4                  // 4 皇后问题</span><br><br><span class="hljs-type">int</span> solutions = <span class="hljs-number">0</span>;           <span class="hljs-comment">// 解的总数</span><br><br><span class="hljs-type">int</span> queen[<span class="hljs-number">5</span>];            <span class="hljs-comment">// 皇后位置数组，queen[1]=3 表示第 1 行皇后放在了第三列（N + 1 的原因是，虽然皇后是从 1 开始，但是还有一个0）</span><br><br><br><span class="hljs-type">void</span> printSolution() &#123;       <span class="hljs-comment">// 打印当前解的棋盘</span><br>    printf(<span class="hljs-string">&quot;解 %d:\n&quot;</span>, solutions);<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-built_in">row</span> = <span class="hljs-number">1</span>; <span class="hljs-built_in">row</span> &lt;= N; <span class="hljs-built_in">row</span>++) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-built_in">col</span> = <span class="hljs-number">1</span>; <span class="hljs-built_in">col</span> &lt;= N; <span class="hljs-built_in">col</span>++) &#123;<br>            printf(queen[<span class="hljs-built_in">row</span>] == <span class="hljs-built_in">col</span> ? <span class="hljs-string">&quot;Q &quot;</span> : <span class="hljs-string">&quot;. &quot;</span>);<br>        &#125;<br>        printf(<span class="hljs-string">&quot;\n&quot;</span>);<br>    &#125;<br>    printf(<span class="hljs-string">&quot;\n&quot;</span>);<br>&#125;<br><br><br><span class="hljs-type">int</span> isSafe(<span class="hljs-type">int</span> <span class="hljs-built_in">row</span>, <span class="hljs-type">int</span> <span class="hljs-built_in">col</span>) &#123;          <span class="hljs-comment">// 检查皇后放在这里是否安全</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt; <span class="hljs-built_in">row</span>; i++) &#123;<br>        <span class="hljs-keyword">if</span> (queen[i] == <span class="hljs-built_in">col</span> || <span class="hljs-built_in">abs</span>(i - <span class="hljs-built_in">row</span>) == <span class="hljs-built_in">abs</span>(queen[i] - <span class="hljs-built_in">col</span>)) &#123; <span class="hljs-comment">// 核心判断代码，记住</span><br>            <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br><br><br><span class="hljs-type">void</span> backtrack(<span class="hljs-type">int</span> <span class="hljs-built_in">row</span>) &#123;                     <span class="hljs-comment">// 回溯核心函数</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">row</span> &gt; N) &#123;                            <span class="hljs-comment">// 如果已经放满了 N 行，找到解了</span><br>        solutions++;<br>        printSolution();                      <span class="hljs-comment">// 打印当前解的棋盘</span><br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-built_in">col</span> = <span class="hljs-number">1</span>; <span class="hljs-built_in">col</span> &lt;= N; <span class="hljs-built_in">col</span>++) &#123;      <span class="hljs-comment">// 如果还没有放满，尝试在本行的每一列中寻找合法位置</span><br>        <span class="hljs-keyword">if</span> (isSafe(<span class="hljs-built_in">row</span>, <span class="hljs-built_in">col</span>)) &#123;<br>			queen[<span class="hljs-built_in">row</span>] = <span class="hljs-built_in">col</span>;                 <span class="hljs-comment">// 放置皇后</span><br>            backtrack(<span class="hljs-built_in">row</span> + <span class="hljs-number">1</span>);               <span class="hljs-comment">// 递归下一行</span><br>        &#125;<br>    &#125;<br>&#125;<br><br><br><span class="hljs-type">int</span> main() &#123;<br>    backtrack(<span class="hljs-number">1</span>);                             <span class="hljs-comment">// 从第 1 行开始放皇后</span><br>    printf(<span class="hljs-string">&quot;4 皇后问题共有 %d 种解法。\n&quot;</span>, solutions);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-最长公共子序列"><a href="#5-最长公共子序列" class="headerlink" title="5. 最长公共子序列"></a>5. 最长公共子序列</h3><h4 id="5-1-题目描述"><a href="#5-1-题目描述" class="headerlink" title="5.1. 题目描述"></a>5.1. 题目描述</h4><p>以 CBDABCC 和 CABACC 为例，计算出一个最长公共子序列</p>
+<hr>
+<h4 id="5-2-动态规划法"><a href="#5-2-动态规划法" class="headerlink" title="5.2. 动态规划法"></a>5.2. 动态规划法</h4><ol>
+<li>分治法、贪心法、动态规划法（画表）、回溯法（画树）、分支限界法（排序、画树）</li>
+<li>有穷性、确定性、可行性、输入、输出</li>
+<li>问题规模、输入序列、算法本身</li>
+<li>1    logn    n    nlogn   n^2    n^3    2^n    n!    n^n</li>
+<li></li>
+<li>队列式分支限界法、优先队列式分支限界法</li>
+<li>传递性、加法、乘法</li>
+<li></li>
+<li>将一个问题分解为多个规模较小、相互独立、类型相同的子问题，递归地求解这些问题，然后将子问题的解组合成原问题</li>
+<li>规模较小、相互独立、类型相同</li>
+<li></li>
+<li>n-1    表格画法   O(n^2)</li>
+<li>最优子结构，贪心选择性质</li>
+<li>θ（nlogn）</li>
+<li></li>
+<li></li>
+<li>通过减少乘法次数来减少子问题的个数</li>
+<li></li>
+<li></li>
+<li>最优子结构，重叠子问题，无后效性</li>
+<li>动态规划法，表格怎么画？</li>
+<li>动态规划法，表格怎么画？</li>
+<li>贪心法，画表格</li>
+<li>θ（nlogn）</li>
+<li>θ（nlogn）</li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li>所求问题的整体最优解可以通过一系列局部最优解来达到</li>
+<li>深度优先搜索 + 剪枝函数</li>
+<li>问题的最优解包含其子问题的最优解</li>
+<li>子集树、排列树</li>
+<li>子集树</li>
+<li>排列树</li>
+<li>分数：贪心，01 除了贪心都可以，完全动态规划、分支限界</li>
+<li>排列树</li>
+<li>时间复杂性、空间复杂性</li>
+<li>算法中元运算的执行次数</li>
+<li>子问题的个数    子问题的规模     将规模为 n 的问题分解为子问题以及组合相应的子问题的解所需要的时间</li>
+<li>分解、递归、组合</li>
+<li>蛮力法、辗转相除法</li>
+</ol>
+<p>背代码其实就贪心法（如果没有遍历完且还有容量，考虑能不能直接放下）、动态规划法（直接逐行逐列遍历）、回溯法（如果遍历完比较价值，如果没遍历完考虑能不能放下）求解背包问题，还有个回溯法求 n 皇后</p>
+<h1 id="背诵"><a href="#背诵" class="headerlink" title="背诵"></a>背诵</h1><ol>
+<li>五大方法，一般怎么解决问题？</li>
+<li>算法的五大基本性质</li>
+<li>影响时间复杂度的因素有</li>
+<li>常见时间复杂度</li>
+<li>三种渐进符号，图像又该怎么画</li>
+<li>常见两种分支限界法为</li>
+<li>渐进符号二级结论</li>
+<li>Hanoi 塔</li>
+<li>分治法的思想</li>
+<li>分治法的性质</li>
+<li>主方法求时间复杂度</li>
+<li>循环赛问题，需要几天，表格怎么画，分治法公式是，时间复杂度是</li>
+<li>贪心法的性质</li>
+<li>快速排序问题，如何做，时间复杂度</li>
+<li>Strass 矩阵相乘问题，分治法公式是，时间复杂度是</li>
+<li>大整数相乘问题，分治法公式是，时间复杂度是</li>
+<li>上面两个问题是如何优化的</li>
+<li>二分查找问题，如何做，时间复杂度</li>
+<li>归并排序问题，如何做，时间复杂度</li>
+<li>动态规划法的性质</li>
+<li><strong>矩阵链乘法问题，如何做（1-n）</strong></li>
+<li><strong>最长公共子序列问题，如何做（0-末）</strong></li>
+<li><strong>单源最短路径问题，如何做（2-终点集）</strong></li>
+<li><strong>分数背包问题，如何做，时间复杂度，</strong><font color="#ff0000">代码呢</font></li>
+<li><strong>活动会场安排问题，如何做，时间复杂度</strong></li>
+<li><strong>最优装载问题，如何做</strong></li>
+<li><strong>图的 m 着色问题，如何做</strong></li>
+<li><strong>移动货郎问题，如何做</strong></li>
+<li><strong>0&#x2F;1 背包问题，如何做</strong>，<font color="#ff0000">代码呢</font></li>
+<li><strong>n 皇后问题，如何做</strong>，<font color="#ff0000">代码呢</font></li>
+<li>蒙特卡罗方法，如何做</li>
+<li><strong>最小生成树问题，</strong>如何做</li>
+<li><strong>哈夫曼编码问题，</strong>如何做</li>
+<li><strong>完全背包问题，</strong>如何做，<font color="#ff0000">代码呢</font></li>
+<li><strong>K-NN 如何解题</strong></li>
+<li><strong>K-Means 如何解题</strong></li>
+<li>贪心选择性质是什么</li>
+<li>回溯法是什么？</li>
+<li>最优子结构性质是什么？</li>
+<li>回溯法的解空间结构一般分为？</li>
+<li>0&#x2F;1 背包的解空间结构为？</li>
+<li>n 皇后的解空间结构为？</li>
+<li>背包问题可以由哪些方法求解？</li>
+<li>旅行售货员的解空间结构为？</li>
+<li>算法的复杂性分为</li>
+<li>算法的时间复杂性指的是</li>
+<li>主方法中的几个符号分别的含义是</li>
+<li>分治法的基本步骤</li>
+<li>求最大公约数一般会使用什么方法</li>
+<li>记住：霍夫曼编码和海明码是用来压缩和纠错的</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%80%83%E7%A0%94/" class="category-chain-item">考研</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E8%80%83%E7%A0%94/%E8%AE%A1%E7%AE%97%E6%9C%BA/" class="category-chain-item">计算机</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E8%80%83%E7%A0%94/%E8%AE%A1%E7%AE%97%E6%9C%BA/%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/" class="category-chain-item">算法分析与设计</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>笔记：算法分析与设计</div>
+      <div>https://wangjia5289.github.io/2025/04/20/笔记：算法分析与设计/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>霸天</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>April 20, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/04/22/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20Data%20Elasticsearch/" title="笔记：Spring Data Elasticsearch">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">笔记：Spring Data Elasticsearch</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/04/15/%E7%AC%94%E8%AE%B0%EF%BC%9AVMware/" title="笔记：VMware">
+                        <span class="hidden-mobile">笔记：VMware</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  var relativeDate = function() {
+    var updatedTime = document.getElementById('updated-time');
+    if (updatedTime) {
+      var text = updatedTime.textContent;
+      var reg = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})/;
+      var matchs = text.match(reg);
+      if (matchs) {
+        var relativeTime = moment(matchs[0]).fromNow();
+        updatedTime.textContent = text.replace(reg, relativeTime);
+      }
+      updatedTime.style.display = '';
+    }
+  };
+  Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/moment.min.js', function() {
+    if (!'en'.startsWith('en')) {
+      Fluid.utils.createScript('https://lib.baomitu.com/moment.js/2.29.4/locale/en.min.js', function() {
+        relativeDate();
+      });
+    } else {
+      relativeDate();
+    }
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"scale":1,"hHeadPos":0.5,"vHeadPos":0.618,"display":{"superSample":2,"width":200,"height":350,"position":"left","hOffset":40,"vOffset":-20},"mobile":{"show":false,"scale":0.5},"react":{"opacityDefault":1,"opacityOnHover":0.5},"log":false});</script></body>
+</html>

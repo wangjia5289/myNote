@@ -1,0 +1,7 @@
+/* 修改 markdown 中的水平线样式 */
+hr {
+  border: none;
+  height: 2px;
+  background-color: #f7f7f7;  /* 白色 */
+  margin: 2em 0;
+}

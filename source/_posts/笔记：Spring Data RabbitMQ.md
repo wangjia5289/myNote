@@ -1,0 +1,812 @@
+---
+title: 笔记：Spring Data RabbitMQ
+date: 2025-05-10
+categories:
+  - 数据管理
+  - 消息队列
+  - RabbitMQ
+tags: 
+author: 霸天
+layout: post
+---
+# 一、理论
+
+### 1. 导图：[Map：Spring Data RabbitMQ](Map：SpringDataRabbitMQ.xmind)
+
+---
+
+
+# 二、实操
+
+### 1. 基本使用
+
+#### 1.1. 创建 Spring Web 项目，添加 RabbitMQ 相关依赖
+
+1. ==Web==
+	1. Spring Web
+2. ==Messaging==
+	1. Spring for RabbitMQ
+
+---
+
+
+#### 1.2. 配置 RabbitMQ 连接
+
+```xml
+spring:  
+  rabbitmq:  
+    host: 192.168.136.7  
+    port: 5672                     # 不要写 15672
+    username: guest  
+    password: 123456  
+    virtual-host: /                # RabbitMQ 的虚拟空间
+```
+
+---
+
+
+#### 1.3. 创建交换机和队列
+
+##### 1.3.1. 创建交换机
+
+这里创建的交换机名称为：`test.exchange`：
+![|500](image-20250511133233350.png)
+
+---
+
+
+##### 1.3.2. 创建队列
+
+这里创建的队列名称为：`test.queue`：
+![](image-20250511134249151.png)
+
+> [!NOTE] 注意事项
+> 1. 一致性是指多节点之间的数据一致
+> 2. 使用 `Stream` 还不如使用 `kafka`
+> 3. `Classic` 和 `Quorum` 队列的区别：
+> 	1. `Classic` 队列的数据实际存储在一个节点上，虽然我们可以开启 镜像（mirrored queue） 模式，让它同步到其他节点，但这个机制是老的、高延迟的，并且不推荐再用了。
+> 	2. `Quorum` 默认会有 3 个副本（可以配置），分布在不同节点上，所有写入操作必须经过 leader 副本，并复制给其他副本因此具有强一致性
+> 		1. 此外还能自动故障转移，不需要人工干预，但写性能会比 classic 低（因为需要复制和一致性保障）。
+> 		2. 如果 Leader 宕机，会使用 `Raft` 协议自动从剩下的存活副本中重新选出一个新的 `Leader`
+> 		3. 假设你有 3 个副本：只要有 2 个副本存活，就能继续工作并选出新的 Leader。如果只剩下 1 个副本存活，对不起，不能选 Leader，队列就会挂起，直到 quorum 恢复。
+
+
+---
+
+
+##### 1.3.3. 将队列与交换机绑定
+
+将 `queue.direct.test` 队列与 `exchange.direct.test` 交换机绑定，使用路由键 `test`。这样，发送到 `exchange.direct.test` 且路由键为 `test` 的消息会被转发到 `queue.direct.test`。
+
+注意：**一个交换机可以绑定多个队列，一个队列也可以绑定多个交换机**
+
+点击消息队列，进入其配置：
+![](image-20250511134458564.png)
+
+---
+
+
+#### 1.4. 编写生产者代码
+
+```java
+@RestController  
+public class RabbitMQProduce {  
+
+    // 交换机  
+    public static final String EXCHANGE_DIRECT = "exchange.direct.test";  
+    
+    // 路由键  
+    public static final String ROUTING_KEY = "test";  
+  
+    @Autowired  
+    private RabbitTemplate rabbitTemplate;  
+  
+    @GetMapping("/sendMessage")  
+    public String sendMessage() {  
+        rabbitTemplate.convertAndSend(
+		        EXCHANGE_DIRECT,  
+                ROUTING_KEY,  
+                "first sent message!",  
+                message -> {  
+	                // 设置消息属性
+	                .......
+                    return message;  
+                },  
+                new CorrelationData("123456"));  
+        return "发送成功";  
+    }  
+}
+```
+
+---
+
+
+#### 1.5. 编写消费者代码
+
+需要注意的是：一个消费者可以监听多个队列
+```java
+@Component  
+public class RabbitMWListener {  
+  
+    public static final String QUEUE_NAME = "queue.direct.test";  
+  
+    @RabbitListener(queues = {QUEUE_NAME})  
+	public void processMessage(String dataString, Message message,Channel channel){  
+            System.out.println("消息的 dataString:" + dataString);  
+            System.out.println("消息的 message:" + message);  
+            System.out.println("消息的 channel:" + channel);  
+	}  
+}
+```
+
+1. `String dataString`：
+	1. 表示消息的正文内容（也叫消息体）
+	2. Spring AMQP 会根据你的参数类型，自动把原始消息内容转换成相应类型。比如你写的是 `String`，它就把消息体转成字符串给你。
+2. `Message message`：
+	1. 封装了整个消息的元信息（meta 信息）
+	2. 主要包括：
+		1. <font color="#00b0f0">消息体</font>：
+			1. `byte[] body = message.getBody();` 可获取原始字节数组
+		2. <font color="#00b0f0">消息属性</font>：
+			1. `MessageProperties messageProperties = message.getMessageProperties();` 可获取消息属性对象。
+			2. 可进一步提取具体属性，例如：
+				1. <font color="#7030a0">内容类型</font>：
+					1. `String contentType = message.getMessageProperties().getContentType();`
+				2. <font color="#7030a0">投递标签</font>：
+					1. `long deliveryTag = message.getMessageProperties().getDeliveryTag();`
+	3. 来自 `org.springframework.amqp.core`
+3. `Channel channel`：
+	1. 用于与 RabbitMQ 进行底层通信，主要用于执行 **手动消息确认（manual ack）**、**拒收（nack）**、**消息重回队列** 等操作。
+	2. 在需要手动控制消息消费流程时尤为重要。
+	3. 来自 `com.rabbitmq.client`
+
+---
+
+
+### 2. 业务处理
+
+#### 2.1. 消息可靠性投递
+
+##### 2.1.1. 消息可靠性投递常见故障
+
+在正常的下单流程中，当订单信息成功写入消息队列后，系统通常会立即向用户返回“操作完成”的响应。  
+
+![](image-20250511143235475.png)
+
+但在实际生产环境中，由于各种原因，可能会出现不同类型的故障。针对这些故障，我们也有相应的解决方案：
+1. ==故障1==：
+	1. <font color="#00b0f0">描述</font>：
+		1. 消息在生产端未成功发送到消息队列中，可能卡在了中间环节。
+	2. <font color="#00b0f0">后果</font>：
+		1. 消费者无法接收到消息，导致对应业务流程未执行，最终引发数据异常或业务功能缺失。
+	3. <font color="#00b0f0">解决思路</font>
+		1. <font color="#7030a0">思路1</font>：
+			1. 在生产者端启用确认机制：
+			2. 消息成功发送到交换机后，由交换机返回确认响应
+			3. 消息成功路由到队列后，由队列返回确认响应
+			4. 双重确认，确保消息投递链路全程可控
+		2. <font color="#7030a0">思路2</font>：
+			1. 为目标交换机配置一个备份交换机，当消息无法被正常路由到目标队列时，自动转发至备份交换机，再进入备份队列
+			2. 备份队列的消费者可以与主业务消费者一致，但推荐用于日志记录或告警通知，由运维或开发及时排查主队列的问题。
+			3. 我们可以把备份队列的消费者的业务与主队列的消费者的业务一致，但是一般建议是日志记录，是报警，让我们的运维人员赶快修复主队列才是王道
+			4. 需要注意的是，消息必须首先到达目标交换机，只有在目标交换机无法将其路由到任何队列时，才会将消息转发至备份交换机。换句话说，备份交换机的触发前提，是目标交换机已被正确命中，但消息未能成功投递至队列。
+2. ==故障2==：
+	1. <font color="#00b0f0">描述</font>：
+		1. 消息已经成功写入队列，但由于消息队列服务器宕机，未持久化的消息（仍在内存中）丢失
+	2. <font color="#00b0f0">后果</font>：
+		1. 消息无法被消费，相关业务功能未被执行，可能导致数据不一致。
+	3. <font color="#00b0f0">解决思路</font>：
+		1. 启用消息持久化（Durability），将消息设置为持久化存储，写入磁盘而非仅保存在内存中，即使服务器重启或崩溃，消息也不会丢失
+3. ==故障3==：
+	1. <font color="#00b0f0">描述</font>：
+		1. 消息已成功写入队列，但消费端发生异常，如宕机、代码抛错等
+	2. <font color="#00b0f0">后果</font>：
+		1. 业务流程执行失败，造成功能缺失或数据错误。
+	3. <font color="#00b0f0">解决思路</font>：
+		1. 在消费端使用手动确认模式。
+		2. 消费端处理完业务逻辑后，向队列返回 ACK，消息随即从队列中移除
+		3. 消费失败时，向队列返回 NACK，并将消息重新标记为待消费状态，使其能够再次被消费，进行重试
+		4. 对于上图，“更新购物车”、“更新库存”、“更新积分”等多个下游模块，不建议多个消费者直接抢占一个队列的消息再进行 NACK 重试。更合适的做法是采用广播模式（Publish/Subscribe），将消息分别路由到多个业务队列中，由各业务模块独立消费、独立处理，互不干扰。
+
+---
+
+
+##### 2.1.2. 解决故障1（思路1）
+
+###### 2.1.2.1. 开启双重确认
+
+```xml
+server:  
+  rabbitmq:  
+    host: 192.168.136.7  
+    port: 5672  
+    username: guest  
+    password: 123456  
+    virtual-host: /  
+    publisher-confirm-type: correlated    # 开启交换机确认
+    publisher-returns: true    # 开启队列确认
+```
+
+> [!NOTE] 注意事项
+> 1. 确认模式（Publisher Confirms）和事务模式（Transaction）不能在同一个通道中混用，通常我们推荐使用确认模式
+> 2. 不是简单地不加 `@Transactional` 就完事了，还需要将配置类中相关的两个设置一并去除，才能彻底禁用事务模式
+
+---
+
+
+###### 2.1.2.2. 创建 RabbitMQ 确定模式配置类，实现 rabbitTemplate 的 ConfirmCallback 与 ReturnsCallback 回调接口
+
+``` java
+@Configuration  
+public class RabbitCallBackConfig implements RabbitTemplate.ConfirmCallback, RabbitTemplate.ReturnsCallback {  
+    @Autowired  
+    private RabbitTemplate rabbitTemplate;  
+  
+    @PostConstruct  
+    public void initRabbitTemplate() {  
+        rabbitTemplate.setConfirmCallback(this);  
+        rabbitTemplate.setReturnsCallback(this);  
+    }  
+    
+    @Override  
+    public void confirm(CorrelationData correlationData, boolean ack, String cause) {  
+        // 当消息发送到交换机 成功或失败 时，会调用这个方法  
+        System.out.println("confirm（）回调函数打印CorrelationData："+correlationData);  
+        System.out.println("confirm（）回调函数打印ack："+ack);  
+        System.out.println("confirm（）回调函数打印cause："+cause);  
+    }  
+  
+    @Override  
+    public void returnedMessage(ReturnedMessage returnedMessage) {  
+        // 当消息发送到队列 失败时，才会调用这个方法  
+        System.out.println("消息主体: " + new String(returnedMessage.getMessage().getBody()));  
+        System.out.println("应答码: " + returnedMessage.getReplyCode());  
+        System.out.println("描述: " + returnedMessage.getReplyText());  
+        System.out.println("消息使用的交换器 exchange : " + returnedMessage.getExchange());  
+        System.out.println("消息使用的路由键 routing : " + returnedMessage.getRoutingKey());  
+    }  
+}
+```
+1. `confirm(CorrelationData correlationData, boolean ack, String cause)`：
+	1. `correlationData`：
+		1. 这是你发送消息时**可选附带**的消息唯一标识，用于追踪该消息的确认情况。
+		2. 举个例子：你这样发送消息——`rabbitTemplate.convertAndSend(exchange, routingKey, message, new CorrelationData("123456"));`，那么这个 `"123456"` 会作为标识，在 `correlationData` 中被打印出来，方便你知道这条消息的 ack 状态和失败原因。
+		3. 如果你没手动设置这个标识，那这里会是 `null`。
+		4. 注意不要和 `deliveryTag` 混淆——`correlationData` 是你业务代码中的追踪工具，不是 RabbitMQ 协议层面的内容。
+	2. `ack`：
+		1. 一个布尔值，表示消息是否成功到达交换机。
+		2. `true` 表示成功送达交换机（但不保证路由成功，也不保证被队列接收）；
+		3. `false` 表示没送达交换机，可能是交换机名写错、RabbitMQ 宕机、网络断了等。
+	3. `cause`：
+		1. 如果 `ack = false`，这里会返回具体的失败原因，帮助你排查问题。
+2. `returnedMessage(ReturnedMessage returnedMessage)`：
+	1. 表示消息成功送达交换机但未能路由到任何队列，于是被退回；
+	2. 这个对象中包含了退回消息的内容、错误码、错误原因、交换机名称、使用的路由键等信息。
+
+---
+
+
+###### 2.1.2.3. 对 rabbitTemplate 进行增强
+
+在上述配置类中通过 `initRabbitTemplate()` 方法设置 `ConfirmCallback` 和 `ReturnsCallback`。
+```java
+@Configuration  
+public class RabbitCallBackConfig implements RabbitTemplate.ConfirmCallback, RabbitTemplate.ReturnsCallback {  
+    @Autowired  
+    private RabbitTemplate rabbitTemplate;  
+  
+    @PostConstruct  
+    public void initRabbitTemplate() {  
+        rabbitTemplate.setConfirmCallback(this);  
+        rabbitTemplate.setReturnsCallback(this);  
+    }  
+    
+    @Override  
+    public void confirm(CorrelationData correlationData, boolean ack, String cause) {  
+        // 当消息发送到交换机 成功或失败 时，会调用这个方法  
+        System.out.println("confirm（）回调函数打印 CorrelationData："+ correlationData);  
+        System.out.println("confirm（）回调函数打印 ack："+ack);  
+        System.out.println("confirm（）回调函数打印 cause："+cause);  
+    }  
+  
+    @Override  
+    public void returnedMessage(ReturnedMessage returnedMessage) {  
+        // 当消息发送到队列 失败时，才会调用这个方法  
+        System.out.println("消息主体: " + new String(returnedMessage.getMessage().getBody()));  
+        System.out.println("应答码: " + returnedMessage.getReplyCode());  
+        System.out.println("描述: " + returnedMessage.getReplyText());  
+        System.out.println("消息使用的交换器 exchange : " + returnedMessage.getExchange());  
+        System.out.println("消息使用的路由键 routing : " + returnedMessage.getRoutingKey());  
+    }  
+}
+```
+1. `confirm(CorrelationData correlationData, boolean ack, String cause)`：
+	1. `correlationData`：
+		1. 这是你发送消息时**可选附带**的消息唯一标识，用于追踪该消息的确认情况。
+		2. 举个例子：你这样发送消息——`rabbitTemplate.convertAndSend(exchange, routingKey, message, new CorrelationData("123456"));`，那么这个 `"123456"` 会作为标识，在 `correlationData` 中被打印出来，方便你知道这条消息的 ack 状态和失败原因。
+		3. 如果你没手动设置这个标识，那这里会是 `null`。
+		4. 注意不要和 `deliveryTag` 混淆——`correlationData` 是你业务代码中的追踪工具，不是 RabbitMQ 协议层面的内容。
+	2. `ack`：
+		1. 一个布尔值，表示消息是否成功到达交换机。
+		2. `true` 表示成功送达交换机（但不保证路由成功，也不保证被队列接收）；
+		3. `false` 表示没送达交换机，可能是交换机名写错、RabbitMQ 宕机、网络断了等。
+	3. `cause`：
+		1. 如果 `ack = false`，这里会返回具体的失败原因，帮助你排查问题。
+2. `returnedMessage(ReturnedMessage returnedMessage)`：
+	1. 表示消息成功送达交换机但未能路由到任何队列，于是被退回；
+	2. 这个对象中包含了退回消息的内容、错误码、错误原因、交换机名称、使用的路由键等信息。
+
+
+---
+
+
+##### 2.1.3. 解决故障1（思路2）
+
+###### 2.1.3.1. 备份交换机的原理
+
+![](image-20250511151430144.png)
+
+---
+
+###### 2.1.3.2. 创建备份交换机、备份队列，将两者绑定
+
+交换机必须设置为 `fanout` 类型，因为当消息从主交换机转发到备份交换机时，并不会携带路由键，只能通过广播的方式进行分发，名称为：`test.backup.exchange`。队列正常创建，名称为：`test.backup.queue`。没有路由键
+
+---
+
+
+###### 2.1.3.3. 创建主交换机、主队列，将两者绑定
+
+交换机需要通过 `Arguments` 参数设置 `alternate-exchage`，用于指定备份交换机，名称为：`test.exchange`。队列正常创建，名称为：`test.queue`。路由键为：`test`
+![](image-20250512162811598.png)
+
+---
+
+###### 2.1.3.4. 编写备份队列消费者代码
+
+```java
+@Component  
+public class BackupQueueListener {  
+  
+    public static final String BACKUP_QUEUE_NAME = "queue.direct.test.backup";  
+  
+    @RabbitListener(queues = {BACKUP_QUEUE_NAME})  
+    public void processMessage(String dataString, Message message, Channel channel) {  
+        // 1. 日志记录  
+  
+        // 2. 发送邮件  
+  
+        // 3. 把消息持久化到数据库，方便 “回溯处理”  
+  
+        // 4. 手动 ack，避免消息重回到队列  
+    }  
+}
+```
+
+---
+
+
+##### 2.1.4. 解决故障2
+
+在 RabbitMQ 中，所有消息，无论是否持久化，都会首先存入内存。对于持久化消息，生产者发送后，RabbitMQ 会立即将消息追加到相应的存储文件，并随后向生产者确认 ACK，确保即使发生宕机也不会丢失数据。而对于非持久化消息，RabbitMQ 只有在内存压力较小的情况下才会将其写入存储文件。
+
+虽然消息分为持久化和非持久化两类，最终所有消息都会持久化到某种存储介质中，只是持久化的时机不同。如果需要强一致性，可以选择使用持久化消息；若对一致性要求不那么严格，则可以使用非持久化消息。需要注意的是，即便消息本身是持久化的，交换机和队列也必须设置为持久化，只有这样才能确保数据不会丢失。
+
+如果需要确保一致性，可以将数据设置为持久化，因为默认情况下，发送的消息是非持久化的。
+```java
+@GetMapping("/sendMessage")
+public String sendMessage() {
+    rabbitTemplate.convertAndSend(
+        EXCHANGE_DIRECT,
+        ROUTING_KEY,
+        "first sent message!",
+        message -> {
+            // 设置消息持久化
+            message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+            return message;
+        },
+        new CorrelationData("123456")
+    );
+    return "发送成功";
+}
+```
+
+---
+
+
+##### 2.1.5. 解决故障3
+
+###### 2.1.5.1. 消费端三种确认模式
+
+1. ==自动确认模式（默认、auto）==：
+	1. 只要消息被消费者方法接收到，不管是否成功处理，RabbitMQ 都会认为消息已消费成功，立刻从队列删除
+	2. 万一你的消费端发生异常，如宕机、代码跑错等，消息就丢了
+2. ==手动确认模式（manual）==：
+	1. 你需要再自己在代码里调用 `channel.basicAck()`、`channel.basicNack()` 或 `channel.basicReject()` 来告诉 RabbitMQ：这条消息我处理好了（或处理失败）。
+	2. `channel.basicAck()` 是返回 ACK 信息
+	3. `channel.basicNack()` 返回 NACK 信息
+	4. `channel.basicReject()` 同样是返回 NACK 信息，但是我们一般不用这个
+3. ==无确认模式（none）==：
+	1. 完全不确认，RabbitMQ 将消息从队列投递给消费者之后，就认为 “消费完成了”，强烈不推荐
+
+---
+
+
+###### 2.1.5.2. 交付标签机制
+
+`deliveryTag` 是 RabbitMQ 为每个 Channel 中发送的消息分配的唯一编号，每发送出一条消息，这个编号就会自动递增。它的作用是标记这条消息的“身份”。  
+
+在手动确认模式下，你只需要把这个 `deliveryTag` 传回去，RabbitMQ 就能准确知道你确认的是哪一条消息 —— 即使你并不知道这条消息是从哪个队列来的，然后他就能处理是删除信息、重新排队还是标记为死信等等
+
+调用 `basicAck` 表示确认处理成功，RabbitMQ 会将这条消息从队列中移除；调用 `basicNack` 则表示处理失败，你可以决定这条消息是否需要重新回到队列中。
+
+---
+
+
+###### 2.1.5.3. 开启手动确认模式
+
+```xml
+server:  
+  port: 8080  
+spring:  
+  application:  
+    name: RabbitMQ  
+  rabbitmq:  
+    host: 192.168.136.7  
+    port: 5672  
+    username: guest  
+    password: 123456  
+    virtual-host: /  
+    listener:  
+      simple:  
+        acknowledge-mode: manual    # 开启手动确认模式
+```
+
+---
+
+
+###### 2.1.5.4. 手动返回 ACK 和 NACK
+
+```java
+@Component  
+public class MyMessageListener {  
+
+    public static final String QUEUE_NAME = "queue.order";  
+  
+    @RabbitListener(queues = {QUEUE_NAME})  
+    public void processMessage(String dataString, Message message, Channel channel) throws IOException {  
+  
+        // 获取当前消息的 deliveryTag        
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();  
+  
+        try {  
+            // 核心操作  
+            System.out.println("消费端 消息内容: " + dataString);  
+  
+            // 核心操作成功: 返回 ACK 信息  
+            channel.basicAck(deliveryTag, false);  
+  
+        } catch (Exception e) {  
+	        
+            // 判断该消息是否为重复投递。如果不是重复的，可以选择重新投递；如果是重复的，则可以考虑不再投递，避免死循环或资源浪费
+            Boolean redelivered = message.getMessageProperties().getRedelivered();  
+  
+            if (redelivered){  
+                channel.basicNack(deliveryTag, false, false);  
+            }else {  
+                channel.basicNack(deliveryTag,false,false);  
+            }  
+            
+            throw new RuntimeException(e);  
+        }  
+    }  
+}
+```
+
+> [!NOTE] 注意事项
+> 1. <font color="#00b0f0">第一个参数</font>：
+> 	1. 用于指定要处理的消息的 `deliveryTag`
+> 2. <font color="#00b0f0">第二个参数</font>：
+> 	1. 指定是否进行批量处理
+> 	2. 如果为 `true`，表示从最早的消息到当前这个 `deliveryTag` 之间的所有消息都会一起处理
+> 	3. 如果为 `false`，则仅处理当前指定的这条消息
+> 3. <font color="#00b0f0">第三个参数</font>：
+> 	1. 表示是否将该消息重新投递
+> 	2. 如果为 `true`，表示将消息重新放回队列，由 broker 再次投递
+> 	3. 如果未 `false`，表示不再投递，broker 会直接丢弃该消息。
+
+![](image-20250511171953565.png)
+
+---
+
+
+#### 2.2. 削峰限流（消费端限流）
+
+##### 2.2.1. 削峰限流概述
+
+![](image-20250511173010389.png)
+
+---
+
+
+##### 2.2.2. 实现削峰限流
+
+假设队列中有一万条数据，我们可以设置消费端每次最多从队列中取回 1000 条数据。设置起来也很简单，只需在配置中调整一个参数：`prefetch`。
+```
+spring:  
+  application:  
+    name: RabbitMQ  
+  rabbitmq:  
+    host: 192.168.136.7  
+    port: 5672  
+    username: guest  
+    password: 123456  
+    virtual-host: /  
+    listener:  
+      simple:  
+        acknowledge-mode: manual  
+        prefetch: 1000    # 每次最多从消息队列取回 1000 条数据
+```
+
+---
+
+
+#### 2.3. 消息超时
+
+##### 2.3.1. 消息超时概述
+
+消息一直没被取走也不能一直留在消息队列中，我们给消息设定一个过期时间，超过这个时间没有被取走的消息就会被删除，我们可以从两个层面来给消息设定过期时间：
+1. ==队列层面==：
+	1. 在队列级别设置统一的过期时间，该队列中所有消息都会使用相同的过期时间。
+2. ==消息层面==：
+	1. 发送消息时，为某一条消息单独指定过期时间
+3. 需要注意的是：如果两个层面都设置了过期时间，以较短的那个时间为准，优先生效。
+
+----
+
+##### 2.3.2. 队列层面设置
+
+![](image-20250510221058008.png)
+
+---
+
+
+##### 2.3.3. Java 代码进行消息层面设置
+```java
+@RestController  
+public class RabbitMQProduce {  
+
+    // 交换机  
+    public static final String EXCHANGE_DIRECT = "test.exchange";  
+    
+    // 路由键  
+    public static final String ROUTING_KEY = "test";  
+  
+    @Autowired  
+    private RabbitTemplate rabbitTemplate;  
+  
+    @GetMapping("/sendMessage")  
+    public String sendMessage() {  
+        rabbitTemplate.convertAndSend(  
+                EXCHANGE_DIRECT,  
+                ROUTING_KEY,  
+                "first sent message!",  
+                message -> {  
+                    // 消息层面设置超时时间，以毫秒为单位  
+                    message.getMessageProperties().setExpiration("7000");  
+                    message.getMessageProperties().setPriority(4);  
+                    message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);  
+  
+                    return message;  
+                },  
+                new CorrelationData("123456")  
+        );  
+        return "发送成功";  
+    }  
+}
+```
+
+---
+
+
+#### 2.4. 死信处理
+
+##### 2.4.1. 死信概述
+
+上文说 “我们给消息设定一个过期时间，超过这个时间没有被取走的消息就会被删除” 其实不太准确，应该是 “超过这个时间没有被取走的消息就会成为死信，默认被抛弃”
+
+死信产生的原因：
+1. ==拒绝投递==：
+	1. 消费者显式拒绝消息（调用 `basicReject()` 或 `basicNack()`），并且设置 `requeue=false`，表示不重新投回原队列，消息因此被丢弃为死信。
+2. ==队列溢出==：
+	1. 队列达到最大容量限制。例如一个队列最多只能容纳 10 条消息，当已有 10 条消息时再投递新消息，会导致最早的一条消息被挤出，成为死信（遵循先进先出原则）
+3. ==超时未消费==：
+	1. 消息设置了过期时间，如果在指定时间内没有被消费，就会过期，变为死信。
+
+死信常见处理方式：
+1. ==直接丢弃（默认）==：
+	1. 适用于业务上不重要的消息，无需额外处理。
+2. ==入库保存==：
+	1. 将死信记录入数据库，便于后续人工或定时任务处理。
+3. ==死信进入死信队列（推荐）==：
+	1. 配置死信队列（DLX）并由消费者监听，专门对死信消息进行分析和补偿处理，是较常用的做法。
+
+---
+
+
+##### 2.4.2. 死信进入死信队列
+
+###### 2.4.2.1. 创建死信交换机、死信队列，将两者绑定
+
+死信交换机名称为：`test.dlx.exchange`，死信队列名称为：`test.dlx.queue`，路由键为 `test`
+
+---
+
+
+###### 2.4.2.2. 创建主交换机、主队列，将两者绑定
+
+主交换机名称为：`test.exchange`。队列限制较多，详细看图，名称为：`test.queue`。路由键为：`test`
+
+![](PixPin_2025-05-12_09-16-53%201.png)
+
+---
+
+
+###### 2.4.2.3. 编写死信队列消费者代码
+
+根据业务需求自己发挥
+
+---
+
+
+#### 2.5. 延迟队列
+
+##### 2.5.1. 延迟队列概述
+
+类似于电商网站中的提示：“订单已提交，请在 23 时 59 分 47 秒内完成支付”，我们希望在订单创建后**延迟 24 小时**再进行未支付订单的关闭处理。
+
+我们的解决思路有以下两种：
+1. ==消息超时 + 死信队列==：
+	1. 将消息发送到一个设置了 TTL（过期时间）的普通队列，不对该队列进行消费。
+	2. 当消息在队列中存满 24 小时后未被消费，它会自动过期并被转发到 死信队列（DLQ）
+	3. 我们只监听死信队列，待消息进入后再触发订单关闭逻辑
+2. ==使用 RabbitMQ 延迟消息插件（推荐）==
+	1. 借助 RabbitMQ 的 **延迟队列插件**（`rabbitmq-delayed-message-exchange`），可精确控制消息的延迟时间；
+	2. 注意事项：该插件支持的最大延迟时间为 两天（48 小时）
+
+---
+
+
+##### 2.5.2. 使用 RabbitMQ 延迟消息插件
+ 
+
+回来看35级，如何在手动安装的情况下安装插件
+![](image-20250511103811397.png)
+
+队列就正常建就行
+![](image-20250511104005312.png)
+
+
+然后是消费者
+![](image-20250511104106123.png)
+![](image-20250511104123191.png)
+
+![](image-20250511104218010.png)
+
+---
+
+
+#### 2.6. 事务消息
+
+##### 2.6.1. 事务消息概述
+
+所谓的事务消息，其实并不是多牛的分布式事务，而是 Java 自己在本地搞的小动作：先把消息留在内存里，等你整个流程都 OK 了才发出去；要是中间出事了，干脆就不发了直接回滚。不过要注意，哪怕发出去了，也不一定真到交换机或者队列里。所以说到底，这套事务控制是“应用层面自娱自乐”，别指望它替你搞定消息可靠投递那一套。
+![](image-20250512165603672.png)
+
+---
+
+##### 2.6.2. 创建 RabbitMQ 事务模式配置类，并配置事务消息
+
+```java
+@Configuration
+@Data
+public class RabbitTransactionConfig {
+
+    @Bean
+    public RabbitTransactionManager transactionManager(CachingConnectionFactory connectionFactory) {
+        return new RabbitTransactionManager(connectionFactory);
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setChannelTransacted(true);
+        return rabbitTemplate;
+    }
+}
+```
+
+---
+
+
+##### 2.6.3. 编写生产者代码时，标注 @Transactional
+
+```java
+@RestController  
+@Transactional // 使用 Spring 提供的事务管理，开启事务消息（MyBatis 中涉及）  
+public class RabbitMQProduce {  
+
+    // 交换机  
+    public static final String EXCHANGE_DIRECT = "exchange.direct.test";  
+    
+    // 路由键  
+    public static final String ROUTING_KEY = "test";  
+  
+    @Autowired  
+    private RabbitTemplate rabbitTemplate;  
+  
+    @GetMapping("sendMessage")  
+    public String sendMessage() {  
+        rabbitTemplate.convertAndSend(EXCHANGE_DIRECT, ROUTING_KEY, "first sent message!");  
+        return "发送成功";  
+    }  
+}
+```
+
+---
+
+
+#### 2.7. 优先消息
+
+##### 2.7.1. 优先消息概述
+
+默认情况下，队列遵循先进先出（FIFO）原则，先入队的消息优先被投递；但当我们为消息设置了优先级后，优先级较高的消息将优先于低优先级消息进行投递。
+
+---
+
+
+##### 2.7.2. 创建主交换机、主队列，将两者绑定
+
+主交换机名称为：`test.exchange`。主队列需要用 `x-max-priority` 指定队列中消息最高的优先级，名称为：`test.queue`。路由键为：`test`
+![](image-20250512170407701.png)
+
+> [!NOTE] 注意事项
+> 1. 消息优先级取值范围为：1 ~ 255
+> 2. RabbitMQ 官方建议在 1 ~ 5 之间取值，因为优先级越高，占用 CPU、内存等资源越多
+
+---
+
+
+##### 2.7.3. Java 代码指定消息优先级
+
+```java
+@RestController  
+public class RabbitMQProduce {  
+    // 交换机  
+    public static final String EXCHANGE_DIRECT = "test.exchange";  
+    // 路由键  
+    public static final String ROUTING_KEY = "test";  
+  
+    @Autowired  
+    private RabbitTemplate rabbitTemplate;  
+  
+    @GetMapping("/sendMessage")  
+    public String sendMessage() {  
+        rabbitTemplate.convertAndSend(  
+                EXCHANGE_DIRECT,  
+                ROUTING_KEY,  
+                "first sent message!",  
+                message -> {  
+                    // 指定消息优先级，不得超过 x-max-priority                    message.getMessageProperties().setPriority(4);  
+                    message.getMessageProperties().setExpiration("7000");  
+                    message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);  
+  
+                    return message;  
+                },  
+                new CorrelationData("123456")  
+        );  
+        return "发送成功";  
+    }  
+}
+```
+

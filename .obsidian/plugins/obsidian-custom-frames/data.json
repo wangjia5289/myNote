@@ -1,0 +1,17 @@
+{
+  "frames": [
+    {
+      "url": "https://ricocc.com/todo/",
+      "displayName": "ToDo List",
+      "icon": "alarm-clock-check",
+      "hideOnMobile": true,
+      "addRibbonIcon": false,
+      "openInCenter": true,
+      "zoomLevel": 1,
+      "forceIframe": false,
+      "customCss": "",
+      "customJs": ""
+    }
+  ],
+  "padding": 5
+}

@@ -1,0 +1,12 @@
+{
+  "useMarkdownLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "source/_posts",
+  "attachmentFolderPath": "./attachments",
+  "readableLineLength": false,
+  "showLineNumber": true,
+  "smartIndentList": true,
+  "autoPairMarkdown": true,
+  "promptDelete": false,
+  "showInlineTitle": true
+}

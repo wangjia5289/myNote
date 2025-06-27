@@ -1,0 +1,24 @@
+.markdown-preview-view code {
+    background-color: #f0f0f0;
+    /* 背景颜色 */
+    color: #d63384;
+    /* 字体颜色 */
+    font-family: "Fira Code", monospace;
+    /* 字体 */
+    padding: 2px 6px;
+    border-radius: 6px;
+    /* 圆角 */
+    border: 1px solid #ccc;
+    font-size: 0.95em;
+}
+
+.markdown-source-view.mod-cm6 .cm-inline-code {
+    background-color: #f0f0f0;
+    color: #d63384;
+    font-family: "Fira Code", monospace;
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95em;
+}
+

@@ -1,0 +1,2 @@
+
+"smart_sources:source/_posts/笔记：Kafka.md": {"path":"source/_posts/笔记：Kafka.md","last_embed":{"hash":null},"embeddings":{},"last_read":{"hash":"1r9lstg","at":1750512755493},"class_name":"SmartSource","last_import":{"mtime":1747213545828,"size":442,"at":1750512755493,"hash":"1r9lstg"},"blocks":{"#---frontmatter---":[1,11],"###分布式集群部署":[31,41],"###分布式集群部署#{1}":[34,41],"###安装  JDK 17":[42,65],"###安装  JDK 17#{1}":[44,65]},"outlinks":[],"metadata":{"title":"笔记：Kafka","date":"2025-05-14","categories":["数据管理","消息队列","Kafka"],"tags":null,"author":"霸天","layout":"post"}},

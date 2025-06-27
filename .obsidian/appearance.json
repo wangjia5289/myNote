@@ -1,0 +1,12 @@
+{
+  "cssTheme": "Shiba Inu",
+  "theme": "obsidian",
+  "enabledCssSnippets": [
+    "inline-code-style",
+    "block-code-style",
+    "hr-style"
+  ],
+  "showRibbon": true,
+  "showViewHeader": false,
+  "baseFontSize": 16
+}
