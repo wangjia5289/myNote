@@ -1,6 +1,10 @@
 {
   "recentFiles": [
     {
+      "basename": "README",
+      "path": "README.md"
+    },
+    {
       "basename": "笔记：Git 生态",
       "path": "source/_posts/笔记：Git 生态.md"
     },
@@ -195,10 +199,6 @@
     {
       "basename": "image-20250508084705740",
       "path": "templates/临时/image-20250508084705740.png"
-    },
-    {
-      "basename": "笔记：四级单词",
-      "path": "source/_posts/笔记：四级单词.md"
     }
   ],
   "omittedPaths": [],

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：Git 生态.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：Git 生态"
+              "title": "README"
             }
           },
           {
@@ -266,6 +266,7 @@
   },
   "active": "02d7d245d82b2d93",
   "lastOpenFiles": [
+    "source/_posts/笔记：Git 生态.md",
     "README.md",
     "templates/Categories 总纲.md",
     "未命名.canvas",
@@ -301,7 +302,6 @@
     "source/_posts/笔记：Spring AI.md",
     "source/_posts/笔记：Tomcat.md",
     "source/_posts/笔记：一键启动.md",
-    "source/_posts/笔记：原初之始.md",
     "source/_posts/笔记：Windows/image-20250619203539052.png",
     "source/_posts/笔记：Windows/image-20250619203524550.png",
     "templates/马士兵",
