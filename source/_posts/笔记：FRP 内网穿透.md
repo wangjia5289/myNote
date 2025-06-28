@@ -1,10 +1,11 @@
 ---
-title: "笔记：FRP 内网穿透"
-date: "2025-06-24"
+title: 笔记：FRP 内网穿透
+date: 2025-06-24
 categories:
-  - 文章类别
-tags:
-  - 文章标签
+  - 网络
+  - 内网穿透
+  - FRP 内网穿透
+tags: 
 author: 霸天
 layout: post
 ---

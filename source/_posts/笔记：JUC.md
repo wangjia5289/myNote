@@ -4,7 +4,7 @@ date: 2025-05-18
 categories:
   - Java
   - Java 基础
-  - JUC
+  - Java Util Concurrent（JUC）
 tags: 
 author: 霸天
 layout: post

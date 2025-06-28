@@ -2,8 +2,10 @@
 title: 笔记：JVM
 date: 2025-05-29
 categories:
-  - 文章类别
-tags: []
+  - Java
+  - Java 基础
+  - Java Virtual Machine（JVM）
+tags: 
 author: 霸天
 layout: post
 ---

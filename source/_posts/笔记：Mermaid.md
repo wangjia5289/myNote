@@ -2,6 +2,7 @@
 title: 笔记：Mermaid
 date: 2025-03-19
 categories:
+  - 流程图
   - Mermaid
 tags: 
 author: 霸天

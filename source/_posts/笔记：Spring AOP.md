@@ -1,17 +1,17 @@
 ---
-title: 笔记：Spring AOP
+title: 笔记：Spring Aop
 date: 2025-03-11
 categories:
   - Java
   - Spring 生态
-  - Spring AOP
+  - Spring Aop
 tags: 
 author: 霸天
 layout: post
 ---
 # 一、理论 
 
-### 0、导图：[Map：Spring AOP](../../maps/Map：SpringAOP.xmind)
+### 0、导图：[Map：Spring AOP](Map：SpringAOP.xmind)
 
 ---
 
@@ -20,7 +20,7 @@ layout: post
 
 #### 1.1、模型图
 
-![](image-20250311102729843.png)
+![](source/_posts/笔记：Spring%20Aop/image-20250311102729843.png)
 
 ---
 
@@ -159,7 +159,7 @@ public class LoggingAspect {
 
 ###### 2.5.4.2、切点表达式书写方法
 
-![](image-20250311103200725.png)
+![](source/_posts/笔记：Spring%20Aop/image-20250311103200725.png)
 
 ----
 
@@ -254,7 +254,7 @@ public void logBefore(JoinPoint joinPoint) {
 
 
 ###### 2.5.5.3、通知的顺序
-![](image-20250311103243112.png)
+![](source/_posts/笔记：Spring%20Aop/image-20250311103243112.png)
 
 ---
 

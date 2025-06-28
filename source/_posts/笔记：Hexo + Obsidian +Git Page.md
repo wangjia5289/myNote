@@ -1,7 +1,9 @@
 ---
 title: 笔记：Hexo + Obsidian +Git Page
 date: 2025-03-10
-categories: 博客
+categories:
+  - 博客建站
+  - Hexo + Obsidian + GitPage
 tags: 
 author: 霸天
 layout: post

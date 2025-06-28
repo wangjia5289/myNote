@@ -87,7 +87,7 @@ GET /_cluster/health
 ```
 GET /_cat/nodes?v
 ```
-![](image-20250418190141210.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250418190141210.png)
 
 
 <span style="background:#fff88f">3.查看集群详细信息（包括分片、分配、任务等，数据超多，动辄上万行）</span>
@@ -188,7 +188,7 @@ GET /_cat/shards?v
 ```
 GET /_cat/indices?v
 ```
-![](image-20250426150231933.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250426150231933.png)
 
 
 <span style="background:#fff88f">4. 只显示所有索引的名称</span>
@@ -299,7 +299,7 @@ POST /user_index/_update/1
 ```
 GET/<索引库名>/_doc/<文档 ID>
 ```
-![](image-20250422184124423.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250422184124423.png)
 1. index：
 	1. 文档所在的索引库名称，这里是 `"user_index"`
 2. id：
@@ -445,7 +445,7 @@ GET /<索引名称>/_search
   }
 }
 ```
-![](PixPin_2025-04-26_17-10-28.png)
+![](source/_posts/笔记：ElasticSearch%20基础/PixPin_2025-04-26_17-10-28.png)
 
 
 <span style="background:#fff88f">2.geo_distance（查圆形内的 geo_point）</span>
@@ -464,7 +464,7 @@ GET /<索引库名>/_search
   }
 }
 ```
-![](PixPin_2025-04-26_17-15-36.png)
+![](source/_posts/笔记：ElasticSearch%20基础/PixPin_2025-04-26_17-15-36.png)
 
 
 <span style="background:#fff88f">3.geo_polygon（查任意形状范围内的 geo_point）</span>
@@ -612,7 +612,7 @@ GET /<索引库名>/_search
 
 ###### 3.6.4.1.7. 自定义评分查询（复合查询）
 
-![](PixPin_2025-04-27_11-32-26_PhotoGrid.png)
+![](source/_posts/笔记：ElasticSearch%20基础/PixPin_2025-04-27_11-32-26_PhotoGrid.png)
 
 ---
 
@@ -769,7 +769,7 @@ GET /<索引库名>/_search
 }
 ```
 
-![](image-20250427122257665.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250427122257665.png)
 
 ----
 
@@ -897,7 +897,7 @@ ES 内置的分词器对中文支持不好，我们下载 IK 分词器，这个�
 
 <span style="background:#fff88f">2. 解压缩到 ES 的 plugins 目录</span>
 将安装包解压缩到 ES 安装目录下的 plugins 目录中，注意所有 ES 节点都要进行这个操作：
-![](image-20250418191526611.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250418191526611.png)
 
 
 <span style="background:#fff88f">3. 重启 ES</span>
@@ -917,7 +917,7 @@ cd /mystudy/es/elasticsearch
 
 bin/elasticsearch -d
 ```
-![](image-20250418192258101.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250418192258101.png)
 
 
 <span style="background:#fff88f">4. 使用 IK 分词器</span>
@@ -973,7 +973,7 @@ POST /_analyze
 
 ##### 4.1.3.1. 拼音分词器概述
 
-![](image-20250427201720187.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250427201720187.png)
 
 ----
 
@@ -987,7 +987,7 @@ POST /_analyze
 
 <span style="background:#fff88f">2. 解压缩到 ES 的 plugins 目录</span>
 将安装包解压缩到 ES 安装目录下的 plugins 目录中，注意所有 ES 节点都要进行这个操作：
-![](image-20250418191526611.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250418191526611.png)
 
 
 <span style="background:#fff88f">3. 重启 ES</span>
@@ -1007,7 +1007,7 @@ cd /mystudy/es/elasticsearch
 
 bin/elasticsearch -d
 ```
-![](image-20250418192258101.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250418192258101.png)
 
 
 <span style="background:#fff88f">4. 使用拼音分词器</span>
@@ -1040,7 +1040,7 @@ pinyin 分词器支持多种配置选项，实际使用中我们通常会对其�
 有没有那种像 "rj"、"r家" 这样的组合呢？很可惜，pinyin 分词器在默认配置下并不支持这种方式。我们只能通过自定义分词器来实现，因为只有自定义分词器时，才能自定义指定 pinyin 分词器的相关配置。
 
 自定义分词器可以由一个或多个组件（分词器）组成，通常包括两个或三个，按照顺序依次通过 character filter、tokenizer 和 filter。
-![](image-20250428112050442.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250428112050442.png)
 
 ----
 
@@ -1266,7 +1266,7 @@ lsb_release -a
 ###### 1.1.3.3.2. 下载软件
 
 从 [ES 下载地址](https://www.elastic.co/cn/downloads/past-releases#elasticsearch)下载 ES 安装包：
-![](image-20250416201625864.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250416201625864.png)
 
 ----
 
@@ -1973,7 +1973,7 @@ sudo sysctl -p
 访问服务器节点，返回下述内容即证明部署成功： https://192.168.136.8:9200
 
 
-![](image-20250417090125699.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250417090125699.png)
 
 ---
 
@@ -2106,14 +2106,14 @@ https://192.168.136.8:9200/_cluster/health?pretty
 
 ## 1. 正向索引
 
-![](image-20250418184335457.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250418184335457.png)
 
 ----
 
 
 ## 2. 倒排索引
 
-![](image-20250418184408057.png)
+![](source/_posts/笔记：ElasticSearch%20基础/image-20250418184408057.png)
 
 ----
 

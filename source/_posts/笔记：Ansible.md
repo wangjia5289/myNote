@@ -2,8 +2,8 @@
 title: 笔记：Ansible
 date: 2025-03-15
 categories:
-  - 虚拟化、容器化、自动化
   - 自动化
+  - Ansible
 tags: 
 author: 霸天
 layout: post

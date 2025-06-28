@@ -3,8 +3,10 @@ title: 笔记：Spring 整合 Minio
 date: 2025-05-13
 categories:
   - 数据管理
+  - 数据的组织方式
   - 对象存储
   - Minio
+  - Spring 整合 Minio
 tags: 
 author: 霸天
 layout: post

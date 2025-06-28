@@ -2,9 +2,10 @@
 title: 笔记：CAP 理论
 date: 2025-05-01
 categories:
-  - 分布式、虚拟化、容器化、自动化
-  - 分布式
+  - Java
+  - 分布式与微服务
   - 分布式设计原理
+  - CAP 理论
 tags: 
 author: 霸天
 layout: post

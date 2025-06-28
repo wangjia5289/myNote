@@ -2,9 +2,10 @@
 title: 笔记：Raft 协议
 date: 2025-05-12
 categories:
-  - 分布式、虚拟化、容器化、自动化
-  - 分布式
+  - Java
+  - 分布式与微服务
   - 分布式一致性协议
+  - Raft 协议
 tags: 
 author: 霸天
 layout: post

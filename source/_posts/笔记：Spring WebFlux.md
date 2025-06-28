@@ -1524,5 +1524,27 @@ public class FluxHooksController {
 
 
 
+## 三、补充
 
+#### 操作行为划分
+1. ==同步操作==：
+	1. <font color="#00b0f0">同步简单操作</font>：
+		1. 快速执行、无明显耗时、不涉及复杂计算或 I/O
+	2. <font color="#00b0f0">同步阻塞操作</font>：
+		1. 设计耗时计算或潜在阻塞操作（如 I/O），但是在当前线程同步执行
+2. ==异步操作==：
+	1. <font color="#00b0f0">异步阻塞操作</font>：
+		1. 将同步阻塞操作通过异步机制（如线程池）执行，“伪非阻塞” 操作
+	2. <font color="#00b0f0">异步非阻塞操作</font>：
+		1. 完全非阻塞，通常是基于时间驱动或回调，依赖外部异步机制（如 `WebClient`、 `R2DBC`、`CompletableFuture`）
+3. ==补充：I/O==：
+	1. I/O，即输入/输出（Input/Output），是指计算机与外部世界的信息交换过程，包括但不限于：
+		1. <font color="#00b0f0">网络请求</font>：
+			1. 如调用其他 HTTP API 接口（RestTemplate、WebClient）、JDBC、R2DBC 等等
+		2. <font color="#00b0f0">文件操作</font>：
+			1. 读取或写入硬盘上的文件
+		3. <font color="#00b0f0">用户交互</font>：
+			1. 键盘、鼠标等输入设备的信号获取，以及向显示器等输出设备发送信息。
+		4. <font color="#00b0f0">硬件通信</font>：
+			1. 与打印机、扫描仪等外部设备的数据交换
 

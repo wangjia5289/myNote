@@ -2,9 +2,9 @@
 title: 笔记：Spring Data MyBatis
 date: 2025-04-10
 categories:
-  - Java
-  - Spring 生态
-  - Spring Data
+  - 数据管理
+  - 关系型数据库
+  - MySQL
   - Spring Data MyBatis
 tags: 
 author: 霸天

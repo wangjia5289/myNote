@@ -8,5 +8,6 @@
   "smartIndentList": true,
   "autoPairMarkdown": true,
   "promptDelete": false,
-  "showInlineTitle": true
+  "showInlineTitle": true,
+  "alwaysUpdateLinks": true
 }

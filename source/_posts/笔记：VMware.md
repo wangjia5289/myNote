@@ -2,8 +2,8 @@
 title: 笔记：VMware
 date: 2025-04-15
 categories:
-  - 虚拟化、容器化、自动化
   - 虚拟化
+  - VMware
 tags: 
 author: 霸天
 layout: post

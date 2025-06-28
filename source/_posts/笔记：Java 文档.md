@@ -1,9 +1,10 @@
 ---
-title: 笔记：文档框架
+title: 笔记：Java 文档
 date: 2025-04-13
 categories:
   - Java
-  - 文档框架
+  - 程序文档
+  - Java 文档
 tags: 
 author: 霸天
 layout: post
@@ -106,9 +107,9 @@ paths:
 
 ==1.JSON 类型文档==
 在 IDEA 中下载插件 `OpenAPI Specifications`，可以右键 `Export OpenAPI` 导出 JSON 类型的 API 文档
-![](source/_posts/笔记：Java%20文档/image-20250413223859767.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250413223859767.png)
 
-![](source/_posts/笔记：Java%20文档/image-20250413223920691.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250413223920691.png)
 
 
 ==2.YAML 类型文档==
@@ -328,7 +329,7 @@ springdoc:
 
 > [!NOTE] 注意事项：对此处 `group-configs` 的理解
 
-![](source/_posts/笔记：Java%20文档/image-20250413212434485.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250413212434485.png)
 
 ---
 
@@ -380,7 +381,7 @@ public class UserController {
 > 2. 每个子分组必须有一个名称。默认情况下，Controller 类在 `Swagger UI` 中会自动生成一个默认标签（例如，`UserController` 默认的标签名为 `user-controller`）。而通过 `@Tag` 注解，你可以手动为该类指定标签
 > 3. 注意：Swagger 不仅会扫描 `@Tag` 注解，还会自动识别 Spring Boot 中的组件类（如 `@RestController`）。这也是为什么我前面提到：“Controller 类在 `Swagger UI` 中会自动生成一个默认标签（例如，`UserController` 默认的标签名为 `user-controller`）。
 
-![](source/_posts/笔记：Java%20文档/image-20250413214149924.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250413214149924.png)
 
 ---
 
@@ -436,7 +437,7 @@ public User getUserById(
 > 1. 默认情况下，一个 Controller 类中的所有方法，都会在类标注的 `@Tag` 中，即类级别的标签。而在此处使用 `tags`，单独指定方法自己的标签
 > 2. 注意：未真正脱离类 Tag
 
-![](source/_posts/笔记：Java%20文档/image-20250413215556974.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250413215556974.png)
 
 ---
 
@@ -593,7 +594,7 @@ public User createUser(@RequestBody User user) {
     return "hello";
 }
 ```
-![](image-20250517160013458.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250517160013458.png)
 
 ---
 
@@ -634,35 +635,35 @@ UI 文档默认为： http://localhost:8080/swagger-ui/index.html
 
 #### 4.1. 创建 Java 项目
 
-![](image-20250517161956335.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250517161956335.png)
 
 ---
 
 
 #### 4.2. 安装 Apifox 插件
 
-![](image-20250517162033549.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250517162033549.png)
 
 ---
 
 
 #### 4.3. 创建团队和项目
 
-![](image-20250517162135984.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250517162135984.png)
 
 ---
 
 
 #### 4.4. 配置 Java 项目与 Apifox 项目映射关系
 
-![](image-20250517162243052.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250517162243052.png)
 
 ---
 
 
 #### 4.5. 上传 Java 项目
 
-![](image-20250517162530905.png)
+![](source/_posts/笔记：Java%20程序文档/image-20250517162530905.png)
 
 ---
 

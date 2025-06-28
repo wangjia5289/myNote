@@ -2,7 +2,7 @@
 title: 笔记：MIME 类型
 date: 2025-04-05
 categories:
-  - 网络服务
+  - 网络
   - MIME 类型
 tags: 
 author: 霸天

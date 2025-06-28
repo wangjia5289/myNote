@@ -2,11 +2,11 @@
 title: 笔记：Spring Data Redis
 date: 2025-05-17
 categories:
-  - 数据管理
-  - 数据库
-  - 非关系型数据库（NoSQL）
+  - 数据股那里
+  - 非关系型数据库
   - 键值型
   - Redis
+  - Spring Data Redis
 tags: 
 author: 霸天
 layout: post

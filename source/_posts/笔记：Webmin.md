@@ -3,6 +3,7 @@ title: 笔记：Webmin
 date: 2025-04-05
 categories:
   - 操作系统
+  - Linux
   - Webmin
 tags: 
 author: 霸天

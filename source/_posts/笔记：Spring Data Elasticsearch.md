@@ -2,9 +2,9 @@
 title: 笔记：Spring Data Elasticsearch
 date: 2025-04-22
 categories:
-  - Java
-  - Spring 生态
-  - Spring Data
+  - 数据管理
+  - ELK 三件套
+  - ElasticSearch
   - Spring Data Elasticsearch
 tags: 
 author: 霸天

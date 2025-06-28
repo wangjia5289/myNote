@@ -2,7 +2,7 @@
 title: 笔记：IP
 date: 2025-04-30
 categories:
-  - 网络服务
+  - 网络
   - IP
 tags: 
 author: 霸天
