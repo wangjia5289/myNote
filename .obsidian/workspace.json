@@ -35,8 +35,7 @@
               "title": "笔记：Spring Security"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -252,10 +251,10 @@
       "task-status:Change Checkbox Status": false
     }
   },
-  "active": "366c68d1052a0d60",
+  "active": "9c717b9a494dac91",
   "lastOpenFiles": [
-    "templates/临时：security.md",
     "source/_posts/笔记：Spring Security.md",
+    "templates/临时：security.md",
     "source/_posts/笔记：Spring Security/image-20250628224744251.png",
     "Edraw/SpringSecurity---执行流程---SecurityContextPersistenceFilter 介入.eddx",
     "Edraw/SpringSecurity---执行流程---基于HttpSession---存在Authentication.eddx.ximvoK",
