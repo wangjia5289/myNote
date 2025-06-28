@@ -55,7 +55,7 @@ layout: post
 
 
 <span style="background:#fff88f">4.FilterSecurityInterceptor 介入</span>
-首先检查当前线程中是否存在 `Authentication` ，如果不存在，则抛出 `AuthenticationException`（表示未认证）
+首先检查当前线程中是否存在 `Authentication`（无论是否匿名） ，如果不存在，则抛出 `AuthenticationException`（表示未认证）
 
 接着检查当前权限是否有权访问对应的资源或方法（即资源级别的访问控制、方法级别的访问控制），若无权限，则抛出 `AccessDeniedException`
 > [!NOTE] 注意事项
@@ -83,10 +83,6 @@ layout: post
 
 
 
-
-
-
-x
 
 
 
