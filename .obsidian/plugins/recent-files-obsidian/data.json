@@ -1,20 +1,76 @@
 {
   "recentFiles": [
     {
-      "basename": "README",
-      "path": "README.md"
-    },
-    {
-      "basename": "笔记：Git 生态",
-      "path": "source/_posts/笔记：Git 生态.md"
-    },
-    {
       "basename": "Categories 总纲",
       "path": "templates/Categories 总纲.md"
     },
     {
+      "basename": "笔记：Java 项目创建和结构",
+      "path": "source/_posts/笔记：Java 项目创建和结构.md"
+    },
+    {
+      "basename": "README",
+      "path": "README.md"
+    },
+    {
+      "basename": "笔记：Spring Boot",
+      "path": "source/_posts/笔记：Spring Boot.md"
+    },
+    {
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
+    },
+    {
+      "basename": "笔记：Windows",
+      "path": "source/_posts/笔记：Windows.md"
+    },
+    {
+      "basename": "笔记：职场高管缩写",
+      "path": "source/_posts/笔记：职场高管缩写.md"
+    },
+    {
+      "basename": "hello-world",
+      "path": "source/_posts/hello-world.md"
+    },
+    {
+      "basename": "笔记：Java SE",
+      "path": "source/_posts/笔记：Java SE.md"
+    },
+    {
+      "basename": "笔记 ：Java 泛型",
+      "path": "source/_posts/笔记 ：Java 泛型.md"
+    },
+    {
+      "basename": "笔记：Webmin",
+      "path": "source/_posts/笔记：Webmin.md"
+    },
+    {
+      "basename": "笔记：云计算四种服务模式",
+      "path": "source/_posts/笔记：云计算四种服务模式.md"
+    },
+    {
+      "basename": "笔记：私有云",
+      "path": "source/_posts/笔记：私有云.md"
+    },
+    {
+      "basename": "笔记：三明治分层架构",
+      "path": "source/_posts/笔记：三明治分层架构.md"
+    },
+    {
+      "basename": "笔记：算法分析与设计",
+      "path": "source/_posts/笔记：算法分析与设计.md"
+    },
+    {
+      "basename": "笔记：Mermaid",
+      "path": "source/_posts/笔记：Mermaid.md"
+    },
+    {
       "basename": "笔记：Bug",
       "path": "source/_posts/笔记：Bug.md"
+    },
+    {
+      "basename": "笔记：Git 生态",
+      "path": "source/_posts/笔记：Git 生态.md"
     },
     {
       "basename": "笔记：IO",
@@ -27,10 +83,6 @@
     {
       "basename": "笔记：ElasticSearch",
       "path": "source/_posts/笔记：ElasticSearch.md"
-    },
-    {
-      "basename": "笔记：职场高管缩写",
-      "path": "source/_posts/笔记：职场高管缩写.md"
     },
     {
       "basename": "笔记：操作系统",
@@ -81,10 +133,6 @@
       "path": "source/_posts/笔记：Linux.md"
     },
     {
-      "basename": "笔记：Windows",
-      "path": "source/_posts/笔记：Windows.md"
-    },
-    {
       "basename": "笔记：核心单词小工具",
       "path": "source/_posts/笔记：核心单词小工具.md"
     },
@@ -133,10 +181,6 @@
       "path": "source/_posts/笔记：Spring Data MyBatis.md"
     },
     {
-      "basename": "笔记：Spring Boot",
-      "path": "source/_posts/笔记：Spring Boot.md"
-    },
-    {
       "basename": "笔记：MySQL 基础",
       "path": "source/_posts/笔记：MySQL 基础.md"
     },
@@ -153,52 +197,8 @@
       "path": "templates/临时：es.md"
     },
     {
-      "basename": "笔记：Java 开发类型和项目创建",
-      "path": "source/_posts/笔记：Java 开发类型和项目创建.md"
-    },
-    {
       "basename": "笔记：Raft 协议",
       "path": "source/_posts/笔记：Raft 协议.md"
-    },
-    {
-      "basename": "笔记：重命名排序",
-      "path": "source/_posts/笔记：重命名排序.md"
-    },
-    {
-      "basename": "firstTest",
-      "path": "Excalidraw/firstTest.md"
-    },
-    {
-      "basename": "firstTest",
-      "path": "source/_posts/笔记：Raft 协议/firstTest.md"
-    },
-    {
-      "basename": "笔记：Redis",
-      "path": "source/_posts/笔记：Redis.md"
-    },
-    {
-      "basename": "笔记：Ansible",
-      "path": "source/_posts/笔记：Ansible.md"
-    },
-    {
-      "basename": "笔记：IP",
-      "path": "source/_posts/笔记：IP.md"
-    },
-    {
-      "basename": "笔记：RabbitMQ",
-      "path": "source/_posts/笔记：RabbitMQ.md"
-    },
-    {
-      "basename": "mysql 临时",
-      "path": "templates/mysql 临时.md"
-    },
-    {
-      "basename": "测试",
-      "path": "templates/测试.md"
-    },
-    {
-      "basename": "image-20250508084705740",
-      "path": "templates/临时/image-20250508084705740.png"
     }
   ],
   "omittedPaths": [],

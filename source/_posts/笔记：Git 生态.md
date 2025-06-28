@@ -9,6 +9,8 @@ author: 霸天
 layout: post
 ---
 
+./ignore
+
 
 
 进行 Git 代理配置
@@ -41,7 +43,7 @@ git init
 
 
 # 2. 创建 README 文档
-echo "# automotic" > README.md
+echo "随便写点东西好了" > README.md
 
 
 # 3. 将 README 稳定添加到缓冲取

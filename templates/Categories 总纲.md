@@ -1,7 +1,29 @@
 1. <span style="background:#fff88f">沟通技巧</span>
-2. <span style="background:#fff88f">程序调试</span>
-3. <span style="background:#fff88f">异常处理</span>
-4. <span style="background:#fff88f">数据管理</span>
+	1. 
+2. <span style="background:#fff88f">Java</span>
+	1. Java 基础
+		1. Java SE
+			1. [笔记：Java SE](笔记：Java%20SE.md)
+				- [ ] 
+		2. Java 泛型
+			1. [笔记 ：Java 泛型](笔记%20：Java%20泛型.md)
+				- [ ] 
+		3. Java 项目创建和结构
+			1. [笔记：Java 项目创建和结构](笔记：Java%20项目创建和结构.md)
+				- [ ] 
+
+
+
+
+
+
+4. <span style="background:#fff88f">沟通技巧</span>
+5. <span style="background:#fff88f">程序调试</span>
+6. <span style="background:#fff88f">程序测试</span>
+7. <span style="background:#fff88f">程序文档</span>
+8. <span style="background:#fff88f">异常处理</span>
+9. <span style="background:#fff88f">记录日志</span>
+10. <span style="background:#fff88f">数据管理</span>
 	1. 大数据技术栈
 		1. Hadoop
 		2. Flink
@@ -38,12 +60,14 @@
 		2. ActiveMQ
 		3. RocketMQ
 		4. Kafka
-5. <span style="background:#fff88f">虚拟化</span>
+11. <span style="background:#fff88f">虚拟化</span>
 	1. VMware
-6. <span style="background:#fff88f">容器化</span>
+12. <span style="background:#fff88f">容器化</span>
 	1. Docker
-	2. k8s
-7. <span style="background:#fff88f">Spring 生态</span>
+	2. K8s
+13. <span style="background:#fff88f">自动化</span>
+	1. Ansible
+14. <span style="background:#fff88f">Spring 生态</span>
 	1. Spring IOC
 	2. Spring AOP
 	3. Spring Web
@@ -52,40 +76,43 @@
 	6. Spring Security
 	7. Spring Cloud
 	8. Spring AI
-8. <span style="background:#fff88f">设计模式</span>
-9. <span style="background:#fff88f">操作系统</span>
+15. <span style="background:#fff88f">设计模式</span>
+	1. MVC 与三层架构
+	2. 二十三种设计模式
+16. <span style="background:#fff88f">操作系统</span>
 	1. Mac
 	2. Linux
 	3. Windows
 	4. 操作系统
-10. <span style="background:#fff88f">构建工具</span>
+17. <span style="background:#fff88f">构建工具</span>
 	1. Maven
 	2. Gradle
-11. <span style="background:#fff88f">Git 家族</span>
-12. <span style="background:#fff88f">Java 基础</span>
+18. <span style="background:#fff88f">Git 家族</span>
+19. <span style="background:#fff88f">Java 基础</span>
 	1. Java SE
 	2. Java 泛型
 	3. Java 开发方向
 	4. Java 项目创建和结构
 	5. Java Util Concurrent（JUC）
 	6. Java Virtual Machine（JVM）
-13. <span style="background:#fff88f">输入法</span>
-14. <span style="background:#fff88f">Developer Roadmaps</span>
-15. 
-16. 
-17. 
-18. 
-19. 
-20. 
-21. 
-22. 
+20. <span style="background:#fff88f">输入法</span>
+21. <span style="background:#fff88f">环境标识</span>
+22. <span style="background:#fff88f">Developer Roadmaps</span>
 23. 
 24. 
 25. 
 26. 
 27. 
 28. 
-29. ==Java==：
+29. 
+30. 
+31. 
+32. 
+33. 
+34. 
+35. 
+36. 
+37. ==Java==：
 	1. Java 基础
 		1. Java SE
 			1. [Java SE](笔记：Java%20SE.md)
@@ -99,7 +126,7 @@
 		6. I/O
 			1. [笔记：IO](笔记：IO.md)
 		7. Java 开发类型和项目创建
-			1. [Java 项目创建](笔记：Java%20开发类型和项目创建.md)
+			1. [Java 项目创建](笔记：Java%20项目创建和结构.md)
 		8. Java 项目结构
 			1. [Java 项目结构](笔记：Java%20项目结构.md)
 		9. 常见环境标识
@@ -155,7 +182,7 @@
 	11. 项目
 		1. mall 商城
 			1. [mall 商城](笔记：mall%20商城.md)
-30. ==操作系统==：
+38. ==操作系统==：
 	1. 操作系统基础
 		1. [操作系统](笔记：操作系统.md)
 	2. Mac
@@ -166,7 +193,7 @@
 		1. [Windows](笔记：Windows.md)
 	5. Webmin
 		1. [Webmin](笔记：Webmin.md)
-31. ==分布式、虚拟化、容器化、自动化==：
+39. ==分布式、虚拟化、容器化、自动化==：
 	1. 分布式
 		1. 分布式设计原理
 			1. [CAP 理论](笔记：CAP%20理论.md)
@@ -181,7 +208,7 @@
 			1. [K8S](笔记：K8S.md)
 	4. 自动化
 		1. [Ansible](笔记：Ansible.md)
-32. ==数据管理==
+40. ==数据管理==
 	1. 数据存储类型
 		1. [数据存储类型](笔记：数据存储类型.md)
 	2. 数据类型和传参
@@ -241,9 +268,9 @@
 	9. K8s 数据存储方案
 		1. Ceph
 			1. [Ceph](笔记：Ceph.md)
-33. ==常用网站==:
+41. ==常用网站==:
 	1. [常用网站](笔记：常用网站.md)
-34. ==网络服务==：
+42. ==网络服务==：
 	1. IP
 		1. [IP](笔记：IP.md)
 	2. DNS
@@ -266,14 +293,14 @@
 		1. [Keepalived](笔记：Keepalived.md)
 	10. Socket
 		1. 
-35. ==网络攻击==：
+43. ==网络攻击==：
 	1. 会话固定攻击（SFA）
 		1. [会话固定攻击（SFA）](笔记：会话固定攻击（SFA）.md)
 	2. 跨站脚本攻击（XSS）
 		1. [跨站脚本攻击（XSS）](笔记：跨站脚本攻击（XSS）.md)
-	3. 跨站请求伪造攻击（CSRF）
-		1. [跨站请求伪造攻击（CSRF）](笔记：跨站请求伪造攻击（CSRF）.md)
-36. ==考研==：
+		2. 跨站请求伪造攻击（CSRF）
+		3. [跨站请求伪造攻击（CSRF）](笔记：跨站请求伪造攻击（CSRF）.md)
+44. ==考研==：
 	1. 英语
 		1. 英语单词
 			1. 单词速记
@@ -291,35 +318,35 @@
 	2. 计算机
 		1. 算法分析与设计
 			1. [算法分析与设计](笔记：算法分析与设计.md)
-37. ==博客==：
+45. ==博客==：
 	1. [Hexo + Obsidian +Git Page](笔记：Hexo%20+%20Obsidian%20+Git%20Page.md)
 	2. [MD → Xmind 神器](笔记：MD%20→%20Xmind%20神器.md)
 	3. 
-38. ==浏览器==：
+46. ==浏览器==：
 	1. Chrome
 		1. [Chrome](笔记：Chrome.md)
-39. ==游戏==：
+47. ==游戏==：
 	1. 奶块
 		1. 奶块提帧
 			1. [奶块提帧](笔记：奶块提帧.md)
-40. ==版本控制==：
+48. ==版本控制==：
 	1. Git 生态
 		1. [Git 生态](笔记：Git%20生态.md)
-41. ==Mermaid==：
+49. ==Mermaid==：
 	1. [Mermaid](笔记：Mermaid.md)
-42. ==Python==：
+50. ==Python==：
 	1. [笔记：Python](笔记：Python.md)
-43. ==AI==：
+51. ==AI==：
 	1. Ollama
 		1. [Ollama](笔记：Ollama.md)
-44. ==脚本==
+52. ==脚本==
 	1. 熊猫精灵
 		1. [熊猫精灵](笔记：熊猫精灵.md)
-45. 临时
+53. 临时
 	1. [临时：英语口语](临时：英语口语.md)
-46. ==职场==
+54. ==职场==
 	1. [职场高管缩写](笔记：职场高管缩写.md)
-47. ==输入法==：
+55. ==输入法==：
 	1. [笔记：输入法](笔记：输入法.md)
 
 

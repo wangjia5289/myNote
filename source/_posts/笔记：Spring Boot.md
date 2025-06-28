@@ -10,6 +10,10 @@ author: 霸天
 layout: post
 ---
 
+### @Scheduled(fixedRate = 5000)
+
+定时任务，可以用来定时发邮件、定期清理数据库、晚上跑报表等
+
 ### 1. 常用注解
 
 #### 1.1. Spring Web 相关注解

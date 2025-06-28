@@ -12,5 +12,7 @@
   "obsidian-custom-frames",
   "number-headings-obsidian",
   "obsidian-git",
-  "obsidian-excalidraw-plugin"
+  "obsidian-excalidraw-plugin",
+  "obsidian-kanban",
+  "task-status"
 ]

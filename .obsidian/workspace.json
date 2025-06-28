@@ -13,43 +13,44 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "source/_posts/笔记：Java 项目创建和结构.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "笔记：Java 项目创建和结构"
             }
           },
           {
-            "id": "6a312a3f6a433eae",
+            "id": "f16fbd7c9f3b251e",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：职场高管缩写.md",
+                "file": "source/_posts/笔记：Spring Boot.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：职场高管缩写"
+              "title": "笔记：Spring Boot"
             }
           },
           {
-            "id": "8073d54b6664621d",
+            "id": "b9bbb22520ef00d7",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：Windows.md",
+                "file": "templates/Categories 总纲.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：Windows"
+              "title": "Categories 总纲"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -61,7 +62,7 @@
       {
         "id": "d389120d82676c7b",
         "type": "tabs",
-        "dimension": 47.61904761904761,
+        "dimension": 49.79865771812081,
         "children": [
           {
             "id": "88017f6098597ebd",
@@ -108,7 +109,7 @@
       {
         "id": "1d533fd202421c11",
         "type": "tabs",
-        "dimension": 52.38095238095239,
+        "dimension": 50.20134228187919,
         "children": [
           {
             "id": "cd6a8ca51af1d363",
@@ -261,47 +262,50 @@
       "canvas:新建白板": false,
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
-      "obsidian-excalidraw-plugin:新建绘图文件": false
+      "obsidian-excalidraw-plugin:新建绘图文件": false,
+      "obsidian-kanban:创建新看板": false,
+      "task-status:Change Checkbox Status": false
     }
   },
-  "active": "02d7d245d82b2d93",
+  "active": "b9bbb22520ef00d7",
   "lastOpenFiles": [
-    "source/_posts/笔记：Git 生态.md",
-    "README.md",
+    "source/_posts/笔记：Java 项目创建和结构.md",
     "templates/Categories 总纲.md",
-    "未命名.canvas",
+    "README.md",
+    "source/_posts/笔记：Spring Boot.md",
+    "Todo 看板.md",
+    "source/_posts/笔记：Windows.md",
+    "source/_posts/笔记：职场高管缩写.md",
+    "source/_posts/hello-world.md",
+    "source/_posts/笔记：Java 项目创建和结构",
+    "source/_posts/笔记：Java 开发方向.md",
+    "source/_posts/笔记：Java SE.md",
+    "source/_posts/笔记 ：Java 泛型.md",
+    "source/_posts/临时：英语口语.md",
+    "source/_posts/临时：中文到英文.md",
+    "source/_posts/未命名 1.md",
+    "source/_posts/2025-06-12.md",
+    "source/_posts/笔记：Webmin.md",
+    "source/_posts/笔记：云计算四种服务模式.md",
+    "source/_posts/笔记：私有云.md",
+    "source/_posts/笔记：三明治分层架构.md",
+    "source/_posts/笔记：算法分析与设计.md",
+    "source/_posts/笔记：Mermaid.md",
     "source/_posts/笔记：Bug.md",
+    "source/_posts/笔记：Git 生态.md",
+    "未命名.canvas",
     "source/_posts/笔记：IO.md",
     "source/_posts/笔记：Ollama.md",
     "source/_posts/笔记：ElasticSearch.md",
-    "source/_posts/笔记：职场高管缩写.md",
-    "source/_posts/笔记：操作系统.md",
-    "source/_posts/笔记：奶块攻略.md",
-    "source/_posts/笔记：CAP 理论.md",
-    "source/_posts/笔记：FRP 内网穿透.md",
     "source/_posts/笔记：CAP 理论/image-20250626141217557.png",
-    "templates/马士兵.md",
-    "source/_posts/笔记：数据存储类型.md",
-    "templates/default-template.md",
-    "templates/临时.md",
-    "source/_posts/笔记：本地图库.md",
-    "source/_posts/笔记：三级单词.md",
-    "source/_posts/笔记：Docker.md",
-    "source/_posts/笔记：Linux.md",
     "source/_posts/笔记：FRP 内网穿透/image-20250624110113741.png",
     "source/_posts/笔记：FRP 内网穿透/image-20250624104543612.png",
-    "source/_posts/笔记：Windows.md",
     "source/_posts/笔记：FRP 内网穿透/image-20250624102659401.png",
     "source/_posts/笔记：FRP 内网穿透/image-20250624101633939.png",
     "source/_posts/笔记：FRP 内网穿透/image-20250624100936818.png",
     "source/_posts/笔记：FRP 内网穿透/image-20250624100920194.png",
     "source/_posts/笔记：FRP 内网穿透/image-20250624100459771.png",
     "source/_posts/笔记：FRP 内网穿透",
-    "source/_posts/笔记：核心单词小工具.md",
-    "source/_posts/笔记：修改窗口小工具.md",
-    "source/_posts/笔记：Spring AI.md",
-    "source/_posts/笔记：Tomcat.md",
-    "source/_posts/笔记：一键启动.md",
     "source/_posts/笔记：Windows/image-20250619203539052.png",
     "source/_posts/笔记：Windows/image-20250619203524550.png",
     "templates/马士兵",
@@ -312,7 +316,6 @@
     "Edraw/ES基础---高亮.eddx.FziRbg",
     "Edraw/ES基础---高亮.eddx.rPZaTw",
     "Edraw/ES基础---高亮.eddx.qFsnDV",
-    "Edraw/ES基础---高亮.eddx.QrZJXl",
     "Excalidraw/未命名.canvas"
   ]
 }

@@ -1,113 +1,30 @@
 ---
-title: 笔记：Java 开发类型和项目创建
+title: 笔记：Java 项目创建和结构
 date: 2025-03-12
 categories:
   - Java
   - Java 基础
-  - Java 开发类型和项目创建
+  - Java 项目创建和结构
 tags: 
 author: 霸天
 layout: post
 ---
-### 1. Java 主流开发类型
+## Spring Web 项目
 
-1. ==Web 应用开发==
-	1. 技术栈：
-		1. Spring Web、Spring WebFlux
-	2. 适合：
-		1. 后台管理、企业应用
-2. ==实时通信==：
-	1. 技术栈：
-		1. Spring WebSocket、Netty
-	2. 适合：
-		1. 聊天室、在线协作、股票行情推送、游戏服务器
-3. ==后台任务==：
-	1. 技术栈：
-		1. Quartz、ScheduledExecutorService、Spring @Scheduled
-	2. 适合：
-		1. 定时发邮件、定期清理数据库、晚上跑报表等
-4. ==爬虫==：
-	1. 技术栈：
-		1. Jsoup、HttpClient、Selenium、HtmlUnit
-	2. 适合：
-		1. 爬取网页、解析 HTML、获取数据
-5. ==自动化工具==：
-	1. 技术栈：
-		1. 任何 Java 类库 + 自己封装的逻辑
-	2. 适合：
-		1. 批量处理 Excel、脚本化部署、文件转码、流程机器人等，类似“程序员自己的瑞士军刀”
+### 创建方式
 
-----
-
-
-
-### 2. Web 应用开发
-
-![](image-20250516194807264.png)
-
-
-以追加 Spring Web 依赖的方式，勾选：
-1. ==Web==
-	1. Spring Reactive Web
-
-### 3. 创建 Web 项目
-
-1. 打开 IDEA 工具，安装 JavaToWeb 插件
-2. 创建空项目
-3. 配置 Maven、JDK
-4. 创建一个 Maven 模块
-5. 右键，点击 JBLJavaToWeb
-6. Ctrl + F5 刷新一下
-7. 添加打包插件
-	1. 如果我们使用 Dockerfile 的多阶段构建（multi-stage build）来打包 Java Web 项目，那么需要注意：
-	2. 默认情况下，当执行 `mvn package` 命令时，Maven 只会将项目自身的 `.class` 文件和 `resources` 文件打包进生成的 JAR 文件，不会自动将外部依赖（如 Spring Boot 框架或第三方库）一同打包进去。
-	3. 因此，打包出来的 JAR 文件并不能独立运行，除非目标环境已经具备所有所需依赖。这在容器环境中通常是不满足的。
-	4. 为了生成可独立运行的可执行 JAR（fat jar 或 Uber JAR），我们需要在 `pom.xml` 中配置相关的打包插件：
-		- `spring-boot-maven-plugin`（适用于 Spring Boot 项目，官方推荐）
-		- `maven-shade-plugin`（适用于通用 Java 项目）
-	5. 所以我们需要手动添加[打包插件](https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin)：
-```
-<plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-shade-plugin</artifactId>
-  <version>3.2.4</version>
-  <executions>
-    <execution>
-      <phase>package</phase>
-      <goals><goal>shade</goal></goals>
-      <configuration>
-        <transformers>
-          <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-            <mainClass>com.example.Main</mainClass>
-          </transformer>
-        </transformers>
-      </configuration>
-    </execution>
-  </executions>
-</plugin>
-```
-
----
-
-
-### 4. 创建 Spring Web 项目
-
-#### 4.1. 创建 Spring Web 项目
-
-#### 4.2. 使用 Spring 提供的脚手架
+#### 4.2. 使用 Spring / IDEA 提供的脚手架
 
 使用 Spring 提供的脚手架 [Spring Initializr](https://start.spring.io/) 创建项目，勾选
 1. Web
 	1. Spring Web
 下载并解压 ZIP 包，然后在 IntelliJ IDEA 中选择 **Open** 打开该项目。
 
----
-
-
-##### 4.2.1. 使用 IDEA 提供的脚手架
-
-1. Web
-	1. Spring Web
+> [!NOTE] 注意事项
+> 1. 如果使用 IDEA 提供的脚手架，只需要在 IntelliJ IDEA 中创建项目即可。
+> 2. 脚手架默认使用最新版本进行创建。如果你想使用旧版本，可以在项目生成后手动修改 `spring-boot-starter-parent` 的版本，并重新加载项目。需要注意，Spring Boot 3 默认要求 JDK 17，因此你也需要根据实际情况调整 JDK 版本
+> 3. Spring Boot 的历史版本可以在 Maven Central 仓库中查看：[Spring Boot 版本](https://central.sonatype.com/artifact/org.springframework.boot/spring-boot/versions)
+> 4. 补充：`Maven Central` 是依赖的官方仓库源，而 `mvnrepository.com` 则是一个提供依赖搜索与索引的第三方黄页工具站点
 
 ---
 
@@ -245,6 +162,73 @@ server:
 </build>
 ```
 
+
+
+## Web 项目
+
+### 普通 Web 项目
+
+1. 打开 IDEA 工具，安装 JavaToWeb 插件
+2. 创建空项目
+3. 配置 Maven、JDK
+4. 创建一个 Maven 模块
+5. 右键，点击 JBLJavaToWeb
+6. Ctrl + F5 刷新一下
+7. 添加打包插件
+	1. 如果我们使用 Dockerfile 的多阶段构建（multi-stage build）来打包 Java Web 项目，那么需要注意：
+	2. 默认情况下，当执行 `mvn package` 命令时，Maven 只会将项目自身的 `.class` 文件和 `resources` 文件打包进生成的 JAR 文件，不会自动将外部依赖（如 Spring Boot 框架或第三方库）一同打包进去。
+	3. 因此，打包出来的 JAR 文件并不能独立运行，除非目标环境已经具备所有所需依赖。这在容器环境中通常是不满足的。
+	4. 为了生成可独立运行的可执行 JAR（fat jar 或 Uber JAR），我们需要在 `pom.xml` 中配置相关的打包插件：
+		- `spring-boot-maven-plugin`（适用于 Spring Boot 项目，官方推荐）
+		- `maven-shade-plugin`（适用于通用 Java 项目）
+	5. 所以我们需要手动添加[打包插件](https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin)：
+```
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-shade-plugin</artifactId>
+  <version>3.2.4</version>
+  <executions>
+    <execution>
+      <phase>package</phase>
+      <goals><goal>shade</goal></goals>
+      <configuration>
+        <transformers>
+          <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+            <mainClass>com.example.Main</mainClass>
+          </transformer>
+        </transformers>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+```
+
+
+
+
+
+
+
+
+
+### 2. Web 应用开发
+
+![](source/_posts/笔记：Java%20项目创建和结构/image-20250516194807264.png)
+
+
+以追加 Spring Web 依赖的方式，勾选：
+1. ==Web==
+	1. Spring Reactive Web
+
+### 3. 创建 Web 项目
+
+---
+
+
+### 4. 创建 Spring Web 项目
+
+#### 4.1. 创建 Spring Web 项目
+
 ---
 
 
@@ -267,7 +251,7 @@ server:
 ### 6. 补充：如何追加依赖
 
 ==1.安装 editstarters 插件==
-![](source/_posts/笔记：Java%20开发类型和项目创建/image-20250503170333048.png)
+![](source/_posts/笔记：Java%20项目创建和结构/image-20250503170333048.png)
 
 
 ==2.进行追加依赖==
@@ -283,7 +267,7 @@ server:
 ### 7. 补充：手动导入项目
 
 问题核心是：Maven 依赖没导进来，我们手动导一下即可
-![](source/_posts/笔记：Java%20开发类型和项目创建/image-20250413192204786.png)
+![](source/_posts/笔记：Java%20项目创建和结构/image-20250413192204786.png)
 
 ---
 
