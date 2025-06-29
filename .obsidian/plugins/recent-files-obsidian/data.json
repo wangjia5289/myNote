@@ -1,8 +1,20 @@
 {
   "recentFiles": [
     {
+      "basename": "笔记：本地图库小工具",
+      "path": "source/_posts/笔记：本地图库小工具.md"
+    },
+    {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
+    },
+    {
+      "basename": "笔记：Linux",
+      "path": "source/_posts/笔记：Linux.md"
+    },
+    {
+      "basename": "Categories 总纲",
+      "path": "templates/Categories 总纲.md"
     },
     {
       "basename": "临时：security",
@@ -15,10 +27,6 @@
     {
       "basename": "笔记：搭建 MySQL 环境",
       "path": "source/_posts/笔记：搭建 MySQL 环境.md"
-    },
-    {
-      "basename": "笔记：Linux",
-      "path": "source/_posts/笔记：Linux.md"
     },
     {
       "basename": "笔记：MySQL 基础",
@@ -39,10 +47,6 @@
     {
       "basename": "测试",
       "path": "templates/测试.md"
-    },
-    {
-      "basename": "Categories 总纲",
-      "path": "templates/Categories 总纲.md"
     },
     {
       "basename": "default-template",
@@ -191,14 +195,6 @@
     {
       "basename": "笔记：Git 家族",
       "path": "source/_posts/笔记：Git 家族.md"
-    },
-    {
-      "basename": "笔记：本地图库小工具",
-      "path": "source/_posts/笔记：本地图库小工具.md"
-    },
-    {
-      "basename": "笔记：FRP 内网穿透",
-      "path": "source/_posts/笔记：FRP 内网穿透.md"
     }
   ],
   "omittedPaths": [],
