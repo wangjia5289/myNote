@@ -89,23 +89,23 @@
 ---
 
 
-#### 1.2. 创建用户信息存储表，存储用户信息
+#### 1.2. 创建用户权限表
 
-我们一般会创建三个表：`users` 表存储用户信息，`authorities` 表存储用户权限信息，`user_authoritie` 表存储用户和权限关联，实现一个用户多个权限，一个权限多个用户。
+我们一般会创建五个表：`users` 表（用户表）存储所有注册用户的信息，`roles` 表（角色表）定义了系统中存在的各种角色，`user_role` 表（用户-角色关联表）用于建立用户和角色之间的多对多关系，`authorities` 表（权限表）定义了系统中的各种操作权限，`role_authoritie` 表（角色-权限表）用于建立角色和权限之间的多对多关系
 
-==1.users 表==
+<span style="background:#fff88f">1. users 表（用户表）</span>
 
-| 列名                          | 数据类型        | 说明                  | 约束        | 默认值 |
-| --------------------------- | ----------- | ------------------- | --------- | --- |
-| **user_id**                 | int         | ID（也可直接拿来做账号）       | 主键约束、自增属性 |     |
-| **username**                | varchar(20) | 用户名（账号，必写）          | 唯一约束      |     |
-| **password**                | varchar(20) | 加密密码（必写）            |           |     |
-| **isAccountNonExpired**     | tinyint(1)  | 账户是否没过期（必写，1 代表没过期） |           | 1   |
-| **isAccountNonLocked**      | tinyint(1)  | 账户是否没锁定（必写）         |           | 1   |
-| **isCredentialsNonExpired** | tinyint(1)  | 密码是否没过期（必写）         |           | 1   |
-| **isEnabled**               | tinyint(1)  | 用户是否启用（必写）          |           | 1   |
-| **email**                   | VARCHAR(20) | 邮箱（示例）              | 唯一约束      |     |
-| **phoneNumber**             | VARCHAR(20) | 电话号码（示例）            | 唯一约束      |     |
+| 列名                           | 数据类型        | 约束        | 默认值 | 示例值                               | 说明                                 |
+| ---------------------------- | ----------- | --------- | --- | --------------------------------- | ---------------------------------- |
+| **user_id**                  | int         | 主键约束、自增属性 | 自增  | 1                                 | 用户唯一标识符（将 username 直接作为主键也是一种常见做法） |
+| **username**                 | varchar(20) | 唯一约束      |     | john                              | 用户名                                |
+| **password**                 | varchar(20) |           |     | $2a$10$abcdefghijklmnopqrstuvwxyz | 加密后密码（禁止明文密码直接入库）                  |
+| **is_accountNonExpired**     | tinyint(1)  |           | 1   | 1                                 | 账户是否没过期（1 代表没过期）                   |
+| **is_accountNonLocked**      | tinyint(1)  |           | 1   | 1                                 | 账户是否没锁定                            |
+| **is_credentialsNonExpired** | tinyint(1)  |           | 1   | 1                                 | 密码是否没过期                            |
+| **is_enabled**               | tinyint(1)  |           | 1   | 1                                 | 用户是否启用                             |
+| **email**                    | VARCHAR(20) | 唯一约束      |     | john@example.com                  | 邮箱                                 |
+| **phoneNumber**              | VARCHAR(20) | 唯一约束      |     | 13800138000                       | 电话号码                               |
 
 ```
 # 1. 创建表
@@ -113,15 +113,19 @@ CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(20),
     password VARCHAR(20),
-    isAccountNonExpired TINYINT(1) DEFAULT 1,
-    isAccountNonLocked TINYINT(1) DEFAULT 1,
-    isCredentialsNonExpired TINYINT(1) DEFAULT 1,
-    isEnabled TINYINT(1) DEFAULT 1,
+    is_accountNonExpired TINYINT(1) DEFAULT 1,
+    is_accountNonLocked TINYINT(1) DEFAULT 1,
+    is_credentialsNonExpired TINYINT(1) DEFAULT 1,
+    is_enabled TINYINT(1) DEFAULT 1,
     email VARCHAR(20),
     phoneNumber VARCHAR(20)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE users ADD CONSTRAINT unique_user UNIQUE (username, email, phoneNumber);
+ALTER TABLE users ADD CONSTRAINT unique_username UNIQUE (username);
+
+ALTER TABLE users ADD CONSTRAINT unique_email UNIQUE (email);
+
+ALTER TABLE users ADD CONSTRAINT unique_phone UNIQUE (phoneNumber);
 
 
 # 2. 插入数据
@@ -131,69 +135,122 @@ VALUES
     ('bob', 'pass456', 'bob@example.com', '13900000001'),
     ('BaTian', 'pass789', 'batian@example.com', '13700000002');
 ```
-![](image-20250519165406858.png)
+
+> [!NOTE] 注意事项
+> 1. username、password、isAccountNonExpired、isAccountNonLocked、isCredentialsNonExpired、isEnabled、authorities 这七个字段是 `userDetails` 接口的默认属性，一般在数据库表中要全部包含
+> 2. email、phoneNumber 等字段，是我们自己扩展的字段
 
 
-==2.authorities==
+<span style="background:#fff88f">2. roles 表（角色表）</span>
 
-| 列名                  | 数据类型        | 说明    | 约束        |
-| ------------------- | ----------- | ----- | --------- |
-| **authoritie_id**   | int         | ID    | 主键约束、自增属性 |
-| **authoritie_name** | varchar(20) | 权限的名称 | 唯一约束      |
+| 列名                           | 数据类型        | 约束        | 默认值 | 示例值                               | 说明                                    |
+| ---------------------------- | ----------- | --------- | --- | --------------------------------- | ------------------------------------- |
+| **role_id**                  | int         | 主键约束、自增属性 | 自增  | 1                                 | 角色唯一标识符                               |
+| **role_name**                | varchar(20) | 唯一约束      |     | ROLE_ADMIN                        | 角色名称 (Spring Security 约定以 `ROLE_` 开头) |
+```
+# 1. 创建表
+CREATE TABLE roles (
+    role_id INT AUTO_INCREMENT PRIMARY KEY,
+    role_name VARCHAR(50) UNIQUE
+) COMMENT='角色表';
+
+ALTER TABLE roles ADD CONSTRAINT unique_role_name UNIQUE (role_name);
+
+
+# 2. 插入数据
+INSERT INTO roles (role_name) VALUES 
+	('ROLE_ADMIN'),
+	('ROLE_USER'),
+	('ROLE_MANAGER'),
+	('ROLE_GUEST');
+```
+
+
+<span style="background:#fff88f">3. user_role 表（用户-角色关联表）</span>
+
+| 列名          | 数据类型        | 约束                                                 | 默认值 | 示例值 | 说明           |
+| ----------- | ----------- | -------------------------------------------------- | --- | --- | ------------ |
+| **user_id** | int         | 主键约束（与 role_id 联合主键）<br>外键约束（指向 users 表中的 user_id） |     | 1   | users 表中的 id |
+| **role_id** | varchar(20) | 主键约束（与 user_id 联合主键）<br>外键约束（指向 roles 表中的 role_id） |     | 1   | roles 表中的 id |
+```
+# 1. 创建表
+CREATE TABLE user_role (
+    user_id    INT         NOT NULL,
+    role_id    INT         NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    FOREIGN KEY (role_id) REFERENCES roles (role_id)
+) ;
+
+
+# 2. 插入数据
+INSERT INTO user_role (user_id, role_id) VALUES
+	(1, 1),
+	(1, 2),
+	(2, 2),
+	(3, 3),
+	(3, 4);
+```
+
+
+<span style="background:#fff88f">4. authorities 表（权限表）</span>
+
+| 列名                  | 数据类型        | 约束        | 默认值 | 示例值                     | 说明                       |
+| ------------------- | ----------- | --------- | --- | ----------------------- | ------------------------ |
+| **authoritie_id**   | int         | 主键约束、自增属性 | 自增  | 1                       | 权限唯一标识                   |
+| **authoritie_name** | varchar(50) | 唯一约束      |     | finance:invoice:approve | 权限名称（常采用 模块：资源：操作 的命名方式） |
 
 ```
 # 1. 创建表
 CREATE TABLE IF NOT EXISTS authorities (
     authoritie_id INT AUTO_INCREMENT PRIMARY KEY,
-    authoritie_name VARCHAR(20)
+    authoritie_name VARCHAR(50)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE authorities ADD CONSTRAINT authoiritie UNIQUE (authoritie_name);
+ALTER TABLE authorities ADD CONSTRAINT unique_authoritie_name UNIQUE (authoritie_name);
 
 
 # 2. 插入数据
-INSERT INTO authorities (authoritie_name)
-VALUES 
-    ('ROLE_USER'),
-    ('ROLE_ADMIN'),
-    ('ROLE_CEO');
+INSERT INTO authorities (authoritie_name) VALUES
+    ('finance:invoice:approve'),
+    ('finance:invoice:view'),
+    ('user:profile:update'),
+    ('user:profile:view'),
+    ('system:config:edit'),
+    ('system:config:view'),
+    ('report:monthly:generate'),
+    ('report:monthly:view');
 ```
-![](image-20250519165427042.png)
 
 
-==3.user_authoritie 表==
+<span style="background:#fff88f">5. role_authoritie 表（角色-权限关联表）</span>
 
-| 列名              | 数据类型        | 约束                         |
-| --------------- | ----------- | -------------------------- |
-| username        | varchar(20) | 与 `authoritie_name` 设置联合主键 |
-| authoritie_name | varchar(20) | 与 `username` 设置联合主键        |
+| 列名                | 数据类型 | 约束                                                             | 默认值 | 示例值 | 说明                 |
+| ----------------- | ---- | -------------------------------------------------------------- | --- | --- | ------------------ |
+| **role_id**       | int  | 主键约束（与 authoritie_id 联合主键）<br>外键约束（指向 roles 表中的 role_id）       |     | 1   | roles 表中的 id       |
+| **authoritie_id** | int  | 主键约束（与 role_id 联合主键）<br>外键约束（指向 authorities 表中的 authoritie_id） |     | 1   | authorities 表中的 id |
 
 ```
 # 1. 创建表
-CREATE TABLE user_authorities (
-    username VARCHAR(20) NOT NULL,
-    authoritie_name VARCHAR(20) NOT NULL,
-    PRIMARY KEY (username, authoritie_name),
-    FOREIGN KEY (username) REFERENCES users (username),
-    FOREIGN KEY (authoritie_name) REFERENCES authorities (authoritie_name)
-);
+CREATE TABLE role_authority (
+    role_id INT NOT NULL,
+    authoritie_id INT NOT NULL,
+    PRIMARY KEY (role_id, authoritie_id),
+    FOREIGN KEY (role_id) REFERENCES roles(role_id),
+    FOREIGN KEY (authoritie_id) REFERENCES authorities(authoritie_id)
+) ;
 
 
 # 2. 插入数据
-INSERT INTO user_authorities (username, authoritie_name)
-VALUES
-    ('alice', 'ROLE_USER'),
-    ('alice', 'ROLE_ADMIN'),
-    ('bob', 'ROLE_USER'),
-    ('BaTian', 'ROLE_USER'),
-    ('BaTian', 'ROLE_ADMIN'),
-    ('BaTian', 'ROLE_CEO');
+INSERT INTO role_authority (role_id, authoritie_id) VALUES
+    (1, 1), 
+    (1, 2), 
+    (1, 3), 
+    (1, 4), 
+    (2, 4),
+    (3, 2), 
+    (3, 4); 
 ```
-![](image-20250519165451890.png)
-
-> [!NOTE] 注意事项
-> 1. 我们是使用 `hasAuthority()` 进行资源级别的访问控制和方法级别的访问控制
-> 2. 如果是使用 `hasRole()` ，我们会去掉 `ROLE_` 前缀
 
 ---
 

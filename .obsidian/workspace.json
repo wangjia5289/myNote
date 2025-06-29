@@ -68,7 +68,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "elasticsearch",
+                "query": "笔记：Lin",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -235,7 +235,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 307.5
+    "width": 307.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -254,7 +255,11 @@
   "active": "9c717b9a494dac91",
   "lastOpenFiles": [
     "source/_posts/笔记：Spring Security.md",
+    "Todo 看板.md",
     "templates/临时：security.md",
+    "source/_posts/笔记：搭建 MySQL 环境.md",
+    "source/_posts/笔记：Linux.md",
+    "source/_posts/笔记：MySQL 基础.md",
     "source/_posts/笔记：Spring Security/image-20250628224744251.png",
     "Edraw/SpringSecurity---执行流程---SecurityContextPersistenceFilter 介入.eddx",
     "Edraw/SpringSecurity---执行流程---基于HttpSession---存在Authentication.eddx.ximvoK",
@@ -273,7 +278,6 @@
     "templates/测试.md",
     "templates/Categories 总纲.md",
     "templates/default-template.md",
-    "Todo 看板.md",
     "source/_posts/笔记：Kafka 基础.md",
     "source/_posts/笔记：Java 功能测试.md",
     "source/_posts/hello-world.md",
@@ -288,8 +292,6 @@
     "source/_posts/笔记：RabbitMQ 基础.md",
     "source/_posts/笔记：Nginx 基础.md",
     "source/_posts/笔记：Python.md",
-    "source/_posts/笔记：Ollama.md",
-    "source/_posts/笔记：Obsidian 插件制作（自用）.md",
     "未命名.canvas",
     "source/_posts/笔记：CAP 理论/image-20250626141217557.png",
     "source/_posts/笔记：FRP 内网穿透/image-20250624110113741.png",

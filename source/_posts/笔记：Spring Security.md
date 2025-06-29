@@ -20,7 +20,7 @@ layout: post
 
 ## 3. Spring Security 登录图示
 
-![](image-20250628210023140.png)
+
 
 ---
 
@@ -49,27 +49,29 @@ layout: post
 <span style="background:#fff88f">4. AnonymousAuthenticationFilter 介入</span>
 如果当前没有任何 `Authentication`，系统会自动创建一个匿名身份，以避免后续流程中出现空指针异常。
 
-> [!NOTE] 注意事项
-> 1. 
 
-
-
-<span style="background:#fff88f">4.FilterSecurityInterceptor 介入</span>
+<span style="background:#fff88f">5. FilterSecurityInterceptor 介入</span>
 首先检查当前线程中是否存在 `Authentication`（无论是否匿名） ，如果不存在，则抛出 `AuthenticationException`（表示未认证）
 
 接着检查当前权限是否有权访问对应的资源或方法（即资源级别的访问控制、方法级别的访问控制），若无权限，则抛出 `AccessDeniedException`
 > [!NOTE] 注意事项
 > 1. 整个流程中的异常由 `ExceptionTranslation` 过滤器统一处理，负责捕获**整个过滤器链中**抛出的 `AuthenticationException` 和 `AccessDeniedException` 异常，并执行相应的处理逻辑。
-> 2. 我们的 /public 这些，时限制的必须要认证的用户，即认证的 authentication
 
 
-5.执行 API
+<span style="background:#fff88f">6. 执行 API</span>
+在这一步，才真正开始执行我们的 API 逻辑；如果是登录 API，并且通过 AuthenticationManager 进行认证，流程如下：
+![](image-20250628210023140.png)
 
 
-6.SecurityContextPersistenceFilter 再次介入
-自动将本线程的 `SecurityContext` 存入 `HttpSession`，以便在后续请求中维持用户身份（需要手动开启）
+<span style="background:#fff88f">7. SecurityContextPersistenceFilter 再次介入</span>
+会自动将本线程的 `SecurityContext` 存入服务器的 `HttpSession`，以便在后续请求中维持用户身份（需要手动开启）
 
  随后，过滤器会清空本线程 `SecurityContextHolder`，防止 `SecurityContext` 在后续请求中被无意复用，从而确保每个请求都能独立执行认证和授权流程。
+
+----
+
+
+
 
 
 

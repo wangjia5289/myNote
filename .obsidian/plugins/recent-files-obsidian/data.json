@@ -1,12 +1,28 @@
 {
   "recentFiles": [
     {
+      "basename": "临时：security",
+      "path": "templates/临时：security.md"
+    },
+    {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
     },
     {
-      "basename": "临时：security",
-      "path": "templates/临时：security.md"
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
+    },
+    {
+      "basename": "笔记：搭建 MySQL 环境",
+      "path": "source/_posts/笔记：搭建 MySQL 环境.md"
+    },
+    {
+      "basename": "笔记：Linux",
+      "path": "source/_posts/笔记：Linux.md"
+    },
+    {
+      "basename": "笔记：MySQL 基础",
+      "path": "source/_posts/笔记：MySQL 基础.md"
     },
     {
       "basename": "笔记：ElasticSearch 基础",
@@ -31,10 +47,6 @@
     {
       "basename": "default-template",
       "path": "templates/default-template.md"
-    },
-    {
-      "basename": "Todo 看板",
-      "path": "Todo 看板.md"
     },
     {
       "basename": "笔记：Kafka 基础",
@@ -93,10 +105,6 @@
       "path": "source/_posts/笔记：NFS 基础.md"
     },
     {
-      "basename": "笔记：MySQL 基础",
-      "path": "source/_posts/笔记：MySQL 基础.md"
-    },
-    {
       "basename": "笔记：MVC 与三层架构",
       "path": "source/_posts/笔记：MVC 与三层架构.md"
     },
@@ -127,10 +135,6 @@
     {
       "basename": "笔记：Mac",
       "path": "source/_posts/笔记：Mac.md"
-    },
-    {
-      "basename": "笔记：Linux",
-      "path": "source/_posts/笔记：Linux.md"
     },
     {
       "basename": "笔记：Kubernetes 基础",
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：FRP 内网穿透",
       "path": "source/_posts/笔记：FRP 内网穿透.md"
-    },
-    {
-      "basename": "笔记：跨站请求伪造攻击（CSRF）",
-      "path": "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md"
     }
   ],
   "omittedPaths": [],
