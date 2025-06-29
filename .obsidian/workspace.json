@@ -35,7 +35,8 @@
               "title": "笔记：Spring Security"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -110,7 +111,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 313.5041847229004
+    "width": 313.5041847229004,
+    "collapsed": true
   },
   "right": {
     "id": "0803248b5c8c75de",
@@ -252,11 +254,11 @@
       "task-status:Change Checkbox Status": false
     }
   },
-  "active": "9c717b9a494dac91",
+  "active": "366c68d1052a0d60",
   "lastOpenFiles": [
+    "templates/临时：security.md",
     "source/_posts/笔记：Spring Security.md",
     "Todo 看板.md",
-    "templates/临时：security.md",
     "source/_posts/笔记：搭建 MySQL 环境.md",
     "source/_posts/笔记：Linux.md",
     "source/_posts/笔记：MySQL 基础.md",

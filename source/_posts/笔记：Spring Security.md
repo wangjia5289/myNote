@@ -18,13 +18,6 @@ layout: post
 ---
 
 
-## 3. Spring Security 登录图示
-
-
-
----
-
-
 ## Spring Security 执行流程
 
 <span style="background:#fff88f">1. 用户请求（客户端请求）</span>
