@@ -2,7 +2,13 @@
 
 
 
-
+> [!NOTE] 注意事项
+> 1. 与数据库表映射的类通常称为 Entity 类，也可称为 DO 类或 PO 类，统属 POJO 类，通常只包含 getter、setter 、equals、hashCode、toString 方法及构造方法，不应包含业务逻辑方法
+> 2. 数据库中的表名一般使用复数形式，如 users；而在 Java 中则采用单数形式命名，如 User
+> 3. 别忘了添加 `private List<String> authorities;` 及其对应方法
+> 4. 使用 MyBatisX 插件生成的 POJO 类默认包含 getter、setter、equals、hashCode、toString 方法，但不包含构造方法。
+> 	1. 我们可以手动补全有参和无参构造方法；
+> 	2. 同时我么也也可以删除自动生成的 equals、hashCode、toString 方法，改为使用 IDEA 生成
 
 
 
@@ -331,6 +337,57 @@ public class UserService {
 
 
 #### 1.3. 进行 MyBatis 相关配置
+
+##### 单数据源
+
+```
+# application.yml
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.example.spring_data_mybatis.model.entity
+
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.136.7:3306/repository1?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: root
+    password: wq666666
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+
+
+
+
+
+
+
+# application.yml
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true      # 驼峰映射：user_name ↔ userName
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   # 在控制台打印 SQL
+
+  # 指定所有 Mapper XML 的位置（支持通配符）
+  mapper-locations: classpath*:mapper/*.xml  
+
+  # 实体类的包，给全类名起别名，简化 Mapper XML 中的 type 写法
+  type-aliases-package: com.example.spring_data_mybatis.model.entity
+
+spring:
+  datasource:
+    # JDBC URL（数据库地址 + 库名 + 编码 + 时区）
+    url: jdbc:mysql://192.168.136.7:3306/repository1?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: root                           # 数据库用户名
+    password: wq666666                       # 数据库密码
+    driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL 8 驱动
+
+```
+
+
+##### 多数据源
 
 ==1.通用配置==
 ```
@@ -937,6 +994,12 @@ public PageInfo<UmsResource> page(Integer pageNum, Integer pageSize, Long catego
 
 
 # 三、工具
+
+
+
+> [!NOTE] 注意事项
+> 1. 使用 MyBatisX 插件生成的Entity 类，默认是不包含其有参无参构造的，只是包含了，getter、setter、equals、hashCode、toString 方法，我们可以手动添加有参构造和无参构造
+
 
 ### 1. MyBatisX 插件
 

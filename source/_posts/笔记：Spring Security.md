@@ -233,6 +233,53 @@ INSERT INTO role_authority (role_id, authoritie_id) VALUES
 ---
 
 
+#### 使用 Spring Data MyBatis 实现查询用户的基本信息和权限
+
+##### 前置步骤
+
+详见笔记：Spring Data MyBatis
+
+----
+
+
+##### 编写 User Entity 类
+
+User Entity 类位于 `com.example.securitywithhttpsession.entity` 包下
+```
+public class User {
+
+	// users 表中的数据（用户基本信息）
+    private Integer userId;
+    private String username;
+    private String password;
+    private Boolean isAccountNonExpired;
+    private Boolean isAccountNonLocked;
+    private Boolean isCredentialsNonExpired;
+    private Boolean isEnabled;
+    private String email;
+    private String phoneNumber;
+    
+	// authorities 表中的数据（用户的权限）
+    private List<String> authorities;
+
+    // getter 方法
+	// setter 方法
+	// equals 方法
+	// hashCode 方法
+	// toString 方法
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 与数据库表映射的类通常称为 Entity 类，也可称为 DO 类或 PO 类，统属 POJO 类，通常只包含 getter、setter 、equals、hashCode、toString 方法及构造方法，不应包含业务逻辑方法
+> 2. 数据库中的表名一般使用复数形式，如 users；而在 Java 中则采用单数形式命名，如 User
+> 3. 使用 MyBatisX 插件生成的 POJO 类默认包含 getter、setter、equals、hashCode、toString 方法，但不包含构造方法。
+> 	1. 我们可以手动补全有参和无参构造方法；
+> 	2. 同时我么也可以删除自动生成的 equals、hashCode、toString 方法，改为使用 IDEA 生成
+> 4. 别忘了添加 `private List<String> authorities;` 及其对应方法（getter、setter、equals、hashCode、toString 方法及构造方法）
+
+-----
+
 
 
 

@@ -36,22 +36,6 @@
 ---
 
 
-## 章节二
-
-1. xxxxxxxx（这里写的是问题）
-	1. xxxxxx
-	2. xxxxx
-	3. xxxxx（这些写的是答案）
-2. xxxxxxx（下一个问题）
-	1. xxxxx
-3. xxxxxxx（下一个问题）
-	1. xxxxx
-	2. xxxxxxx
-
-----
-
-
-
 
 
 #### 1.3. 使用 MyBatis 实现查询逻辑

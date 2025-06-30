@@ -1,44 +1,60 @@
 {
   "recentFiles": [
     {
-      "basename": "笔记：本地图库小工具",
-      "path": "source/_posts/笔记：本地图库小工具.md"
+      "basename": "临时：security",
+      "path": "templates/临时：security.md"
+    },
+    {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
     },
     {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
     },
     {
-      "basename": "笔记：Linux",
-      "path": "source/_posts/笔记：Linux.md"
-    },
-    {
-      "basename": "Categories 总纲",
-      "path": "templates/Categories 总纲.md"
-    },
-    {
-      "basename": "临时：security",
-      "path": "templates/临时：security.md"
-    },
-    {
-      "basename": "Todo 看板",
-      "path": "Todo 看板.md"
-    },
-    {
-      "basename": "笔记：搭建 MySQL 环境",
-      "path": "source/_posts/笔记：搭建 MySQL 环境.md"
+      "basename": "笔记：Java 数据类型",
+      "path": "source/_posts/笔记：Java 数据类型.md"
     },
     {
       "basename": "笔记：MySQL 基础",
       "path": "source/_posts/笔记：MySQL 基础.md"
     },
     {
-      "basename": "笔记：ElasticSearch 基础",
-      "path": "source/_posts/笔记：ElasticSearch 基础.md"
+      "basename": "笔记：阿里云代码规约",
+      "path": "source/_posts/笔记：阿里云代码规约.md"
     },
     {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
+      "basename": "问题总结",
+      "path": "问题总结.md"
+    },
+    {
+      "basename": "笔记：Linux",
+      "path": "source/_posts/笔记：Linux.md"
+    },
+    {
+      "basename": "README",
+      "path": "README.md"
+    },
+    {
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
+    },
+    {
+      "basename": "笔记：本地图库小工具",
+      "path": "source/_posts/笔记：本地图库小工具.md"
+    },
+    {
+      "basename": "Categories 总纲",
+      "path": "templates/Categories 总纲.md"
+    },
+    {
+      "basename": "笔记：搭建 MySQL 环境",
+      "path": "source/_posts/笔记：搭建 MySQL 环境.md"
+    },
+    {
+      "basename": "笔记：ElasticSearch 基础",
+      "path": "source/_posts/笔记：ElasticSearch 基础.md"
     },
     {
       "basename": "可加密码",
@@ -183,18 +199,6 @@
     {
       "basename": "笔记：IP",
       "path": "source/_posts/笔记：IP.md"
-    },
-    {
-      "basename": "笔记：HTTP、HTTPS 协议",
-      "path": "source/_posts/笔记：HTTP、HTTPS 协议.md"
-    },
-    {
-      "basename": "笔记：Hexo + Obsidian +Git Page",
-      "path": "source/_posts/笔记：Hexo + Obsidian +Git Page.md"
-    },
-    {
-      "basename": "笔记：Git 家族",
-      "path": "source/_posts/笔记：Git 家族.md"
     }
   ],
   "omittedPaths": [],
