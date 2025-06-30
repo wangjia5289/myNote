@@ -12,7 +12,10 @@
 
 
 
-
+> [!NOTE] 注意事项
+> 1. username、password、isAccountNonExpired、isAccountNonLocked、isCredentialsNonExpired、isEnabled、authorities 这七个字段是 `userDetails` 接口的默认属性，一般在数据库表中要全部包含
+> 2. email、phone_number 等字段，是我们自己扩展的字段。
+> 3. 虽然 camelCase 在 Java 中使用广泛，例如 phoneNumber，但在 SQL 表列名中更建议统一为 snake_case，例如 phone_number
 
 
 
@@ -1297,6 +1300,325 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 ---
 
 
+
+
+
+
+
+
+
+
+
+## ---------------
+
+
+![](image-20250630164405309.png)
+
+
+
+`jdbcType` 是 MyBatis 中 `<resultMap>` 和 `<parameterMap>` 标签下的一个属性，用于**指定 Java 属性与数据库字段之间的 JDBC 类型映射**，主要起两个作用：
+
+---
+
+### ✅ 1. **明确类型映射，避免类型不匹配**
+
+- 数据库字段的类型有很多种，比如 `VARCHAR`、`INTEGER`、`TINYINT`、`TIMESTAMP` 等，而 MyBatis 需要将这些类型正确转换为 Java 中的类型。
+    
+- 一般情况下，MyBatis 会自动根据 JDBC 元数据推断类型。但如果你指定了 `jdbcType`，它就会按照你指定的类型来进行处理，更加稳妥。
+    
+
+例如：
+
+```xml
+<result property="isEnabled" column="is_enabled" jdbcType="TINYINT"/>
+```
+
+这里你显式告诉 MyBatis：`is_enabled` 是数据库中的 `TINYINT` 类型，通常用于表示布尔值（0/1），MyBatis 就会按这个标准去读取并转换为 Java 中的 `Boolean` 或 `Integer`。
+
+---
+
+### ✅ 2. **处理 NULL 值时更准确**
+
+当数据库字段为 `NULL` 时，如果没有指定 `jdbcType`，可能会出现：
+
+- 数据映射异常
+    
+- 插入时报错（尤其是调用存储过程时）
+    
+
+比如在 `insert` 或 `update` 中使用：
+
+```xml
+<if test="email != null">
+  email = #{email, jdbcType=VARCHAR},
+</if>
+```
+
+这可以确保即使 `email == null`，JDBC 也知道它的目标类型是 `VARCHAR`，避免报错。
+
+---
+
+### 🔍 支持的 `jdbcType` 值来自 `java.sql.Types`，常用的包括：
+
+|jdbcType|对应 SQL 类型|映射的 Java 类型|
+|---|---|---|
+|`VARCHAR`|字符串类型|`String`|
+|`INTEGER`|整数|`Integer`|
+|`TINYINT`|小整型（如布尔值）|`Integer` / `Boolean`|
+|`BIGINT`|大整型（如主键）|`Long`|
+|`TIMESTAMP`|时间戳|`java.sql.Timestamp` / `Date`|
+|`BOOLEAN`|布尔型|`Boolean`|
+
+---
+
+### 🧠 总结一句话：
+
+> `jdbcType` 用于明确数据库字段的类型，有助于 MyBatis 正确进行类型映射、处理空值和避免运行时类型错误。写不写都行，但在某些边界情况下（如 `null`、布尔值、存储过程）**建议明确指定**。
+
+
+## ----------------
+
+
+![](image-20250630164501699.png)
+
+
+
+你这个写法其实非常典型，MyBatis 中的 `<collection>` 标签是 **用来映射一对多（或集合类型）属性的**，你写的内容表示：
+
+```xml
+<collection property="authorities"
+            ofType="org.springframework.security.core.authority.SimpleGrantedAuthority">
+    <constructor>
+        <arg column="role_name" javaType="java.lang.String"/>
+    </constructor>
+</collection>
+```
+
+意思是：
+
+> `User` 类中有一个属性叫 `authorities`，类型是 `List<SimpleGrantedAuthority>`，它的每一项是通过调用 `SimpleGrantedAuthority(String roleName)` 构造函数创建的，其中 `role_name` 是 SQL 查询结果中的字段。
+
+---
+
+### ✅ 回答你的问题一：这段 `<collection>` 的作用是什么？
+
+这是 MyBatis 中处理**嵌套集合属性**的方式。你定义的是：
+
+```java
+private List<SimpleGrantedAuthority> authorities;
+```
+
+而数据库里用户和权限是 1:N 的关系，比如：
+
+|user_id|username|role_name|
+|---|---|---|
+|1|alice|ROLE_USER|
+|1|alice|ROLE_ADMIN|
+|2|bob|ROLE_USER|
+
+你希望查一个用户，同时把他所有的权限装进 `List<SimpleGrantedAuthority>`，就需要用到 `<collection>`。
+
+---
+
+### ✅ 回答你的问题二：能不能在 `<resultMap>` 里写 `<collection>`？
+
+**完全可以！**  
+并且就是应该这么写。你要在 `BaseResultMap` 中嵌套 `<collection>` 来表示“一个用户拥有多个权限”。
+
+示例结构如下：
+
+```xml
+<resultMap id="BaseResultMap" type="com.example.securitywithhttpsession.entity.User">
+    <id property="userId" column="user_id" jdbcType="INTEGER"/>
+    <result property="username" column="username" jdbcType="VARCHAR"/>
+    <result property="password" column="password" jdbcType="VARCHAR"/>
+    <!-- 其他字段略 -->
+
+    <collection property="authorities"
+                ofType="org.springframework.security.core.authority.SimpleGrantedAuthority">
+        <constructor>
+            <arg column="role_name" javaType="java.lang.String"/>
+        </constructor>
+    </collection>
+</resultMap>
+```
+
+---
+
+### 🧠 注意事项
+
+1. **你的 SQL 要包含多行重复的用户记录**，每行只差在 `role_name` 上（即做了 Join，比如 user + role 表），才能装满这个集合。
+    
+2. `authorities` 是通过构造函数创建的，所以你用 `<constructor>` 和 `<arg>` 来描述；如果你换成自定义的类，有 setter，也可以用 `<result>` 方式。
+    
+3. 建议在 XML 语句中配合 `DISTINCT` 或 `GROUP BY` 防止结果重复加载。
+    
+
+---
+
+### ✅ 示例 SQL（配合上面的 `<collection>`）
+
+```xml
+<select id="selectUserWithAuthorities" resultMap="BaseResultMap">
+    SELECT 
+        u.user_id, u.username, u.password, ..., 
+        r.role_name
+    FROM user u
+    LEFT JOIN user_role ur ON u.user_id = ur.user_id
+    LEFT JOIN role r ON ur.role_id = r.role_id
+    WHERE u.username = #{username}
+</select>
+```
+
+---
+
+如果你愿意，我可以帮你完整拼出带 `<resultMap>` 和 `<select>` 的 XML 映射文件。是否需要？
+
+![](image-20250630164833697.png)
+
+
+![](image-20250630165046151.png)
+
+
+![](image-20250630165129961.png)
+
+![](image-20250630165135983.png)
+
+非常好，这个问题抓得很关键！我们来**一步一步拆开讲清楚**这个 `<constructor><arg ... /></constructor>` 的意思，尤其是它为什么要这样写，适用于什么样的 Java 类。
+
+---
+
+## 🎯 问题核心：为什么要用 `<constructor>`？
+
+### ✅ 背景：你要把 SQL 查询结果映射成 Java 对象
+
+在你这个例子中，数据库返回了一列：
+
+```sql
+role_name
+---------
+ROLE_USER
+ROLE_ADMIN
+```
+
+你希望这些行变成 Java 中的对象，比如：
+
+```java
+new SimpleGrantedAuthority("ROLE_USER");
+new SimpleGrantedAuthority("ROLE_ADMIN");
+```
+
+而 `SimpleGrantedAuthority` 是 Spring Security 提供的权限类，它的定义是这样的：
+
+```java
+public class SimpleGrantedAuthority implements GrantedAuthority {
+    private final String role;
+
+    public SimpleGrantedAuthority(String role) {
+        this.role = role;
+    }
+
+    @Override
+    public String getAuthority() {
+        return this.role;
+    }
+}
+```
+
+> ❗ 你看到了吗？它：
+> 
+> - 没有无参构造方法
+>     
+> - 也没有 `setAuthority()` 或类似方法
+>     
+> - 只能通过构造函数来创建！
+>     
+
+---
+
+## 🔧 于是你就得告诉 MyBatis：
+
+> “嘿，我要创建一个 `SimpleGrantedAuthority` 对象，它只能通过构造函数，并且这个构造函数的参数，是 SQL 中那一列 `role_name` 的值。”
+
+---
+
+## ✅ 解释代码
+
+```xml
+<constructor>
+    <arg column="role_name" javaType="java.lang.String"/>
+</constructor>
+```
+
+这句话的含义是：
+
+|元素|含义|
+|---|---|
+|`<constructor>`|指定你要用构造函数来创建对象|
+|`<arg>`|指定构造函数的一个参数|
+|`column="role_name"`|这个参数来自 SQL 查询结果中的 `role_name` 列|
+|`javaType="java.lang.String"`|这个参数是 Java 中的字符串类型，对应构造函数的 `String` 参数|
+
+> 💡 换句话说，这行代码就是：`new SimpleGrantedAuthority(结果集中 role_name 这一列的值)`
+
+---
+
+## 🧠 什么时候需要 `<constructor>`？
+
+- 当你要映射的类 **没有无参构造器**，也 **没有 setter 方法**（即“只读”类）；
+    
+- 只能通过 `new 构造函数(...)` 的方式创建；
+    
+- 典型例子就是 `SimpleGrantedAuthority`、`java.time.LocalDateTime`、一些值对象（Value Object）。
+    
+
+---
+
+## ✅ 小总结：你现在就可以这样理解：
+
+```xml
+<constructor>
+    <arg column="role_name" javaType="java.lang.String"/>
+</constructor>
+```
+
+==就是告诉 MyBatis：这个类没法用无参构造器+setter 来组装，只能用构造函数来装，而且这个构造函数需要一个从 SQL 中 `role_name` 列拿到的字符串。==
+
+---
+
+如果你对 Java 类和构造函数的映射机制还不太熟悉，我也可以通过一个小案例来图解这个流程，要不要我帮你做一个例子？
+
+
+
+![](image-20250630165421792.png)
+
+
+![](image-20250630165448012.png)
+
+![](image-20250630165521024.png)
+
+
+![](image-20250630165530896.png)
+
+![](image-20250630165535784.png)
+
+
+
+
+![](image-20250630165613284.png)
+
+![](image-20250630165627907.png)
+
+![](image-20250630165633897.png)
+![](image-20250630165638775.png)
+
+
+简单来说，就是
+
+
+## --------
+
+
 ### 4. Mapper XML 映射文件 书写方法
 
 #### 4.1. 映射文件概述
@@ -1432,6 +1754,25 @@ mybatis:                                                     // 在 application.
   
 </select>
 ```
+简单来说啊，就是如果你使用resultType，他会直接将结果 -> pojo，那如果你没开启什么驼峰映射啊什么的，如果列名和属性名不一致，那就xxxx了
+
+如果你使用resultMap，它会将结果 -> resultMap -> pojo(resultMap 中的 type)
+![](image-20250630184136049.png)
+
+
+![](image-20250630184156172.png)
+
+![](image-20250630184233952.png)
+
+![](image-20250630184249382.png)
+![](image-20250630184256176.png)
+
+![](image-20250630184315442.png)
+
+![](image-20250630184425409.png)
+
+其实 Mapper 接口中的参数类型啊，应为是要传递给 XML文件的，也就是我们#{} 的参数，所以限制比较多，什么@Param 这种，但是返回类型啥的那就无须多言了，根本无需在意
+
 
 ---
 
