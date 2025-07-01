@@ -1,5 +1,9 @@
 
+![](image-20250701101838609.png)
 
+![](image-20250701101830916.png)
+
+![](image-20250701101544473.png)
 
 
 > [!NOTE] 注意事项
@@ -386,8 +390,11 @@ spring:
     username: root                           # 数据库用户名
     password: wq666666                       # 数据库密码
     driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL 8 驱动
-
 ```
+
+别忘了创建一个 MybatisConfigutation，使用 Mapper scan 去扫描 mapper 接口
+
+
 
 
 ##### 多数据源

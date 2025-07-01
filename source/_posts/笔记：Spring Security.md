@@ -64,6 +64,179 @@ layout: post
 ----
 
 
+## Spring Security 配置
+
+### 配置模板
+
+Spring Security 的配置主要在 Java 配置类中进行，而不是在 `application.yml` 文件中，因为安全配置通常涉及到逻辑和条件判断，这些无法简单地通过属性文件表达，我们可以完成以下配置：
+```
+@Configuration
+@EnableMethodSecurity // 1. 启用方法级别的访问控制
+@EnableWebSecurity // 2. 启用 Spring Security 安全机制
+public class SecurityConfig {
+
+    private final CustomerDetailsServiceImpl customerdetails;
+
+    public SecurityConfig(CustomerDetailsServiceImpl customerdetails) {
+        this.customerdetails = customerdetails;
+    }
+
+    // 3. 配置 AuthenticationManager
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager(); // 从 Spring Security 配置中获取其默认的 AuthenticationManager 实例
+    }
+
+    // 4. 配置 密码加密器，用于 AuthenticationManager 加密 password 后与 CustomerDetailsImpl 进行对比
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            // 5. 禁用默认表单登录（也就禁用了 UsernamePasswordAuthenticationFilter 过滤器）
+            .formLogin(form -> form.disable())
+            
+            // 6. 禁用默认注销功能
+            .logout(logout -> logout.disable())
+            
+            // 7. 资源级别的访问控制
+            .authorizeHttpRequests("见下文")
+            
+            // 8. 用户 未认证、权限不足 的处理
+            .exceptionHandling(handler -> handler
+                    // 未认证时的响应
+                    .authenticationEntryPoint((request, response, authException) -> {
+                                response.setContentType("application/json;charset=UTF-8");
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.getWriter().write("{\"error\":\"未认证，请先登录\"}");
+                            }
+                    )
+                    // 权限不足时的响应
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                response.setContentType("application/json;charset=UTF-8");
+                                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                                response.getWriter().write("{\"error\":\"权限不足，无法访问此资源\"}");
+                            }
+                    )
+            )
+            
+            // 9. HttpSession 相关配置
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            )
+            
+            // 10. 默认 SecurityContext 查找和保存策略
+            .securityContext("见下文"）
+            
+            // 11. 配置 UserDetailsServiceImpl，用于 AuthenticationManager 从数据库中取 UserDetailsImpl
+            .userDetailsService(customerdetails) // 显式告诉用你的UserDetailsService
+            
+            // 12. CSRF 攻击防护
+            .csrf("见下文")
+            
+            // 13. CORS 支持
+            .cors("见下文")
+            
+            // 14. 添加自定义过滤器
+            .addFilterAt("见下文");
+            
+        return http.build(); // 构建 SecurityFilterChain 对象  
+    }
+}
+```
+
+---
+
+
+### 启用方法级别的访问控制
+
+<span style="background:#fff88f">1. 配置类上添加注解</span>
+```
+@Configuration  
+@EnableMethodSecurity  // 启用方法级别的访问控制  
+@EnableWebSecurity  
+public class SecurityConfig {  
+  ......
+}
+```
+
+
+<span style="background:#fff88f">2. 使用方法级别的访问控制</span>
+需要注意的是，一般在服务层（Service 层） 进行控制。
+```
+@Service
+public class UserService {
+    @PreAuthorize("hasRole('ADMIN')")
+    public void adminMethod() {
+        // 只有 ROLE_ADMIN 角色可以执行该方法
+    }
+
+    @PreAuthorize("hasAuthority('user:user:select')") 
+    public void readUser() {
+        // 只有具有 user:user:select 权限的用户可以执行 用户模块的用户表的查询操作
+    }
+}
+```
+
+---
+
+
+### 启用 Spring Security 安全机制
+
+加上 `@EnableWebSecurity` 后，Spring 会自动注册一个叫做 `FilterChainProxy` 的安全过滤器链，包含十几个内置的安全过滤器，就是我们熟知的那些过滤器。
+
+> [!NOTE] 注意事项
+> 1. 即使你不显式添加这个注解，只要引入了 `spring-boot-starter-security`，Spring Boot 就会自动注册默认的安全过滤器链。但如果你需要自定义安全配置类（例如我们自己的 `SecurityConfiguration`），就必须显式启用它，以确保你的配置生效
+
+---
+
+
+### 配置 AuthenticationManager
+
+在 `WebSecurityConfigurerAdapter` 时代，`AuthenticationManager` 是由 Spring 官方默认注册为 Bean 的，因此我们可以直接注入使用，例如：
+```
+@Bean
+@Override
+public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
+}
+```
+
+但从 Spring Boot 3 开始，Spring 的设计理念发生了变化：“最少暴露、最少干预”，也就是说框架不再自动为你暴露未显式声明的组件，目的是减少默认暴露导致的 Bean 冲突或安全隐患。
+
+也就是说，Spring 将配置的主动权交还给开发者，所有需要使用的组件开发者都必须通过 `@Bean` 显式声明，而不是官方为你偷偷注入。即使 Spring Security 已经内部实现了默认的 `AuthenticationManager`，但也不会自动将其注册为 Bean。例如它在源码中是这样定义的：
+```
+public class AuthenticationConfiguration {  
+  
+    private AuthenticationManager getAuthenticationManagerBean() {  
+        return (AuthenticationManager)this.lazyBean(AuthenticationManager.class);  
+    }  
+}
+```
+
+如果开发者想使用 `AuthenticationManager`，就需要自己显式地从官方配置中获取其默认实现，或者直接自定义一个。
+
+通常我们使用的 `AuthenticationManager` 实际上就是官方默认实现的那个，除非你有特殊需求需要进行自定义配置，因此我们可以这样手动声明：
+```
+@Bean  
+public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {  
+    return authenticationConfiguration.getAuthenticationManager(); // 从 Spring Security 配置中获取其默认的 AuthenticationManager 实例
+}
+```
+
+----
+
+
+
+
+
+
+
+
+
 # 二、实操
 
 ## 基本使用
@@ -139,10 +312,10 @@ VALUES
 
 <span style="background:#fff88f">2. roles 表（角色表）</span>
 
-| 列名            | 数据类型        | 约束        | 默认值 | 索引   | 示例值        | 说明                                    |
-| ------------- | ----------- | --------- | --- | ---- | ---------- | ------------------------------------- |
-| **role_id**   | int         | 主键约束、自增属性 | 自增  | 主键索引 | 1          | 角色唯一标识符                               |
-| **role_name** | varchar(20) | 唯一约束      |     | 唯一索引 | ROLE_ADMIN | 角色名称 (Spring Security 约定以 `ROLE_` 开头) |
+| 列名            | 数据类型        | 约束        | 默认值 | 索引   | 示例值        | 说明                                             |
+| ------------- | ----------- | --------- | --- | ---- | ---------- | ---------------------------------------------- |
+| **role_id**   | int         | 主键约束、自增属性 | 自增  | 主键索引 | 1          | 角色唯一标识符                                        |
+| **role_name** | varchar(20) | 唯一约束      |     | 唯一索引 | ROLE_ADMIN | 角色名称，推荐全大写的格式 (Spring Security 约定以 `ROLE_` 开头) |
 ```
 # 1. 创建表
 CREATE TABLE roles (
@@ -191,10 +364,10 @@ INSERT INTO user_role (user_id, role_id) VALUES
 
 <span style="background:#fff88f">4. authorities 表（权限表）</span>
 
-| 列名                 | 数据类型        | 约束        | 索引   | 默认值 | 示例值                     | 说明                       |
-| ------------------ | ----------- | --------- | ---- | --- | ----------------------- | ------------------------ |
-| **authority_id**   | int         | 主键约束、自增属性 | 主键索引 | 自增  | 1                       | 权限唯一标识                   |
-| **authority_name** | varchar(50) | 唯一约束      | 唯一索引 |     | finance:invoice:approve | 权限名称（常采用 模块：资源：操作 的命名方式） |
+| 列名                 | 数据类型        | 约束        | 索引   | 默认值 | 示例值                     | 说明                                |
+| ------------------ | ----------- | --------- | ---- | --- | ----------------------- | --------------------------------- |
+| **authority_id**   | int         | 主键约束、自增属性 | 主键索引 | 自增  | 1                       | 权限唯一标识                            |
+| **authority_name** | varchar(50) | 唯一约束      | 唯一索引 |     | finance:invoice:approve | 权限名称，推荐全小写的格式（常采用 模块：资源：操作 的命名方式） |
 
 ```
 # 1. 创建表
@@ -260,10 +433,10 @@ public class User {
     private Integer userId;
     private String username;
     private String password;
-    private Boolean isAccountNonExpired;
-    private Boolean isAccountNonLocked;
-    private Boolean isCredentialsNonExpired;
-    private Boolean isEnabled;
+    private Integer isAccountNonExpired;
+    private Integer isAccountNonLocked;
+    private Integer isCredentialsNonExpired;
+    private Integer isEnabled;
     private String email;
     private String phoneNumber;
     
@@ -390,7 +563,7 @@ public interface UserDetails extends Serializable {
     
 	// 账户是否没过期（true 代表没过期，false 代表过期）
     default boolean isAccountNonExpired() {  
-        return true;                                                                     // 默认返回 true
+        return true; // 默认返回 true
     }  
     // 账户是否没锁定
     default boolean isAccountNonLocked() {  
@@ -407,9 +580,11 @@ public interface UserDetails extends Serializable {
 }
 ```
 
-Spring Security 是通过调用 `UserDetails` 提供的方法，来获取用户信息的（不是使用我们的 User Entity，因为Spring Security 咋知道你使用什么东西对吧，而是调用 `UserDetails` 的方法来获取的这些信息的）
+Spring Security 是通过调用 `UserDetails` 接口中定义的方法来获取用户信息的（毕竟 Spring Security 并不了解你项目中具体使用了什么类、字段名是什么，对吧，所以不会直接从我们的 User Entity 中拿数据）。
 
-可是我们也发现了 `UserDetails` 毕竟只是接口，它的方法没有返回值，也就是 Spring Security 调用这些接口方法，由于这些接口方法没有具体的实现，所以 Spring Security 根本拿不到值，这也就是为什么我们必须要去用 `CustomerUserDetailsImpl` 去实现这个接口，其目的就是为每个方法都做一个具体的实现，有一个返回值，这样我们的 Spring Seucurity 调用接口方法的时候能有一个值（其实我们发现了，像isAccountNonExpired()、isAccountNonLocked()、isCredentialsNonExpired()、isEnabled()这几个方法，也是默认有返回值的对吧，但是其他三个方法没有默认实现，也就是说我们至少也要去实现其他三个方法，否则编译报错），然后我们去实现这个接口：
+但我们也注意到，`UserDetails` 毕竟只是一个接口，它的方法并没有默认实现和返回值。也就是说，当 Spring Security 调用这些接口方法时，由于接口本身没有具体实现，自然无法拿到到任何值。这也正是我们为什么需要实现一个 `CustomUserDetailsImpl` 类来实现这个接口的原因。我们必须为接口中的每个方法提供具体实现，确保它们能返回对应的值，这样当 Spring Security 调用这些方法时，才能拿到用户信息。
+
+其实我们也发现了，像 `isAccountNonExpired()`、`isAccountNonLocked()`、`isCredentialsNonExpired()`、`isEnabled()` 这几个方法，Spring Security 是提供了默认值的；但另外三个关键方法（如 `getUsername()`、`getPassword()`、`getAuthorities()`）是没有默认实现的，也就是说我们至少必须实现这三个方法，否则编译会直接报错。
 ```
 public class CustomerUserDetailsImpl implements UserDetails {  
 
@@ -450,44 +625,86 @@ public class CustomerUserDetailsImpl implements UserDetails {
 }
 ```
 
-那我们为什么非要实现 `UserDetails` 呢，你 Spring Security 知不知道这些值，管我啥事，我能知道就行了呗，其实我们知道 Spring Security 最核心的就是有一个 `Authentication` 对象保存在本线程对吧，其实 Spring Security 为什么要知道这些值，其实很重要，我们必须要熟悉以下事情：
-1. Spring Security 是要用 `CustomerUserDetailsImpl` 来构建 `Authentication` 对象的
-2. 我们的登录流程中，一般会是下面两种流程：
-	1. 如果你是通过 `AuthenticationManager` 进行认证（自定义登录 API，选择使用 AuthenticationManager 进行认证逻辑）：
-		1. Spring Security 会自动校验用户提交过来的用户名和密码与 `CustomerUserDetailsImpl` 中的用户名和密码是否匹配
-		2. 如果匹配，则自动将 `CustomerUserDetailsImpl` 封装为 `Authentication`，最后保存到当前线程。
-		3. 在认证的过程中，所有数据都是要从 `CustomerUserDetailsImpl` 中获取的，在封装为 `Authentication` 的过程中，Authentication 中的数据也都是从这个实现类中获取的
-	2. 如果你是自定义登录逻辑（自定义登录 API，不使用 AuthenticationManager 进行认证逻辑，而是自己设计一套认证逻辑）：
-		1. 首先你仍然要比对 `CustomerUserDetailsImpl` 中的用户名和密码与用户提交的用户名密码是否一致
-		2. 验证通过后，我们就手动将这个 `CustomerUserDetailsImpl` 封装成一个 `Authentication` 对象，并保存到当前线程中。
-		3. 这个过程中，其实在验证的时候，用户名和密码在不在 `CustomerUserDetailsImpl` 中都无所谓，哪怕你的用户名和密码在 `User Entity` 中也能拿来与前端用户提交过来的密码进行比较，一样能比较，而且，你不但可以使用用户名和密码了，对吧，这个你就随意了，对吧，因为你没有 `CustomerUserDetailsImpl` 的限制了，对吧，你不必须使用用户名、密码了，你也可以整一些高端的，什么扫码啊，验证码啊，都行。但是你进行手动封装 Authentication 的时候，还是必须要有 `CustomerUserDetailsImpl` 的，
-		4. 也就是说在认证过程中，不必须 `CustomerUserDetailsImpl` ,但是在封装为 `Authentication` 的过程中，Authentication 中的数据必须是从这个实现类中获取的
+那我们为什么非得实现 `UserDetails` 呢？你说 Spring Security 知不知道这些值，关我什么事？我自己知道就行了呗。但其实你仔细一想，我们就能发现 Spring Security 这么设计是有它的道理的，核心原因就在于：Spring Security 的整个认证和授权流程，底层都是围绕一个 `Authentication` 对象来构建的，而这个对象的核心信息，其实都来自我们实现的 `CustomerUserDetailsImpl`
 
+我们必须要搞清楚以下几点：
+1. Spring Security 是通过 `CustomerUserDetailsImpl` 来构建 `Authentication` 对象的
+2. 在登录流程中，通常有两种典型的方式：
+	1. 通过 `AuthenticationManager` 进行认证（自定义登录 API，使用 AuthenticationManager 进行认证逻辑）：
+		1. Spring Security 会自动去校验用户提交的用户名和密码，是否与 `CustomerUserDetailsImpl` 中提供的用户名和密码相匹配；
+		2. 如果匹配成功，Spring Security 就会自动将 `CustomerUserDetailsImpl` 封装为一个 `Authentication` 对象，并存入当前线程；
+		3. 校验的时候，用户信息是从 `CustomerUserDetailsImpl` 中读取的，封装为 `Authentication` 对象的时候，其值也是从此读取的。
+		4. 需要注意的是：这个过程中 Spring Security 还会自动帮你判断用户是否启用、是否锁定、密码是否过期等等。如果你选择下面的手动认证逻辑，那这些判断就必须你自己来实现。
+	2. 自定义认证逻辑（自定义登录 API，不用 `AuthenticationManager`，自己写认证逻辑）：
+		1. 你仍然需要自己去校验前端提交的用户名和密码，和 `CustomerUserDetailsImpl` 中提供的数据是否一致；
+		2. 验证通过后，你需要手动将 `CustomerUserDetailsImpl` 封装为一个 `Authentication` 对象，并保存到当前线程中；
+		3. 其实在校验阶段，用户名和密码放不放到 `CustomerUserDetailsImpl` 中都无所谓，你甚至可以直接从`User Entity` 中拿值来对比。更高级一点，你也可以使用扫码登录、验证码、OAuth2 等方式，不再局限于用户名密码；
+		4. 但是，一旦你需要构建 `Authentication`，你最终还是得使用 `CustomUserDetailsImpl`，因为 `Authentication` 中的数据必须要从它那里来。
+		5. 所以我们可以得出一个结论：在认证过程中不一定非得依赖 `CustomerUserDetailsImpl`，但在封装 `Authentication` 的过程中，最终数据必须来自这个实现类。
+3. 最后就是权限判断的问题。权限判断是根据当前线程中保存的 `Authentication` 对象来进行的，而这个对象里的权限信息，不就是我们 `CustomerUserDetailsImpl` 的 `getAuthorities()` 方法中返回的吗？所以说本质上这些权限数据，也都是从 `CustomerUserDetailsImpl` 里来的
 
+所以，如果我们使用了 Spring Security，那么实现 `CustomerUserDetailsImpl` 就显得尤为关键。那问题来了：我们到底是如何将 `UserMapper` 查询到的 `User` 对象中的信息，封装进 `CustomerUserDetailsImpl` 的？
 
-
-
-
-简单来说，就是将我们通过 `UserMapper` 查询到的 `User` 对象（也就是数据库中的用户信息），再次封装到 `CustomerUserDetailsImpl` 中。
-
-为什么要这样做？因为后续我们要使用 `CustomerUserDetailsImpl` 来构建 `Authentication` 对象，例如：
-1. 如果你使用的是自定义登录 API，一般会经过如下流程：
-	1. 首先比对 `CustomerUserDetailsImpl` 中的用户名和密码与用户提交的用户名密码是否一致。验
-	2. 验证通过后，我们就手动将这个 `CustomerUserDetailsImpl` 封装成一个 `Authentication` 对象，并保存到当前线程中。
-2. 如果你是通过 `AuthenticationManager` 进行认证，那流程会更自动化：
-	1. 
-
-那问题来了：我们到底是怎么把 `User` 中的信息封装进 `CustomerUserDetailsImpl` 的？这通常有两种方式：
-1. 显式赋值方式：
-	1. 先使用 `UserMapper` 获取到 `User` 对象，然后再`new` 一个 `CustomerUserDetailsImpl` 对象，再逐个将 `User` 的属性赋值给它
+首先思考下：如果是要把 `User` 对象中的属性同步到 `CustomerUserDetailsImpl` 中，我们一般会想到以下两种方式：
+1. 显示赋值方式：
+	1. 我们可以先使用 `UserMapper` 查询出一个 `User` 对象，然后 `new` 一个 `CustomerUserDetailsImpl` 对象，接着再逐个地将 `User` 的属性赋值到这个对象中。这种方式直观易懂，但写起来繁琐冗长，尤其当字段较多时，容易出错。
 2. 构造方法方式（推荐）：
-	1. 在 `CustomerUserDetailsImpl` 的构造方法中传入一个 `User` 对象，那么当我们 `new` 这个对象的时候，构造函数内部直接把 `User` 的属性赋值给自身，不需要我们再逐个将 `User` 的属性赋值给它
+	1. 在 `CustomerUserDetailsImpl` 中定义一个以 `User` 为参数的构造方法，那么当我们 `new` 它的时候，直接传入一个 `User` 对象，构造函数内部再将 `User` 的各个属性赋值到当前对象中。这样封装更简洁、更优雅，也更利于后续维护
 
-而 Spring Security 本身采用的就是第二种方式，那我们是不是就要自己写一个方法，先用 `UserMapper` 查询出 `User`，然后再 `new CustomerUserDetailsImpl(user)` 呢？
+但这里我们需要特别注意一点：`CustomerUserDetailsImpl` 本质上并不是一个普通的属性容器（如果它只是一些简单的属性，那显式赋值和构造方法两种方式都可以使用）。它作为 `UserDetails` 的实现类，其核心职责是通过方法的返回值来向 Spring Security 暴露用户信息的（也就是说，它的用户数据并不是通过公共属性暴露的，而是通过接口方法提供的）
 
-其实我们不需要自己额外写方法去查询 `User` 并再将其封装成 `CustomerUserDetailsImpl` 并返回，因为 Spring Security 已经为我们提供了一个接口：`UserDetailsService`。我们只需要实现这个接口，并重写它的 `loadUserByUsername` 方法即可。
+因此，我们在封装时更适合采用构造方法的方式。具体来说，就是在 `CustomerUserDetailsImpl` 中定义一个接收 `User` 对象的构造函数，在构造函数中将该 `User` 对象保存为内部私有字段。然后在 `getUsername()`、`getPassword()`、`getAuthorities()` 等方法中，直接返回这个 `User` 对象中的相应属性值，大致如下：
+```
+public class CustomerUserDetailsImpl implements UserDetails {
 
-在这个方法中，我们可以使用 `UserMapper` 去查询出对应的 `User` 对象，然后直接 `return new CustomerUserDetailsImpl(user)`。这样一来，每当我们调用这个方法时，Spring Security 就会自动完成用户信息的查询与封装，返回一个包含了用户数据的 `CustomerUserDetailsImpl` 实例。
+    private final User user;
+
+    public CustomerUserDetailsImpl(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return user.getAuthorities(); 
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return user.getIsAccountnonexpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return user.getIsAccountnonlocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return user.getIsCredentialsnonexpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.getIsEnabled();
+    }
+}
+```
+
+那我们写好这个类之后，只需要在某个方法中，先通过 `UserMapper` 查询出一个 `User` 对象，然后直接执行 `new CustomerUserDetailsImpl(user)`，就能创建出一个封装了用户信息的 `CustomerUserDetailsImpl` 实例。
+
+其实这个步骤，Spring Security 早已帮我们考虑好了，它已经提供了一个专门的接口：`UserDetailsService`。我们只需要实现这个接口，并重写它的 `loadUserByUsername` 方法，在这个方法中使用 `UserMapper` 查询出对应的 `User`，然后直接 `return new CustomerUserDetailsImpl(user)` 即可。
+
+这样一来，当我们调用这个方法的时候，它就会执行查询用户信息，并返回一个包含完整用户数据的 `CustomerUserDetailsImpl` 对象，供后续构建 `Authentication` 使用。
 
 需要注意的是，`CustomerUserDetailsImpl` 并不属于传统意义上的三层架构（Controller-Service-Repository），严格来说，它应当放置在 `com.example.securitywithhttpsession.entity` 包下，作为用户实体信息的一个安全扩展模型。
 
@@ -497,91 +714,252 @@ public class CustomerUserDetailsImpl implements UserDetails {
 
 不过需要明确的是，Spring Security 的设计初衷并不是鼓励我们将过多的用户字段直接放进 `Authentication` 对象中。是否将这些字段一并封装，应该根据你的具体业务场景权衡决定，避免过度冗余或信息泄露风险。
 
-
-
-用户名、密码、权限状态等信息，进行认证和授权判断；
+最终，我们实现的代码就如下所示：
 ```
 public class CustomerUserDetailsImpl implements UserDetails {
 
-    private final String username;
-    private final String password;
-    private final Boolean isAccountNonExpired;
-    private final Boolean isAccountNonLocked;
-    private final Boolean isCredentialsNonExpired;
-    private final Boolean isEnabled;
-    private final List<GrantedAuthority> authorities;
+    private final User user;
 
-    // 扩展的字段
-    private final String email;
-    private final String phoneNumber;
-    private final Integer userId; // 如果用户名不是 ID，我们一般需要它这个ID，就加上
-
-    public CustomerDetailsImpl(UserWithAuthoritie user) {
-        this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.isAccountNonExpired = user.getAccountNonExpired();
-        this.isAccountNonLocked = user.getAccountNonLocked();
-        this.isCredentialsNonExpired = user.getCredentialsNonExpired();
-        this.isEnabled = user.getEnabled();
-        this.email = user.getEmail();
-        this.phoneNumber = user.getPhoneNumber();
-        this.userId = user.getUserId();
-        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        if (user.getAuthorities() != null) {
-            for (String authority : user.getAuthorities()) {
-                grantedAuthorities.add(new SimpleGrantedAuthority(authority));
-            }
-        }
-        this.authorities = grantedAuthorities;
-
+    public CustomerUserDetailsImpl(User user) {
+        this.user = user;
     }
 
-    // 扩展的方法
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-    
-	public Integer getUserId() {  
-	    return userId;  
-	}
-
+    // 必须实现的 3 个方法
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.authorities;
+        return user.getAuthorities();
     }
 
     @Override
     public String getPassword() {
-        return this.password;
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return this.username;
+        return user.getUsername();
     }
 
+    // 可选择实现的 4 个方法
     @Override
     public boolean isAccountNonExpired() {
-        return this.isAccountNonExpired;
+        return user.getIsAccountnonexpired() != null && user.getIsAccountnonexpired() != 0;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.isAccountNonLocked;
+        return user.getIsAccountnonlocked() != null && user.getIsAccountnonlocked() !=0;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return this.isCredentialsNonExpired;
+        return user.getIsCredentialsnonexpired() != null && user.getIsCredentialsnonexpired() != 0;
     }
 
     @Override
     public boolean isEnabled() {
-        return this.isEnabled;
+        return user.getIsEnabled() != null && user.getIsEnabled() != 0;
+    }
+    
+    // 选择性扩展的字段
+    public String getEmail() {
+        return user.getEmail();
+    }
+    
+    public String getPhoneNumber() {
+        return user.getPhoneNumber();
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 由于我们的 `User` 中字段是 `private Integer isAccountNonExpired;`，而接口方法 `public boolean isAccountNonExpired()` 需要返回 boolean 类型，所以在实现时必须手动判断，如：`return user.getIsAccountNonExpired() != null && user.getIsAccountNonExpired() != 0;`
+> 2. 其实没必要这么复杂，主要原因是我们在 `User` 中使用了 Integer 类型。对于 MyBatis，如果你把字段声明成 `private boolean isAccountNonExpired;` 在相同的 SQL 语句下，它会自动把数据库中的 TINYINT(1) 映射成 boolean 类型，这样我们只需直接返回：`return user.isAccountNonExpired();`
+> 3. 这样写就不需要额外判断了，而且更简洁，也比较推荐。但既然代码已经写成这样，我们就保持现有实现，下面给你展示这种推荐的写法：
+```
+// User Entity
+public class User {
+
+	// users 表中的数据（用户基本信息）
+    private Integer userId;
+    private String username;
+    private String password;
+    private Boolean isAccountNonExpired;
+    private Boolean isAccountNonLocked;
+    private Boolean isCredentialsNonExpired;
+    private Boolean isEnabled;
+    private String email;
+    private String phoneNumber;
+    
+	// authorities 表中的数据（用户的权限，不要忘记添加这个）
+    private List<SimpleGrantedAuthority> authorities;
+
+    // getter 方法
+	// setter 方法
+	// equals 方法
+	// hashCode 方法
+	// toString 方法
+}
+
+// CustomerUserDetailsImpl
+public class CustomerUserDetailsImpl implements UserDetails {
+
+    private final User user;
+
+    public CustomerUserDetailsImpl(User user) {
+        this.user = user;
+    }
+
+    // 必须实现的 3 个方法
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return user.getAuthorities();
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    // 可选择实现的 4 个方法
+    @Override
+    public boolean isAccountNonExpired() {
+        return user.getIsAccountnonexpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return user.getIsAccountnonlocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return user.getIsCredentialsnonexpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.getIsEnabled();
+    }
+    
+    // 选择性扩展的字段
+    public String getEmail() {
+        return user.getEmail();
+    }
+    
+    public String getPhoneNumber() {
+        return user.getPhoneNumber();
+    }
+}
+```
+
+---
+
+
+#### 实现 UserDetailsService 接口
+
+我们一般创建 `CustomerUserDetailsImplService` 类，用于实现这个接口，并重写它的 `loadUserByUsername` 方法，在这个方法中使用 `UserMapper` 查询出对应的 `User`，然后直接 `return new CustomerUserDetailsImpl(user)` 即可。
+
+`CustomerUserDetailsImplService` 类位于 `com.example.securitywithhttpsession.service` 包下
+```
+@Service
+public class CustomerUserDetailsImplService implements UserDetailsService {
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userMapper.getUserByUserName(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("user not found" + username);
+        }
+        return new CustomerUserDetailsImpl(user);
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 写成 `private final UserMapper userMapper` 的话，就不能使用 `@Autowired` 这种方式进行注入，必须要使用构造注入的方式进行注入
+
+----
+
+
+#### 进行 Spring Security 配置
+
+```
+@Configuration
+@EnableMethodSecurity // 1. 启用方法级别的访问控制
+@EnableWebSecurity // 2. 启用 Spring Security 安全功能
+public class SecurityConfig {
+
+    private final CustomerDetailsServiceImpl customerdetails;
+
+    public SecurityConfig(CustomerDetailsServiceImpl customerdetails) {
+        this.customerdetails = customerdetails;
+    }
+
+    // 3. 配置 AuthenticationManager
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager(); // 返回默认的 AuthenticationManager
+    }
+
+    // 4. 配置 密码加密器，用于 AuthenticationManager 加密 password 后与 CustomerDetailsImpl 进行对比
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            // 5. 禁用默认表单登录（也就禁用了 UsernamePasswordAuthenticationFilter 过滤器）
+            .formLogin(form -> form.disable())
+            // 6. 禁用默认注销功能
+            .logout(logout -> logout.disable())
+            // 7. 资源级别的访问控制
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/auth/login", "auth/logout").permitAll()
+                    .requestMatchers("/auth/test").hasAnyAuthority("ROLE_CEO")
+                    .anyRequest().authenticated()
+            )
+            // 8. 用户 未认证、权限不足 的处理
+            .exceptionHandling(handler -> handler
+                    // 未认证时的响应
+                    .authenticationEntryPoint((request, response, authException) -> {
+                                response.setContentType("application/json;charset=UTF-8");
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.getWriter().write("{\"error\":\"未认证，请先登录\"}");
+                            }
+                    )
+                    // 权限不足时的响应
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                response.setContentType("application/json;charset=UTF-8");
+                                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                                response.getWriter().write("{\"error\":\"权限不足，无法访问此资源\"}");
+                            }
+                    )
+            )
+            // 9. HttpSession 相关配置
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            )
+            // 10. 默认 SecurityContext 查找和保存策略
+            .securityContext(context -> context
+                    .requireExplicitSave(false)
+            )
+            // 11. 配置 UserDetailsServiceImpl，用于 AuthenticationManager 从数据库中取 UserDetailsImpl
+            .userDetailsService(customerdetails) // 显式告诉用你的UserDetailsService
+            // 12. CSRF 攻击防护
+            .csrf(csrf -> csrf.disable());
+
+        return http.build();
     }
 }
 ```

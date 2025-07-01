@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：MySQL 基础.md",
+                "file": "source/_posts/笔记：Java 数据类型.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：MySQL 基础"
+              "title": "笔记：Java 数据类型"
             }
           },
           {
@@ -286,6 +286,11 @@
     "templates/临时：security.md",
     "source/_posts/笔记：Spring Security.md",
     "templates/临时：mybatis.md",
+    "source/_posts/笔记：Java 数据类型.md",
+    "source/_posts/笔记：MySQL 基础.md",
+    "templates/临时：mybatis/image-20250701101838609.png",
+    "templates/临时：mybatis/image-20250701101830916.png",
+    "templates/临时：mybatis/image-20250701101544473.png",
     "templates/临时：mybatis/image-20250630184425409.png",
     "templates/临时：mybatis/image-20250630184315442.png",
     "templates/临时：mybatis/image-20250630184256176.png",
@@ -293,11 +298,6 @@
     "templates/临时：mybatis/image-20250630184233952.png",
     "templates/临时：mybatis/image-20250630184156172.png",
     "templates/临时：mybatis/image-20250630184136049.png",
-    "source/_posts/笔记：Spring Security/image-20250630183241212.png",
-    "source/_posts/笔记：Spring Security/image-20250630183239453.png",
-    "source/_posts/笔记：MySQL 基础.md",
-    "templates/临时：mybatis/image-20250630165638775.png",
-    "source/_posts/笔记：Java 数据类型.md",
     "source/_posts/笔记：Java 数据类型/Map：Java数据类型.xmind",
     "source/_posts/笔记：Java 数据类型",
     "maps/Map：Java数据类型.xmind",

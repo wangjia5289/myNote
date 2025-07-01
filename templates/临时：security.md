@@ -962,7 +962,7 @@ public class AuthController {
 
 #### 1.1. Security 相关配置模版
 
-Spring Security 的配置主要在 Java 配置类中进行，而不是在 `application.yml` 文件中，因为安全配置通常涉及到逻辑和条件判断，这些无法简单地通过属性文件表达，我们可以完成以下配置：
+
 ```
 @Configuration
 @EnableMethodSecurity // 1. 启用方法级别的访问控制
@@ -1046,33 +1046,7 @@ public class SecurityConfig {
 
 #### 1.2. 方法级别的访问控制  
 
-==1.配置类上添加注解==
-```
-@Configuration  
-@EnableMethodSecurity  // 启用方法级别的访问控制  
-@EnableWebSecurity  
-public class SecurityConfig {  
-  ......
-}
-```
 
-
-==2.方法级别的访问控制==
-需要注意，一般在服务层（Service 层） 进行控制。
-```
-@Service
-public class UserService {
-    @PreAuthorize("hasRole('ADMIN')")
-    public void adminMethod() {
-        // 只有 ADMIN 角色可以执行该方法
-    }
-
-    @PreAuthorize("hasAuthority('USER_READ')") 
-    public void readUser() {
-        // 只有具有 USER_READ 权限的用户可以执行
-    }
-}
-```
 
 ---
 
