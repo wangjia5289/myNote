@@ -9,6 +9,62 @@ tags:
 author: 霸天
 layout: post
 ---
+
+![](image-20250701205019198.png)
+
+![](image-20250701205226473.png)
+
+其实这就是 Spring IOC 的核心思想了，对吧，你的接口这些方法都已经制定好了
+```
+public interface PasswordEncoder {  
+    String encode(CharSequence rawPassword);  
+  
+    boolean matches(CharSequence rawPassword, String encodedPassword);  
+  
+    default boolean upgradeEncoding(String encodedPassword) {  
+        return false;  
+    }  
+}
+```
+然后这些实现，都会去实现你这些方法，我们将接口直接声明为 Bean，然后选择一个合适的实现类进行返回，其实这个接口呢，就可以使用这个实现类实现的方法，以后如果我们要修改实现类，只需要修改以下这个return new BCY 到其他的，然后呢，其他的代码都不用变了，如果你是直接 Bean BCY，那你如果以后像用一个其他的，那你还得把所有的BCY 找出来，一一替换
+
+
+```
+@Configuration
+@EnableWebSecurity 
+public class SecurityConfig {
+    @Bean 
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(); // 返回合适的实现类
+    }
+}
+```
+
+
+```
+@Controller  
+@RequestMapping("/security")  
+public class PasswordController {  
+    private final PasswordEncoder passwordEncoder;  
+  
+    @Autowired  
+    public PasswordController(PasswordEncoder passwordEncoder) {  
+        this.passwordEncoder = passwordEncoder;  
+    }  
+      
+    // 通过方法处理密码加密  
+    @RequestMapping("/encode-password")  
+    @ResponseBody  
+    public String encodePassword() {  
+        String password = "myPasswordxxxxxxx";  
+        // 在方法内调用 passwordEncoder 进行密码加密  
+        String encodedPassword = passwordEncoder.encode(password);  
+        return "Encoded Password: " + encodedPassword;  
+    }  
+}
+```
+
+
 ![](image-20250519160241335.png)
 
 Spring 可以通过字段注入（反射）注入依赖，但这种方式**不能用在final字段上**，因为final字段一旦初始化就不能再改。Spring 反射注入时，Java编译器没法确定这个final字段被初始化过，编译期就报错。

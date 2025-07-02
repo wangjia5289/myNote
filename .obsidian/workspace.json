@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：Java 数据类型.md",
+                "file": "source/_posts/笔记：Spring IOC.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：Java 数据类型"
+              "title": "笔记：Spring IOC"
             }
           },
           {
@@ -97,7 +97,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "阿里云代码",
+                "query": "笔记：spring IOC",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -139,8 +139,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 313.5041847229004,
-    "collapsed": true
+    "width": 313.5041847229004
   },
   "right": {
     "id": "0803248b5c8c75de",
@@ -285,8 +284,12 @@
   "lastOpenFiles": [
     "templates/临时：security.md",
     "source/_posts/笔记：Spring Security.md",
-    "templates/临时：mybatis.md",
+    "source/_posts/笔记：Spring IOC.md",
+    "source/_posts/笔记：Spring IOC/image-20250701205226473.png",
+    "source/_posts/笔记：Spring IOC/image-20250701205019198.png",
+    "source/_posts/笔记：Spring Boot.md",
     "source/_posts/笔记：Java 数据类型.md",
+    "templates/临时：mybatis.md",
     "source/_posts/笔记：MySQL 基础.md",
     "templates/临时：mybatis/image-20250701101838609.png",
     "templates/临时：mybatis/image-20250701101830916.png",
@@ -296,8 +299,6 @@
     "templates/临时：mybatis/image-20250630184256176.png",
     "templates/临时：mybatis/image-20250630184249382.png",
     "templates/临时：mybatis/image-20250630184233952.png",
-    "templates/临时：mybatis/image-20250630184156172.png",
-    "templates/临时：mybatis/image-20250630184136049.png",
     "source/_posts/笔记：Java 数据类型/Map：Java数据类型.xmind",
     "source/_posts/笔记：Java 数据类型",
     "maps/Map：Java数据类型.xmind",
@@ -326,8 +327,6 @@
     "source/_posts/hello-world.md",
     "source/_posts/笔记：Windows.md",
     "source/_posts/笔记：Webmin.md",
-    "source/_posts/笔记：VMware.md",
-    "source/_posts/笔记：Tomcat 服务器.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]

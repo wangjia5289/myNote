@@ -87,7 +87,7 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager(); // 从 Spring Security 配置中获取其默认的 AuthenticationManager 实例
     }
 
-    // 4. 配置 密码加密器，用于 AuthenticationManager 加密 password 后与 CustomerDetailsImpl 进行对比
+    // 4. 配置 密码加密器
     @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
@@ -148,6 +148,8 @@ public class SecurityConfig {
 }
 ```
 
+
+
 ---
 
 
@@ -180,6 +182,10 @@ public class UserService {
     }
 }
 ```
+
+> [!NOTE] 注意事项
+> 1. 这里是方法级别的访问控制，也就是说，用户必须具备指定的权限或身份，才能调用该方法。
+> 2. 而资源级别的访问控制则是指：只有具备指定权限或身份的用户，才能访问特定路径下的资源，例如 `/api/admin/**` ，详见下文：资源级别的访问控制。
 
 ---
 
@@ -217,9 +223,7 @@ public class AuthenticationConfiguration {
 }
 ```
 
-如果开发者想使用 `AuthenticationManager`，就需要自己显式地从官方配置中获取其默认实现，或者直接自定义一个。
-
-通常我们使用的 `AuthenticationManager` 实际上就是官方默认实现的那个，除非你有特殊需求需要进行自定义配置，因此我们可以这样手动声明：
+如果开发者想使用 `AuthenticationManager`，就需要自己显式地从官方配置中获取其默认实现，或者直接自定义一个。通常我们使用的 `AuthenticationManager` 实际上就是官方默认实现的那个，除非你有特殊需求需要进行自定义配置，因此我们可以这样手动声明：
 ```
 @Bean  
 public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {  
@@ -228,6 +232,130 @@ public AuthenticationManager authenticationManager(AuthenticationConfiguration a
 ```
 
 ----
+
+
+### 配置密码加密器
+
+#### 1.3.1. 密码加密器概述
+
+在实际应用中，用户密码绝不能以明文方式存储，因为这会带来极大的安全风险。为确保安全性，我们必须在存储前对密码进行加密处理。基于此，我们面临两大问题：
+1. 如何实现密码加密，即如何将明文密码转换为**不可逆**的密文，从而保护用户密码安全
+2. 如何校验密码，即用户提交的明文密码如何与存储的密文密码进行对比，从而验证密码的正确性
+
+`PasswordEncoder` 是 Spring Security 提供的一个接口，同时它也提供了该接口的很多实现类，能够解决上述两大问题
+
+---
+
+
+#### 1.3.2. PaswordEncoder 常用实现类
+
+Spring Security 提供了几种常见的 `PasswordEncoder` 实现类，常用的有：
+
+<span style="background:#fff88f">1. BCryptPasswordEncoder</span>
+基于 BCrypt 算法的密码加密工具，**不能解密，只能对比**，是一种提供较高安全的密码加密方式，能够有效防止暴力破解，适用于大多数应用。
+```
+@Bean  
+public PasswordEncoder passwordEncoder() {  
+    return new BCryptPasswordEncoder();  
+}
+```
+
+
+<span style="background:#fff88f">2. NoOpPasswordEncoder</span>
+不对密码进行加密，直接返回原始密码，通常用于开发、测试环境，不建议在生产环境中使用。
+```
+@Bean  
+public PasswordEncoder passwordEncoder() {  
+    return NoOpPasswordEncoder.getInstance();  
+}
+```
+
+
+<span style="background:#fff88f">3. Pbkdf2PasswordEncoder</span>
+基于 PBKDF2 算法的密码加密工具
+
+
+<span style="background:#fff88f">4. SCryptPasswordEncoder</span>
+基于 scrypt 算法的密码加密工具。
+
+---
+
+
+#### 1.3.3. PasswordEncoder 使用步骤
+
+<span style="background:#fff88f">1. 配置 PasswordEncoder</span>
+就是将 `PasswordEncoder` 声明为一个 Bean，并指定返回一个合适的的实现类。这样当我们注入这个 Bean，并调用其接口方法时，实际执行的就是这个实现类的逻辑，这正体现了 Spring IoC 的核心理念：**面向接口编程，运行时注入实现**。不理解这一点，那确实建议回去复习一下 IoC。
+``` 
+@Configuration
+@EnableWebSecurity 
+public class SecurityConfig {
+    @Bean 
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(); // 返回合适的实现类
+    }
+}
+```
+
+
+<span style="background:#fff88f">2. 使用 PasswordEncoder 实现密码加密</span>
+```
+@Controller  
+@RequestMapping("/security")  
+public class PasswordController {  
+    private final PasswordEncoder passwordEncoder;  
+  
+    @Autowired  
+    public PasswordController(PasswordEncoder passwordEncoder) {  
+        this.passwordEncoder = passwordEncoder;  
+    }  
+      
+    // 通过方法处理密码加密  
+    @RequestMapping("/encode-password")  
+    @ResponseBody  
+    public String encodePassword() {  
+        String password = "myPasswordxxxxxxx";  
+        // 在方法内调用 passwordEncoder 进行密码加密  
+        String encodedPassword = passwordEncoder.encode(password);  
+        return "Encoded Password: " + encodedPassword;  
+    }  
+}
+```
+
+
+<span style="background:#fff88f">3. 校验密码匹配</span>
+```
+@Controller
+@RequestMapping("/security")  
+public class PasswordController {
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public PasswordController(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    // 通过方法验证密码
+    @RequestMapping("/verify-password")
+    @ResponseBody
+    public String verifyPassword() {
+        String rawPassword = "myPasswordxxxxxxx";
+        String encodedPassword = "xxxxxxxxxxxxxxxxxx";  // 模拟数据库中的加密密码
+
+        // 使用 matches 方法验证密码是否匹配
+        boolean matches = passwordEncoder.matches(rawPassword, encodedPassword);
+        
+        return matches ? "Password is valid" : "Invalid password";
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 使用 `matches` 方法时，实际上是**先对 rawPassword 进行加密**，然后再与数据库中的加密密码进行匹配）
+> 2. 如果我们是使用 `AuthenticationManager` 进行认证，它会自动将用户发送来的用户名和密码，与我们的 `CustomerUserDetailsImpl` 中返回的用户名和密码进行比对，这是我们已知的逻辑。那你可能会有疑问：它在比对前，肯定需要先用密码加密器对用户发送来的明文密码进行加密，然后再比对吧？可我并没有做任何相关配置，`AuthenticationManager` 怎么知道该使用哪个加密器？
+> 3. 没错，其实只要你注册了一个类型为 `PasswordEncoder` 的 Bean，Spring Boot 就会通过自动配置的机制，将它注入到 `DaoAuthenticationProvider` 中。而 `AuthenticationManager` 默认就是委托这个 Provider 来处理认证的，简单来说，`AuthenticationManager` 就会知道使用这个密码加密器对密码进行加密，**无需我们手动配置**。
+
+---
 
 
 

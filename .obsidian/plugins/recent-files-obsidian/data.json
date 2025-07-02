@@ -9,12 +9,20 @@
       "path": "templates/临时：security.md"
     },
     {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
+      "basename": "笔记：Spring IOC",
+      "path": "source/_posts/笔记：Spring IOC.md"
+    },
+    {
+      "basename": "笔记：Spring Boot",
+      "path": "source/_posts/笔记：Spring Boot.md"
     },
     {
       "basename": "笔记：Java 数据类型",
       "path": "source/_posts/笔记：Java 数据类型.md"
+    },
+    {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
     },
     {
       "basename": "笔记：MySQL 基础",
@@ -191,14 +199,6 @@
     {
       "basename": "笔记：Java 日志记录",
       "path": "source/_posts/笔记：Java 日志记录.md"
-    },
-    {
-      "basename": "笔记：Java 路线图",
-      "path": "source/_posts/笔记：Java 路线图.md"
-    },
-    {
-      "basename": "笔记：IP",
-      "path": "source/_posts/笔记：IP.md"
     }
   ],
   "omittedPaths": [],
