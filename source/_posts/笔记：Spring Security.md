@@ -11,14 +11,14 @@ layout: post
 ---
 # 一、理论
 
-## 导图
+## 1. 导图
 
 ![](source/_posts/笔记：Spring%20Security/Map：SpringSecurity.xmind)
 
 ---
 
 
-## Spring Security 执行流程
+## 2. Spring Security 执行流程
 
 <span style="background:#fff88f">1. 用户请求（客户端请求）</span>
 每次用户访问受 `Spring Security` 保护的资源，都会经过以下流程
@@ -66,98 +66,145 @@ layout: post
 ----
 
 
-## Spring Security 配置
+## 3. Spring Security 配置
 
-### 配置模板
+### 3.1. 配置模板
 
 Spring Security 的配置主要在 Java 配置类中进行，而不是在 `application.yml` 文件中，因为安全配置通常涉及到逻辑和条件判断，这些无法简单地通过属性文件表达，我们可以完成以下配置：
 ```
+package com.example.securitywithhttpsession.configuration;
+
+import com.example.securitywithhttpsession.service.CustomerUserDetailsImplService;
+import com.fasterxml.jackson.databind.annotation.NoClass;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 @Configuration
 @EnableMethodSecurity // 1. 启用方法级别的访问控制
 @EnableWebSecurity // 2. 启用 Spring Security 安全机制
-public class SecurityConfig {
+public class SecurityConfiguration {
+    
+    // 详见下文：配置 CSRF 攻击防护
+    @Bean
+    public CsrfTokenRepository csrfTokenRepository() {
 
-    private final CustomerDetailsServiceImpl customerdetails;
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository(); // 在HttpSession 中存储
 
-    public SecurityConfig(CustomerDetailsServiceImpl customerdetails) {
-        this.customerdetails = customerdetails;
+        repository.setHeaderName("X-CSRF-TOKEN"); // 可自定义请求头名称
+        repository.setParameterName("_csrfToken"); // 可自定义请求参数名称
+        return repository;
     }
 
-    // 3. 配置 AuthenticationManager
+    // 3. 配置 CORS 跨域资源共享
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://frontend.example.com"); // 只允许特定前端跨域
+        configuration.addAllowedMethod("*"); // 支持所有方法
+        configuration.addAllowedHeader("*"); // 支持所有头部
+        configuration.setAllowCredentials(true); // 允许携带 Cookie、Session 等凭证
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // 应用于本程序哪些路径
+        return source;
+    }
+
+    // 4. 配置 AuthenticationManager
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager(); // 从 Spring Security 配置中获取其默认的 AuthenticationManager 实例
     }
 
-    // 4. 配置 密码加密器
+    // 5. 配置 密码加密器
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return NoOpPasswordEncoder.getInstance(); // 返回合适的实现类
     }
 
+    // 配置 SecurityFilterChain，即我们熟知的那些过滤器链
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            // 5. 禁用默认表单登录（也就禁用了 UsernamePasswordAuthenticationFilter 过滤器）
-            .formLogin(form -> form.disable())
-            
-            // 6. 禁用默认注销功能
-            .logout(logout -> logout.disable())
-            
-            // 7. 资源级别的访问控制
-            .authorizeHttpRequests("见下文")
-            
-            // 8. 用户 未认证、权限不足 的处理
-            .exceptionHandling(handler -> handler
-                    // 未认证时的响应
-                    .authenticationEntryPoint((request, response, authException) -> {
-                                response.setContentType("application/json;charset=UTF-8");
-                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                                response.getWriter().write("{\"error\":\"未认证，请先登录\"}");
-                            }
-                    )
-                    // 权限不足时的响应
-                    .accessDeniedHandler((request, response, accessDeniedException) -> {
-                                response.setContentType("application/json;charset=UTF-8");
-                                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                                response.getWriter().write("{\"error\":\"权限不足，无法访问此资源\"}");
-                            }
-                    )
-            )
-            
-            // 9. HttpSession 相关配置
-            .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-            )
-            
-            // 10. 默认 SecurityContext 查找和保存策略
-            .securityContext("见下文"）
-            
-            // 11. 配置 UserDetailsServiceImpl，用于 AuthenticationManager 从数据库中取 UserDetailsImpl
-            .userDetailsService(customerdetails) // 显式告诉用你的UserDetailsService
-            
-            // 12. CSRF 攻击防护
-            .csrf("见下文")
-            
-            // 13. CORS 支持
-            .cors("见下文")
-            
-            // 14. 添加自定义过滤器
-            .addFilterAt("见下文");
-            
-        return http.build(); // 构建 SecurityFilterChain 对象  
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                // 6. 禁用默认表单登录，同时禁用 UsernamePasswordAuthenticationFilter 过滤器
+                .formLogin(form -> {
+                    form.disable();
+                })
+                // 7. 禁用默认注销功能
+                .logout(logout -> {
+                    logout.disable();
+                })
+                // 8. 配置资源级别的访问控制
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/public/**").permitAll();
+                })
+                // 9. 配置用户 未认证、权限不足 的处理
+                .exceptionHandling(handler -> handler
+                        // 未认证时的响应（处理 AuthenticationException 异常）
+                        .authenticationEntryPoint((request, response, authException) -> {
+                                    response.setContentType("application/json;charset=UTF-8");
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                    response.getWriter().write("{\"error\":\"未认证，请先登录\"}");
+                                }
+                        )
+                        // 权限不足时的响应（处理 AccessDeniedException 异常）
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                    response.setContentType("application/json;charset=UTF-8");
+                                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                                    response.getWriter().write("{\"error\":\"权限不足，无法访问此资源\"}");
+                                }
+                        )
+                )
+                // 10. 配置 HttpSession
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+
+                // 11. 配置 SecurityContextPersistenceFilter 过滤器
+                .securityContext(security -> {
+                    security.requireExplicitSave(false);
+                })
+
+                // 12. 配置 CSRF 攻击防护
+                .csrf(csrf -> {
+                    csrf.ignoringRequestMatchers("/login");
+                    csrf.csrfTokenRepository(csrfTokenRepository());
+                })
+
+                // 13. 添加自定义过滤器
+                .addFilterAt(xxxx);
+        return httpSecurity.build(); // 构建 SecurityFilterChain 对象
+        }
     }
 }
 ```
 
-
-
 ---
 
 
-### 启用方法级别的访问控制
+### 3.2. 启用方法级别的访问控制
 
-<span style="background:#fff88f">1. 配置类上添加注解</span>
+资源级别的访问控制是指：只有具备指定权限或身份的用户，才能访问特定路径下的资源，例如 `/api/admin/**` ，详见下文：资源级别的访问控制。
+
+而方法级别的访问控制则是指：用户必须具备指定的权限或身份，才能调用该方法，详细步骤如下：
+
+<span style="background:#fff88f">1. 配置类上添加 @EnableMethodSecurity 注解</span>
 ```
 @Configuration  
 @EnableMethodSecurity  // 启用方法级别的访问控制  
@@ -169,7 +216,7 @@ public class SecurityConfig {
 
 
 <span style="background:#fff88f">2. 使用方法级别的访问控制</span>
-需要注意的是，一般在服务层（Service 层） 进行控制。
+需要注意的是，方法级别的访问控制，一般进行在服务层（Service 层）。
 ```
 @Service
 public class UserService {
@@ -185,16 +232,12 @@ public class UserService {
 }
 ```
 
-> [!NOTE] 注意事项
-> 1. 这里是方法级别的访问控制，也就是说，用户必须具备指定的权限或身份，才能调用该方法。
-> 2. 而资源级别的访问控制则是指：只有具备指定权限或身份的用户，才能访问特定路径下的资源，例如 `/api/admin/**` ，详见下文：资源级别的访问控制。
-
 ---
 
 
-### 启用 Spring Security 安全机制
+### 3.3. 启用 Spring Security 安全机制
 
-加上 `@EnableWebSecurity` 后，Spring 会自动注册一个叫做 `FilterChainProxy` 的安全过滤器链，包含十几个内置的安全过滤器，就是我们熟知的那些过滤器。
+在配置类中加上 `@EnableWebSecurity` 后，Spring 会自动注册一个叫做 `FilterChainProxy` 的安全过滤器链，包含十几个内置的安全过滤器，就是我们熟知的那些过滤器。
 
 > [!NOTE] 注意事项
 > 1. 即使你不显式添加这个注解，只要引入了 `spring-boot-starter-security`，Spring Boot 就会自动注册默认的安全过滤器链。但如果你需要自定义安全配置类（例如我们自己的 `SecurityConfiguration`），就必须显式启用它，以确保你的配置生效
@@ -202,16 +245,9 @@ public class UserService {
 ---
 
 
-### 配置 AuthenticationManager
+### 3.4. 配置 AuthenticationManager
 
-在 `WebSecurityConfigurerAdapter` 时代，`AuthenticationManager` 是由 Spring 官方默认注册为 Bean 的，因此我们可以直接注入使用，例如：
-```
-@Bean
-@Override
-public AuthenticationManager authenticationManagerBean() throws Exception {
-    return super.authenticationManagerBean();
-}
-```
+在 `WebSecurityConfigurerAdapter` 时代，`AuthenticationManager` 是由 Spring 官方默认注册为 Bean 的，因此我们可以直接注入使用。
 
 但从 Spring Boot 3 开始，Spring 的设计理念发生了变化：“最少暴露、最少干预”，也就是说框架不再自动为你暴露未显式声明的组件，目的是减少默认暴露导致的 Bean 冲突或安全隐患。
 
@@ -222,6 +258,7 @@ public class AuthenticationConfiguration {
     private AuthenticationManager getAuthenticationManagerBean() {  
         return (AuthenticationManager)this.lazyBean(AuthenticationManager.class);  
     }  
+    
 }
 ```
 
@@ -233,12 +270,55 @@ public AuthenticationManager authenticationManager(AuthenticationConfiguration a
 }
 ```
 
+
 ----
 
 
-### 配置密码加密器
+### 3.5. 配置 CORS 跨域资源共享
 
-#### 1.3.1. 密码加密器概述
+Spring Security 默认关闭 CORS（跨域资源共享）。
+```
+// 2. 启用 CORS 跨域资源共享，并配置跨域规则
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+
+	CorsConfiguration configuration = new CorsConfiguration();
+	configuration.addAllowedOrigin("http://frontend.example.com"); // 只允许特定前端跨域
+	configuration.addAllowedMethod("*"); // 支持所有方法
+	configuration.addAllowedHeader("*"); // 支持所有头部
+	configuration.setAllowCredentials(true); // 允许携带 Cookie、Session 等凭证
+
+	UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	source.registerCorsConfiguration("/**", configuration); // 应用于本程序哪些路径
+	return source;
+}
+```
+
+> [!NOTE] 注意事项
+> 1. CORS 只解决跨域访问问题，对于受保护资源的访问，仍需要完成认证，甚至需要校验 CSRF Token。建议在跨域请求时携带一个 JWT，这样可以自动完成身份认证，无需手动处理。
+
+```
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(List.of("http://localhost:3000")); // 或 "*"
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+    config.setAllowedHeaders(List.of("*"));
+    config.setAllowCredentials(true); // 如果你前端携带 cookie，这里要开启
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
+}
+
+```
+
+-----
+
+
+### 3.6. 配置密码加密器
+
+#### 3.6.1. 密码加密器概述
 
 在实际应用中，用户密码绝不能以明文方式存储，因为这会带来极大的安全风险。为确保安全性，我们必须在存储前对密码进行加密处理。基于此，我们面临两大问题：
 1. 如何实现密码加密，即如何将明文密码转换为**不可逆**的密文，从而保护用户密码安全
@@ -249,7 +329,7 @@ public AuthenticationManager authenticationManager(AuthenticationConfiguration a
 ---
 
 
-#### 1.3.2. PaswordEncoder 常用实现类
+#### 3.6.2. PaswordEncoder 常用实现类
 
 Spring Security 提供了几种常见的 `PasswordEncoder` 实现类，常用的有：
 
@@ -283,7 +363,7 @@ public PasswordEncoder passwordEncoder() {
 ---
 
 
-#### 1.3.3. PasswordEncoder 使用步骤
+#### 3.6.3. PasswordEncoder 使用步骤
 
 <span style="background:#fff88f">1. 配置 PasswordEncoder</span>
 就是将 `PasswordEncoder` 声明为一个 Bean，并指定返回一个合适的的实现类。这样当我们注入这个 Bean，并调用其接口方法时，实际执行的就是这个实现类的逻辑，这正体现了 Spring IoC 的核心理念：**面向接口编程，运行时注入实现**。不理解这一点，那确实建议回去复习一下 IoC。
@@ -355,12 +435,28 @@ public class PasswordController {
 > [!NOTE] 注意事项
 > 1. 使用 `matches` 方法时，实际上是**先对 rawPassword 进行加密**，然后再与数据库中的加密密码进行匹配）
 > 2. 如果我们是使用 `AuthenticationManager` 进行认证，它会自动将用户发送来的用户名和密码，与我们的 `CustomerUserDetailsImpl` 中返回的用户名和密码进行比对，这是我们已知的逻辑。那你可能会有疑问：它在比对前，肯定需要先用密码加密器对用户发送来的明文密码进行加密，然后再比对吧？可我并没有做任何相关配置，`AuthenticationManager` 怎么知道该使用哪个加密器？
-> 3. 没错，其实只要你注册了一个类型为 `PasswordEncoder` 的 Bean，Spring Boot 就会通过自动配置的机制，将它注入到 `DaoAuthenticationProvider` 中。而 `AuthenticationManager` 默认就是委托这个 Provider 来处理认证的，简单来说，`AuthenticationManager` 就会知道使用这个密码加密器对密码进行加密，**无需我们手动配置**。
+> 3. 其实，只要你注册了一个类型为 `PasswordEncoder` 的 接口 Bean，这个 接口 Bean 有一个具体实现，`AuthenticationManager` 就会知道使用这个 `PasswordEncoder` Bean 与其具体实现，对密码进行加密，**无需我们手动配置**。
+> 4. 同样的，只要你注册了一个类型为 `UserDetailsService` 的 Bean（接口 Bean），这个 接口 Bean 有一个具体的实现，`AuthenticationManager` 就会知道使用这个 `UserDetailsService` Bean 与其具体实现，去获取 `CustomerUserDetailsImpl` **无需我们手动配置**。
+> 5. 上述，只限于接口 Bean 只有一个具体实现，如果有多个具体实现，那就要我们进行配置了，因为 Spring Security 虽然知道用这个 Bean，但是并不知道使用哪一个具体实现
+```
+// 1. 这种方式，同时注册了 UserDetailsService 接口类型的 Bean 和 CustomerUserDetailsImplService 实现类类型的 Bean，CustomerUserDetailsImplService 只是该接口的下的一个具体实现，可能存在多个这样的实现类类型的 Bean（此方式，支持一个接口 Bean 有多个实现类 Bean，当需要切换实现时，只需调整配置，指定使用的实现类即可）
+@Service
+public class CustomerUserDetailsImplService implements UserDetailsService {
+	......
+}
+
+
+// 2. 这种方式仅注册了 UserDetailsService 类型的 Bean，返回的 CustomerUserDetailsImplService 实例是其具体实现类（此方式下，一个接口 Bean 只能绑定一个实现类，若要更换实现，需在此方法中直接修改返回的实例。）
+@Bean
+public UserDetailsService userDetailsService() {
+    return new CustomerUserDetailsImplService();
+}
+```
 
 ---
 
 
-### 资源级别的访问控制
+### 3.7. 配置资源级别的访问控制
 
 ```
 http.authorizeHttpRequests(auth -> auth
@@ -385,8 +481,7 @@ http.authorizeHttpRequests(auth -> auth
 	1. 要求用户必须具备指定权限才能访问，我们用这个就好
 	2. 注意：不会自动添加前缀，提供完整权限名称即可
 7. authenticated()：
-	1. 要求用户已通过身份验证后才能访问。
-	2. 仅限制陌生人，即未认证用户
+	1. 要求用户已通过身份验证（即非匿名 Authenticated 而是认证 Authenticated）后才能访问。
 8. access()：
 	1. 支持使用 SpEL 表达式，实现更复杂的访问控制逻辑。
 	2. 例如：access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") ，是说此路径仅允许拥有 ADMIN 角色且 IP 地址位于 192.168.1.0/24 网段的用户访问
@@ -402,26 +497,128 @@ http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 ----
 
 
+### 3.8. 配置 HttpSession
+
+```
+http.sessionManagement(session -> session  
+    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)  
+    .maximumSessions(1)
+    .maxSessionsPreventsLogin(true)
+);
+"""
+1. sessionCreationPolicy()：会话创建策略
+	1. SessionCreationPolicy.ALWAYS：
+		1. 始终创建会话。每个请求都会新建一个 HttpSession，覆盖之前的会话，并返回新的 JSESSIONID Cookie。
+	2. SessionCreationPolicy.IF_REQUIRED（默认）：
+		1. 按需创建会话。当需要使用 HttpSession 时，Spring Security 会自动创建会话，并返回对应的 JSESSIONID Cookie。
+	3. SessionCreationPolicy.STATELESS：
+		1. 不使用会话，适用于无状态应用场景（禁用 HttpSession，如 JWT）
+2. maximumSessions()：
+	1. 并发会话控制。限制每个用户在同一时间内的会话数量，也即用户可在多少台设备上同时登录（默认情况下，不限制）。
+3. maxSessionsPreventsLogin()：
+	1. 是否阻止新会话登录。
+	2. true：
+		1. 达到最大会话数后阻止新会话登录，不允许替换旧会话。
+	3. false(默认)：
+		1. 允许新会话登录并替换旧会话，此时旧会话将被注销，旧的 JSESSIONID 失效。通常系统会通知用户被挤下线，并重定向到登录页面要求重新登录。
+"""
+```
+
+> [!NOTE] 注意事项
+> 1. Spring Security 本身不负责设置 `HttpSession` 的会话超时时间。会话超时时间由 Servlet 容器或 Spring Boot 配置决定。
+> 2. `HttpSession` 存储在服务器端，别误以为存储在用户端了
+> 3. 如果不希望使用会话，可以配置为：
+```
+http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+```
+
+-----
 
 
+### 3.9. 配置 SecurityContextPersistenceFilter 过滤器
+
+```
+// 1. 禁用 SecurityContextPersistenceFilter 过滤器
+http.securityContext(securityContext -> securityContext.disable())  
 
 
+// 2. 启用 线程中的 SecurityContext 保存在 HttpSession 策略
+http.securityContext(securityContext -> securityContext.requireExplicitSave(false));
+```
+
+> [!NOTE] 注意事项
+> 1. `SecurityContextPersistenceFilter` 过滤器，能自动将本线程的 `SecurityContext` 存入 `HttpSession`（前提是，这个发生变化），但是这个功能，不是默认开启的了，需要我们手动开启
+
+----
 
 
+### 3.10. 配置 CSRF 攻击防护
+
+Spring Security 默认启用跨站请求伪造（CSRF）防护机制，基于 **CSRF Token** 实现安全校验。其工作原理如下：
+1. 用户首次登录页面时，需要我们手动生成一个随机的 CSRF Token，将其保存在服务器端的 **HttpSession** 中，并同步返回给前端。
+2. 前端需妥善保存该 Token，在执行修改服务器状态的敏感操作（如 POST、PUT、DELETE、PATCH 等）时，前端必须将该 Token 携带，通常以请求头（默认名称：`X-CSRF-TOKEN`）或请求参数（名称：`_csrf`）的方式携带。
+3. 服务器在接收到请求后，会比对请求中携带的 CSRF Token 与存储在 HTTP Session 中的 Token 是否一致。如果两者不匹配或者无 CSRF Token，则会抛出 `accessDeniedException`（无权限异常），从而阻止非法请求继续执行。
+4. 即使攻击者能利用用户的 Cookie 发起请求，由于敏感操作必须携带合法的 CSRF Token，而攻击者无法获取或伪造该 Token，因而能有效防止 CSRF 攻击。
+```
+@Bean 
+public CsrfTokenRepository csrfTokenRepository() { 
+
+		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository(); // 在HttpSession 中存储
+	
+		repository.setHeaderName("X-CSRF-TOKEN"); // 可自定义请求头名称 
+		repository.setParameterName("_csrfToken"); // 可自定义请求参数名称 
+		return repository; 
+}
+
+http.csrf(csrf -> csrf
+	.ignoringRequestMatchers("/login","/websocket/**", "/api/public/**"); // 忽略对这些路径的 CSRF 保护
+	.csrfTokenRepository(csrfTokenRepository()) // 使用我们自定义的 Token 存储库
+)；
+"""
+1. ignoringRequestMatchers()：
+	1. 忽略对这些路径的 CSRF 保护
+2. csrfTokenRepository()：
+	1. 指定 Token 的存储库，一般使用我们自定义的 Token 存储库
+"""
+```
+
+> [!NOTE] 注意事项
+> 1. 如果基于 JWT，我们直接禁用 CSRF 防护
+> 2. 如果你莫名其妙返回 `"error": "权限不足，无法访问此资源"` ，大概率是 CSRF 的问题
+> 3. 如果想要禁用 CSRF 防护，可以配置为：
+```
+http.csrf(csrf -> csrf.disable());
+```
+
+----
 
 
+### 3.11. 添加自定义过滤器
 
+```
+// 1. 直接添加过滤器，添加的过滤器必须是 Spring Security 提供的过滤器或其子类的实例
+http.addFilter(new CustomFilter());
 
+// 2. 在指定的过滤器位置添加过滤器，新添加的过滤器会替换指定位置的原有过滤器
+http.addFilterAt(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
 
+// 3. 在指定过滤器之前添加过滤器，自定义过滤器会在指定过滤器之前执行。
+http.addFilterBefore(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
+
+// 4. 在指定过滤器之后添加过滤器，自定义过滤器会在指定过滤器之后执行。
+http.addFilterAfter(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
+```
+
+-----
 
 
 # 二、实操
 
-## 基本使用
+## 1. 基本使用
 
-### 基于 HttpSession 的 Spring Security
+### 1.1. 基于 HttpSession 的 Spring Security
 
-#### 1.1. 创建 Spring Web 项目，添加 Security 相关依赖
+#### 1.1.1. 创建 Spring Web 项目，添加 Security 相关依赖
 
 1. Web：
 	1. Spring Web
@@ -435,7 +632,7 @@ http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 ---
 
 
-#### 1.2. 创建用户-角色-权限表
+#### 1.1.2. 创建用户-角色-权限表
 
 我们一般会创建五个表：`users` 表（用户表）存储所有注册用户的信息，`roles` 表（角色表）定义了系统中存在的各种角色，`user_role` 表（用户-角色关联表）用于建立用户和角色之间的多对多关系，`authorities` 表（权限表）定义了系统中的各种操作权限，`role_authoritie` 表（角色-权限表）用于建立角色和权限之间的多对多关系
 
@@ -592,16 +789,16 @@ INSERT INTO role_authority (role_id, authority_id) VALUES
 ---
 
 
-#### 使用 Spring Data MyBatis 实现查询用户的基本信息和权限
+#### 1.1.3. 使用 Spring Data MyBatis 实现查询用户的基本信息和权限
 
-##### 前置步骤
+##### 1.1.3.1. 前置步骤
 
 详见笔记：Spring Data MyBatis
 
 ----
 
 
-##### 编写 User Entity 类
+##### 1.1.3.2. 编写 User Entity 类
 
 User Entity 类位于 `com.example.securitywithhttpsession.entity` 包下
 ```
@@ -642,7 +839,7 @@ public class User {
 -----
 
 
-##### 编写 UserMapper 接口，并定义查询方法
+##### 1.1.3.3. 编写 UserMapper 接口，并定义查询方法
 
 User Entity 类位于 `com.example.securitywithhttpsession.mapper` 包下
 ```
@@ -657,7 +854,7 @@ public interface UserMapper {
 ----
 
 
-##### 编写查询方法对应的 SQL 语句（编写 UserMapper.xml）
+##### 1.1.3.4. 编写查询方法对应的 SQL 语句（编写 UserMapper.xml）
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -724,7 +921,7 @@ public interface UserMapper {
 ---
 
 
-#### 实现 UserDetails 接口
+#### 1.1.4. 实现 UserDetails 接口
 
 我们通常会定义一个类 `CustomerUserDetailsImpl` 来实现 Spring Security 提供的 `UserDetails` 接口。那么，这个类到底是做什么用的呢？我们先来看一下 `UserDetails` 接口的源码：
 ```
@@ -1039,7 +1236,7 @@ public class CustomerUserDetailsImpl implements UserDetails {
 ---
 
 
-#### 实现 UserDetailsService 接口
+#### 1.1.5. 实现 UserDetailsService 接口
 
 我们一般创建 `CustomerUserDetailsImplService` 类，用于实现这个接口，并重写它的 `loadUserByUsername` 方法，在这个方法中使用 `UserMapper` 查询出对应的 `User`，然后直接 `return new CustomerUserDetailsImpl(user)` 即可。
 
@@ -1068,7 +1265,7 @@ public class CustomerUserDetailsImplService implements UserDetailsService {
 ----
 
 
-#### 进行 Spring Security 配置
+#### 1.1.6. 进行 Spring Security 配置
 
 
 

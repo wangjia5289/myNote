@@ -13,6 +13,18 @@
       "path": "templates/临时：security.md"
     },
     {
+      "basename": "笔记：阿里云代码规约",
+      "path": "source/_posts/笔记：阿里云代码规约.md"
+    },
+    {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
+    },
+    {
+      "basename": "笔记：Java SE",
+      "path": "source/_posts/笔记：Java SE.md"
+    },
+    {
       "basename": "笔记：Spring Boot",
       "path": "source/_posts/笔记：Spring Boot.md"
     },
@@ -21,16 +33,8 @@
       "path": "source/_posts/笔记：Java 数据类型.md"
     },
     {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
-    },
-    {
       "basename": "笔记：MySQL 基础",
       "path": "source/_posts/笔记：MySQL 基础.md"
-    },
-    {
-      "basename": "笔记：阿里云代码规约",
-      "path": "source/_posts/笔记：阿里云代码规约.md"
     },
     {
       "basename": "问题总结",
@@ -179,10 +183,6 @@
     {
       "basename": "笔记：JDBC 规范",
       "path": "source/_posts/笔记：JDBC 规范.md"
-    },
-    {
-      "basename": "笔记：Java SE",
-      "path": "source/_posts/笔记：Java SE.md"
     },
     {
       "basename": "笔记：Java 异常处理",

@@ -9,6 +9,56 @@ tags:
 author: 霸天
 layout: post
 ---
+## 两种注册方式啊
+
+
+![](image-20250703103102608.png)
+
+![](image-20250703103116668.png)
+
+
+> [!NOTE] 注意事项
+> 1. 如果我们是使用 `AuthenticationManager` 进行认证，它会自动将用户发送来的用户名和密码，与我们的 `CustomerUserDetailsImpl` 中返回的用户名和密码进行比对，这是我们已知的逻辑。那你可能会有疑问：它在比对前，肯定需要先用密码加密器对用户发送来的明文密码进行加密，然后再比对吧？可我并没有做任何相关配置，`AuthenticationManager` 怎么知道该使用哪个加密器？
+> 2. 其实，只要你注册了一个类型为 `PasswordEncoder` 的 接口 Bean，这个 接口 Bean 有一个具体实现，`AuthenticationManager` 就会知道使用这个 `PasswordEncoder` Bean 与其具体实现，对密码进行加密，**无需我们手动配置**。
+> 3. 同样的，只要你注册了一个类型为 `UserDetailsService` 的 Bean（接口 Bean），这个 接口 Bean 有一个具体的实现，`AuthenticationManager` 就会知道使用这个 `UserDetailsService` Bean 与其具体实现，去获取 `CustomerUserDetailsImpl` **无需我们手动配置**。
+> 4. 上述，只限于接口 Bean 只有一个具体实现，如果有多个具体实现，那就要我们进行配置了，因为 Spring Security 虽然知道用这个 Bean，但是并不知道使用哪一个具体实现
+```
+/**
+ * ============================================
+ * Spring IoC 声明 Bean 的常用方式 1
+ * --------------------------------------------
+ * 概念：
+ * - 同时注册了 UserDetailsService 接口类型的 Bean 和 CustomerUserDetailsImplService 实现类类型的 Bean
+ * - CustomerUserDetailsImplService 是该接口的一个具体实现类，IoC 容器中可能存在多个这样的实现类 Bean
+ * - 我们既可以注入 CustomerUserDetailsImplService 类 Bean，也可以注入 UserDetailsService 接口 Bean
+ * - 如果注入的是 UserDetailsService，且只有一个实现类，那么调用接口方法时，实际就是调用该实现类的方法
+ * - 如果存在多个实现类，则需要通过配置明确指定使用哪个实现类
+ * - 简而言之，此方式支持一个接口 Bean 有多个实现类 Bean，切换实现时只需调整配置，指定使用哪一个实现即可
+ * ============================================
+ */
+@Service
+public class CustomerUserDetailsImplService implements UserDetailsService {
+	......
+}
+
+
+/**
+ * ============================================
+ * Spring IoC 声明 Bean 的常用方式 2
+ * --------------------------------------------
+ * 概念：
+ * - 仅注册了 UserDetailsService 类型的 Bean，返回的 CustomerUserDetailsImplService 实例是其具体实现类
+ * - 此方式下，一个接口 Bean 只能绑定一个实现类，若要更换实现，需在此方法中直接修改返回的实例。
+ * ============================================
+ */
+@Bean
+public UserDetailsService userDetailsService() {
+    return new CustomerUserDetailsImplService();
+}
+```
+
+
+----
 
 ![](image-20250701205019198.png)
 
