@@ -1070,77 +1070,7 @@ public class CustomerUserDetailsImplService implements UserDetailsService {
 
 #### 进行 Spring Security 配置
 
-```
-@Configuration
-@EnableMethodSecurity // 1. 启用方法级别的访问控制
-@EnableWebSecurity // 2. 启用 Spring Security 安全功能
-public class SecurityConfig {
 
-    private final CustomerDetailsServiceImpl customerdetails;
-
-    public SecurityConfig(CustomerDetailsServiceImpl customerdetails) {
-        this.customerdetails = customerdetails;
-    }
-
-    // 3. 配置 AuthenticationManager
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager(); // 返回默认的 AuthenticationManager
-    }
-
-    // 4. 配置 密码加密器，用于 AuthenticationManager 加密 password 后与 CustomerDetailsImpl 进行对比
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            // 5. 禁用默认表单登录（也就禁用了 UsernamePasswordAuthenticationFilter 过滤器）
-            .formLogin(form -> form.disable())
-            // 6. 禁用默认注销功能
-            .logout(logout -> logout.disable())
-            // 7. 资源级别的访问控制
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/auth/login", "auth/logout").permitAll()
-                    .requestMatchers("/auth/test").hasAnyAuthority("ROLE_CEO")
-                    .anyRequest().authenticated()
-            )
-            // 8. 用户 未认证、权限不足 的处理
-            .exceptionHandling(handler -> handler
-                    // 未认证时的响应
-                    .authenticationEntryPoint((request, response, authException) -> {
-                                response.setContentType("application/json;charset=UTF-8");
-                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                                response.getWriter().write("{\"error\":\"未认证，请先登录\"}");
-                            }
-                    )
-                    // 权限不足时的响应
-                    .accessDeniedHandler((request, response, accessDeniedException) -> {
-                                response.setContentType("application/json;charset=UTF-8");
-                                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                                response.getWriter().write("{\"error\":\"权限不足，无法访问此资源\"}");
-                            }
-                    )
-            )
-            // 9. HttpSession 相关配置
-            .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-            )
-            // 10. 默认 SecurityContext 查找和保存策略
-            .securityContext(context -> context
-                    .requireExplicitSave(false)
-            )
-            // 11. 配置 UserDetailsServiceImpl，用于 AuthenticationManager 从数据库中取 UserDetailsImpl
-            .userDetailsService(customerdetails) // 显式告诉用你的UserDetailsService
-            // 12. CSRF 攻击防护
-            .csrf(csrf -> csrf.disable());
-
-        return http.build();
-    }
-}
-```
 
 
 
