@@ -44,9 +44,11 @@ layout: post
 
 
 <span style="background:#fff88f">5. FilterSecurityInterceptor 介入</span>
-首先检查当前线程中是否存在 `Authentication`（无论是否匿名） ，如果不存在，则抛出 `AuthenticationException`（表示未认证）
+首先检查当前线程中是否存在 `Authentication`（无论是否为匿名身份），如果不存在，则抛出 `AuthenticationException`，表示用户尚未进行认证。
 
-接着检查当前权限是否有权访问对应的资源或方法（即资源级别的访问控制、方法级别的访问控制），若无权限，则抛出 `AccessDeniedException`
+接着判断是否为匿名用户访问受保护资源：即若用户尚未认证（即为匿名身份 `Authentication`），且访问的资源未被标注为 `permitAll`，则抛出 `AuthenticationException` 异常。
+
+最后检查当前用户是否具备访问目标资源或方法的权限（包括资源级别和方法级别的访问控制），若权限不足，则抛出 `AccessDeniedException`。
 > [!NOTE] 注意事项
 > 1. 整个流程中的异常由 `ExceptionTranslation` 过滤器统一处理，负责捕获**整个过滤器链中**抛出的 `AuthenticationException` 和 `AccessDeniedException` 异常，并执行相应的处理逻辑。
 
@@ -356,6 +358,54 @@ public class PasswordController {
 > 3. 没错，其实只要你注册了一个类型为 `PasswordEncoder` 的 Bean，Spring Boot 就会通过自动配置的机制，将它注入到 `DaoAuthenticationProvider` 中。而 `AuthenticationManager` 默认就是委托这个 Provider 来处理认证的，简单来说，`AuthenticationManager` 就会知道使用这个密码加密器对密码进行加密，**无需我们手动配置**。
 
 ---
+
+
+### 资源级别的访问控制
+
+```
+http.authorizeHttpRequests(auth -> auth
+    .requestMatchers("/public/**", "/error").permitAll()
+    .requestMatchers("/admin/**").hasRole("ADMIN")
+    .requestMatchers("/manage/**").hasAuthority("MANAGE_PRIVILEGE")
+    .requestMatchers("/special/**").access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") 
+    .anyRequest().authenticated() // 其他所有路径均需经过认证
+"""
+1. requestMatchers()：
+	1. 设置 特定资源请求路径 访问控制规则
+2. anyRequest()：
+	1. 用于设置除上述规则外，其余 所有资源请求路径 的访问控制规则
+3. permitAll()：
+	1. 允许所有用户访问该资源（说是所有用户，其实你至少要有匿名的 Authentication）
+4. denyAll()：
+	1. 禁止所有用户访问该资源。
+5. hasRole()：
+	1. 要求用户必须具备指定角色才能访问
+	2. 注意：该方法会自动在角色名前添加 "ROLE_" 前缀，即：hasRole("ADMIN") 代表 ROLE_ADMIN
+6. hasAuthority()：
+	1. 要求用户必须具备指定权限才能访问，我们用这个就好
+	2. 注意：不会自动添加前缀，提供完整权限名称即可
+7. authenticated()：
+	1. 要求用户已通过身份验证后才能访问。
+	2. 仅限制陌生人，即未认证用户
+8. access()：
+	1. 支持使用 SpEL 表达式，实现更复杂的访问控制逻辑。
+	2. 例如：access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") ，是说此路径仅允许拥有 ADMIN 角色且 IP 地址位于 192.168.1.0/24 网段的用户访问
+"""
+```
+
+> [!NOTE] 注意事项
+> 1. 如需放行所有请求，可配置为：
+```
+http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+```
+
+----
+
+
+
+
+
+
 
 
 

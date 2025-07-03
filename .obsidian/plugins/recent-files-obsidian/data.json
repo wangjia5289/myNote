@@ -5,12 +5,12 @@
       "path": "source/_posts/笔记：Spring Security.md"
     },
     {
-      "basename": "临时：security",
-      "path": "templates/临时：security.md"
-    },
-    {
       "basename": "笔记：Spring IOC",
       "path": "source/_posts/笔记：Spring IOC.md"
+    },
+    {
+      "basename": "临时：security",
+      "path": "templates/临时：security.md"
     },
     {
       "basename": "笔记：Spring Boot",

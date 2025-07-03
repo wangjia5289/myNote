@@ -1044,46 +1044,8 @@ public class SecurityConfig {
 ---
 
 
-#### 1.2. 方法级别的访问控制  
 
-#### 1.4. 资源级别的访问控制
 
-```
-http.authorizeHttpRequests(auth -> auth
-    .requestMatchers("/public/**", "/error").permitAll()
-    .requestMatchers("/admin/**").hasRole("ADMIN")
-    .requestMatchers("/manage/**").hasAuthority("MANAGE_PRIVILEGE")
-    .requestMatchers("/special/**").access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") 
-    .anyRequest().authenticated() // 其他所有路径均需经过认证
-"""
-1. requestMatchers()：
-	1. 设置 特定资源请求路径 访问控制规则
-2. anyRequest()：
-	1. 用于设置除上述规则外，其余 所有资源请求路径 的访问控制规则
-3. permitAll()：
-	1. 允许所有用户（包括未认证用户）访问该资源。
-4. denyAll()：
-	1. 禁止所有用户访问该资源。
-5. hasRole()：
-	1. 要求用户必须具备指定角色才能访问
-	2. 注意：该方法会自动在角色名前添加 "ROLE_" 前缀，即：hasRole("ADMIN") 代表 ROLE_ADMIN
-6. hasAuthority()：
-	1. 要求用户必须具备指定权限才能访问，我们用这个就好
-	2. 注意：不会自动添加前缀，提供完整权限名称即可
-7. authenticated()：
-	1. 要求用户已通过身份验证后才能访问。
-	2. 仅限制陌生人，即未认证用户
-8. access()：
-	1. 支持使用 SpEL 表达式，实现更复杂的访问控制逻辑。
-	2. 例如：access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") ，是说此路径仅允许拥有 ADMIN 角色且 IP 地址位于 192.168.1.0/24 网段的用户访问
-"""
-```
-
-> [!NOTE] 注意事项
-> 1. 如需放行所有请求，可配置为：
-```
-http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-```
 
 ---
 
