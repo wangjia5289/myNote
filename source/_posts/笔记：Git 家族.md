@@ -35,7 +35,17 @@ git config --global http.proxy 127.0.0.1:7890
 
 
 
-第一次
+
+
+
+### 实现 本地文件夹推送到 GitHub
+
+要在本地安装git，不然命令行啥的都不行的
+
+第一步先在 Github 上创建一个仓库
+
+
+然后在文件夹
 ```
 # 1. 初始化本地 Git 仓库
 git init
@@ -60,6 +70,7 @@ git branch -M main
 # 6. 本地仓库与远程仓库进行关联。
 git remote add origin https://github.com/wangjia5289/xxxxxx.git
 git remote add origin https://github.com/wangjia5289/myNote.git
+git remote add origin https://github.com/wangjia5289/summerLearning.git
 
 # 7. 进行分支关联（使用 -u 选项，将本地 main 分支与远程 main 分支关联，之后可以直接使用 git push 和 git pull，而无需每次指定远程仓库和分支。）
 git push -u origin main

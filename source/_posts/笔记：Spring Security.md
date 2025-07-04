@@ -1547,8 +1547,14 @@ public class EncryptionUtils {
 
 在 `com.example.securitywithhttpsession.util` 下创建 `AuthenticationUtils`
 ```
-
+public class AuthenticationUtils {
+    public static Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+}
 ```
+
+---
 
 
 #### 1.1.8. 实现 注册 API、登录 API、授权 API、测试 API、注销 API
@@ -1556,17 +1562,41 @@ public class EncryptionUtils {
 在 `com.example.securitywithhttpsession.controller` 下创建 `AuthController`
 ```
 @RestController
-@RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-    public AuthController(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private UserRoleMapper userRoleMapper;
+
+    @Autowired
+    private TestService testService;
+
+    // 注册方法
+    @PostMapping("/public/signup")
+    public String signUp(@RequestBody User user) {
+        String encodePassword = passwordEncoder.encode(user.getPassword());
+
+        int i = userMapper.insertUser(user.getUsername(), encodePassword, user.getEmail(), user.getPhoneNumber());
+        if (i != 1) {
+            return "服务器繁忙，请稍后再试";
+        }
+        return "用户注册成功";
     }
 
-    @PostMapping("/login")
-    public String login(String username, String password) {
+    // 登录方法
+    @PostMapping("/public/login")
+    public String logIn(@RequestParam("username") String username,
+                        @RequestParam("password") String password,
+                        HttpServletRequest request,
+                        HttpServletResponse response) {
         try {
             // 将 username 和 password 封装成 UsernamePasswordAuthenticationToken
             UsernamePasswordAuthenticationToken token =
@@ -1578,20 +1608,43 @@ public class AuthController {
             // 将 Authentication 保存到当前线程的 SecurityContext
             SecurityContextHolder.getContext().setAuthentication(auth);
 
+            // 获取当前请求中的 CSRF Token（此 token 是 Spring Security 自动生成并放入 request 中的）
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+
+            // 将 token 返回给前端，常见做法是放入响应头，也可以放入响应体
+            response.setHeader("X-CSRF-TOKEN", csrfToken.getToken());
+
             return "登录成功，欢迎用户：" + auth.getName();
         } catch (AuthenticationException e) {
             return "登录失败，用户名或密码错误";
         }
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "您已实现从 HttpSession 中获取 Authentication";
+    // 授权方法
+    @PostMapping("/grantaccess")
+    public String grantAccess(@RequestParam("userid") int userid,
+                              @RequestParam("roleid") int roleid) {
+        int i = userRoleMapper.insertUserRole(userid, roleid);
+        if (i != 1) {
+            return "服务器繁忙，请稍后再试";
+        }
+        return "成功将 " + roleid + " 授权给 " + userid;
     }
 
-    @PostMapping("/logout")
+    // 测试方法
+    @GetMapping("/test")
+    public String test() {
+        System.out.println("正在执行只有 test:test:test 权限才能执行的 Service 方法");
+        System.out.println("现在的 Authentication 信息如下：");
+        System.out.println(AuthenticationUtils.getAuthentication());
+        String testString = testService.test();
+        return testString;
+    }
+
+    // 注销方法
+    @PostMapping("/public/logOut")
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        // 获取当前 session，不创建新 session
+        // 尝试获取 HttpSession，如果没有对应的 Session，就返回 null，不要新建 Session
         HttpSession session = request.getSession(false);
         if (session != null) {
             // 使 session 失效，完成注销
@@ -1600,13 +1653,14 @@ public class AuthController {
         return ResponseEntity.ok("用户已成功注销");
     }
 }
+
 ```
 
 > [!NOTE] 注意事项
 > 1. 配置了密码加密器后，AuthenticationManager 会将用户提交的密码加密并与数据库中查询出的密码进行匹配。如果数据库中仍是明文密码，将无法通过校验，返回“登录失败，用户名或密码错误”。
-> 2. 因此，我们需要确保数据库中保存的也是经过加密处理的密码。
+> 2. 为了实现这些 API，我还另外书写了 UserRole.java、UserRoleMapper.java、UserRoleMapper.xml、TestService，详细请下载源码查看：summer/SecurityWithHttpSession
 
-
+----
 
 
 

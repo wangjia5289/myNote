@@ -1,6 +1,10 @@
 {
   "recentFiles": [
     {
+      "basename": "笔记：Git 家族",
+      "path": "source/_posts/笔记：Git 家族.md"
+    },
+    {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
     },
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：Mermaid",
       "path": "source/_posts/笔记：Mermaid.md"
-    },
-    {
-      "basename": "笔记：Md 分级标题 → Xmind 小工具",
-      "path": "source/_posts/笔记：Md 分级标题 → Xmind 小工具.md"
     }
   ],
   "omittedPaths": [],
