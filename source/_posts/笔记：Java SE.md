@@ -12,7 +12,8 @@ layout: post
 ### 0、导图：[Map：Java SE](../../maps/Map：JavaSE.xmind)
 
 ![](image-20250703093849042.png)
-
+![](image-20250703223607629.png)
+还可以这样写
 
 
 无线循环，while(true)

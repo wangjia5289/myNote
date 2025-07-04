@@ -9,6 +9,10 @@ tags:
 author: 霸天
 layout: post
 ---
+![](image-20250703215302874.png)
+
+
+
 ## 两种注册方式啊
 
 

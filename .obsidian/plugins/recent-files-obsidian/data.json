@@ -5,20 +5,8 @@
       "path": "source/_posts/笔记：Spring Security.md"
     },
     {
-      "basename": "笔记：Spring IOC",
-      "path": "source/_posts/笔记：Spring IOC.md"
-    },
-    {
-      "basename": "临时：security",
-      "path": "templates/临时：security.md"
-    },
-    {
       "basename": "笔记：阿里云代码规约",
       "path": "source/_posts/笔记：阿里云代码规约.md"
-    },
-    {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
     },
     {
       "basename": "笔记：Java SE",
@@ -27,6 +15,50 @@
     {
       "basename": "笔记：Spring Boot",
       "path": "source/_posts/笔记：Spring Boot.md"
+    },
+    {
+      "basename": "笔记：Spring IOC",
+      "path": "source/_posts/笔记：Spring IOC.md"
+    },
+    {
+      "basename": "临时：security",
+      "path": "templates/临时：security.md"
+    },
+    {
+      "basename": "笔记：Java 生成密钥与加密解密",
+      "path": "source/_posts/笔记：Java 生成密钥与加密解密.md"
+    },
+    {
+      "basename": "image-20250517211323498",
+      "path": "source/_posts/笔记：Spring Boot/image-20250517211323498.png"
+    },
+    {
+      "basename": "image-20250517210734445",
+      "path": "source/_posts/笔记：Spring Boot/image-20250517210734445.png"
+    },
+    {
+      "basename": "image-20250517125404803",
+      "path": "source/_posts/笔记：Spring Boot/image-20250517125404803.png"
+    },
+    {
+      "basename": "image-20250513162343394",
+      "path": "source/_posts/笔记：Spring Boot/image-20250513162343394.png"
+    },
+    {
+      "basename": "笔记：Java 项目创建和结构",
+      "path": "source/_posts/笔记：Java 项目创建和结构.md"
+    },
+    {
+      "basename": "笔记：Hexo + Obsidian +Git Page",
+      "path": "source/_posts/笔记：Hexo + Obsidian +Git Page.md"
+    },
+    {
+      "basename": "临时：es",
+      "path": "templates/临时：es.md"
+    },
+    {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
     },
     {
       "basename": "笔记：Java 数据类型",
@@ -167,38 +199,6 @@
     {
       "basename": "笔记：Mac",
       "path": "source/_posts/笔记：Mac.md"
-    },
-    {
-      "basename": "笔记：Kubernetes 基础",
-      "path": "source/_posts/笔记：Kubernetes 基础.md"
-    },
-    {
-      "basename": "笔记：JVM",
-      "path": "source/_posts/笔记：JVM.md"
-    },
-    {
-      "basename": "笔记：JUC",
-      "path": "source/_posts/笔记：JUC.md"
-    },
-    {
-      "basename": "笔记：JDBC 规范",
-      "path": "source/_posts/笔记：JDBC 规范.md"
-    },
-    {
-      "basename": "笔记：Java 异常处理",
-      "path": "source/_posts/笔记：Java 异常处理.md"
-    },
-    {
-      "basename": "笔记：Java 项目创建和结构",
-      "path": "source/_posts/笔记：Java 项目创建和结构.md"
-    },
-    {
-      "basename": "笔记：Java 文档",
-      "path": "source/_posts/笔记：Java 文档.md"
-    },
-    {
-      "basename": "笔记：Java 日志记录",
-      "path": "source/_posts/笔记：Java 日志记录.md"
     }
   ],
   "omittedPaths": [],

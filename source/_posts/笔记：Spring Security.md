@@ -68,33 +68,10 @@ layout: post
 
 ## 3. Spring Security 配置
 
-### 3.1. 配置模板
+### 3.1. Spring Security 配置模板
 
 Spring Security 的配置主要在 Java 配置类中进行，而不是在 `application.yml` 文件中，因为安全配置通常涉及到逻辑和条件判断，这些无法简单地通过属性文件表达，我们可以完成以下配置：
 ```
-package com.example.securitywithhttpsession.configuration;
-
-import com.example.securitywithhttpsession.service.CustomerUserDetailsImplService;
-import com.fasterxml.jackson.databind.annotation.NoClass;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 @Configuration
 @EnableMethodSecurity // 1. 启用方法级别的访问控制
 @EnableWebSecurity // 2. 启用 Spring Security 安全机制
@@ -105,7 +82,6 @@ public class SecurityConfiguration {
     public CsrfTokenRepository csrfTokenRepository() {
 
         HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository(); // 在HttpSession 中存储
-
         repository.setHeaderName("X-CSRF-TOKEN"); // 可自定义请求头名称
         repository.setParameterName("_csrfToken"); // 可自定义请求参数名称
         return repository;
@@ -116,13 +92,10 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://frontend.example.com"); // 只允许特定前端跨域
-        configuration.addAllowedMethod("*"); // 支持所有方法
-        configuration.addAllowedHeader("*"); // 支持所有头部
-        configuration.setAllowCredentials(true); // 允许携带 Cookie、Session 等凭证
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 应用于本程序哪些路径
+        source.registerCorsConfiguration("/**", configuration); 
         return source;
     }
 
@@ -190,8 +163,7 @@ public class SecurityConfiguration {
                 // 13. 添加自定义过滤器
                 .addFilterAt(xxxx);
         return httpSecurity.build(); // 构建 SecurityFilterChain 对象
-        }
-    }
+	}
 }
 ```
 
@@ -200,9 +172,9 @@ public class SecurityConfiguration {
 
 ### 3.2. 启用方法级别的访问控制
 
-资源级别的访问控制是指：只有具备指定权限或身份的用户，才能访问特定路径下的资源，例如 `/api/admin/**` ，详见下文：资源级别的访问控制。
+我们先来了解一下资源级别的访问控制，资源级别的访问控制是指：只有具备指定权限或身份的用户，才能访问特定路径下的资源，例如 `/api/admin/**` ，详见下文：资源级别的访问控制。
 
-而方法级别的访问控制则是指：用户必须具备指定的权限或身份，才能调用该方法，详细步骤如下：
+而方法级别的访问控制则是指：用户必须具备指定的权限或身份，才能调用某方法，详细步骤如下：
 
 <span style="background:#fff88f">1. 配置类上添加 @EnableMethodSecurity 注解</span>
 ```
@@ -215,7 +187,7 @@ public class SecurityConfig {
 ```
 
 
-<span style="background:#fff88f">2. 使用方法级别的访问控制</span>
+<span style="background:#fff88f">2. 进行方法级别的访问控制</span>
 需要注意的是，方法级别的访问控制，一般进行在服务层（Service 层）。
 ```
 @Service
@@ -237,7 +209,7 @@ public class UserService {
 
 ### 3.3. 启用 Spring Security 安全机制
 
-在配置类中加上 `@EnableWebSecurity` 后，Spring 会自动注册一个叫做 `FilterChainProxy` 的安全过滤器链，包含十几个内置的安全过滤器，就是我们熟知的那些过滤器。
+在配置类中加上 `@EnableWebSecurity` 后，Spring 会自动注册一个叫做 `FilterChainProxy` 的安全过滤器链，包含十几个内置的安全过滤器，这些过滤器，就是我们熟知的那些过滤器。
 
 > [!NOTE] 注意事项
 > 1. 即使你不显式添加这个注解，只要引入了 `spring-boot-starter-security`，Spring Boot 就会自动注册默认的安全过滤器链。但如果你需要自定义安全配置类（例如我们自己的 `SecurityConfiguration`），就必须显式启用它，以确保你的配置生效
@@ -270,111 +242,225 @@ public AuthenticationManager authenticationManager(AuthenticationConfiguration a
 }
 ```
 
+> [!NOTE] 注意事项
+> 1. 如果我们是使用 `AuthenticationManager` 进行认证，它会自动将用户发送来的用户名和密码，与我们的 `CustomerUserDetailsImpl` 中返回的用户名和密码进行比对，这是我们已知的逻辑。那你可能会有疑问：它在比对前，肯定需要先用密码加密器对用户发送来的明文密码进行加密，然后再比对吧？可我并没有做任何相关配置，`AuthenticationManager` 怎么知道该使用哪个加密器？
+> 2. 其实，只要你注册了一个类型为 `PasswordEncoder` 的 接口 Bean，这个 接口 Bean 有一个具体实现，`AuthenticationManager` 就会知道使用这个 `PasswordEncoder` Bean 与其具体实现，对密码进行加密，**无需我们手动配置**。
+> 3. 同样的，只要你注册了一个类型为 `UserDetailsService` 的 Bean（接口 Bean），这个 接口 Bean 有一个具体的实现，`AuthenticationManager` 就会知道使用这个 `UserDetailsService` Bean 与其具体实现，去获取 `CustomerUserDetailsImpl` **无需我们手动配置**。
+> 4. 上述，只限于接口 Bean 只有一个具体实现，如果有多个具体实现，那就要我们进行配置了，因为 Spring Security 虽然知道用这个 Bean，但是并不知道使用哪一个具体实现
+```
+/**
+ * ============================================
+ * Spring IoC 声明 Bean 的常用方式 1
+ * --------------------------------------------
+ * 概念：
+ * - 同时注册了 UserDetailsService 接口类型的 Bean 和 CustomerUserDetailsImplService 实现类类型的 Bean
+ * - CustomerUserDetailsImplService 是该接口的一个具体实现类，IoC 容器中可能存在多个这样的实现类 Bean
+ * - 我们既可以注入 CustomerUserDetailsImplService 类 Bean，也可以注入 UserDetailsService 接口 Bean
+ * - 如果注入的是 UserDetailsService，且只有一个实现类，那么调用接口方法时，实际就是调用该实现类的方法
+ * - 如果存在多个实现类，则需要通过配置明确指定使用哪个实现类
+ * - 简而言之，此方式支持一个接口 Bean 有多个实现类 Bean，切换实现时只需调整配置，指定使用哪一个实现即可
+ * ============================================
+ */
+@Service
+public class CustomerUserDetailsImplService implements UserDetailsService {
+	......
+}
+
+
+/**
+ * ============================================
+ * Spring IoC 声明 Bean 的常用方式 2
+ * --------------------------------------------
+ * 概念：
+ * - 仅注册了 UserDetailsService 类型的 Bean，返回的 CustomerUserDetailsImplService 实例是其具体实现类
+ * - 此方式下，一个接口 Bean 只能绑定一个实现类，若要更换实现，需在此方法中直接修改返回的实例。
+ * ============================================
+ */
+@Bean
+public UserDetailsService userDetailsService() {
+    return new CustomerUserDetailsImplService();
+}
+```
 
 ----
 
 
 ### 3.5. 配置 CORS 跨域资源共享
 
-Spring Security 默认关闭 CORS（跨域资源共享）。
+CORS 是指：出于安全考虑，浏览器默认会阻止网页从一个源（如 `http://a.com`）向另一个源（如 `http://b.com/api/data`）发起请求，这种“同源策略”能够有效防范诸如 CSRF、XSS 等跨站攻击。但在一些场景下我们确实需要跨源访问，例如当前端和后端分离部署在不同的源时，仍然需要让前端能够访问后端接口。
+
+这时，如果后端的 `http://b.com/api/data` 启用了 CORS 跨域资源共享机制，那么浏览器就允许网页从 `http://a.com` 向这个接口发起请求并成功获取数据。
+
+需要注意的是，CORS 跨域资源共享与域名解析得到的 IP 地址无关，而是基于“源”（Origin）来判断。那么什么是“源”呢？“源”由协议（scheme）+ 域名（host）+ 端口号（port）三部分组成，不包括 URL 后面的路径和参数。例如，`https://example.com/page` 与 `https://example.com/another` 属于同源，但 `http://example.com/page` 与 `https://example.com/page` 就不同源。即便它们甚至解析到相同的 IP，只要协议、域名或端口任一部分不完全相同，就被视为不同源。
+
+需要注意的是，**Spring Security 默认是关闭 CORS 的**，如果需要使用跨域资源共享，必须手动开启并配置相应的跨域策略。
+
+除此之外，CORS 只能解决跨域访问的问题，用户权限不足时依然会被拒绝访问。如果用户没有登录，也就是证明没有开启 “记住我” 功能，那么每个请求都会以匿名身份（匿名 Authentication）访问，对于需要认证的资源，尤其是权限要求较高的资源，这些请求会被 Spring Security 拒绝。换句话说，即使跨域访问成功，没有足够权限也无法访问受保护资源。
+
+通常情况下，我们希望用户先登录，这样就证明启用了 “记住我” 功能，当访问后端的时候，就会携带凭证，自动完成认证逻辑，Spring Security 就能自动识别用户权限。但需要注意的是，如果使用基于 HttpSession 的认证，由于后端服务器可能是集群架构，用户需要在多台服务器上重复登录，带来管理上的复杂性。
+
+因此，结合 CORS 跨域和权限控制，通常推荐使用 JWT（JSON Web Token）认证机制代替 HttpSession，因为 JWT 是无状态的，适合分布式环境，具体实践包括：
+1. 对公共资源，允许跨域访问，且在 Spring Security 中使用 `permitAll` 放行，无需登录即可访问；
+2. 对私密资源，要求用户先登录，获取 JWT 凭证，前端在跨域请求时携带该 JWT，后端通过 Spring Security 进行权限校验。对于更敏感的操作，还要启用 CSRF 防护，要求前端携带 CSRF Token；
+3. 登录认证基于 JWT，避免使用 HttpSession，因为 HttpSession 依赖单台服务器，难以应对集群环境，JWT 则是通用且无状态的认证方案
 ```
-// 2. 启用 CORS 跨域资源共享，并配置跨域规则
+// 启用 CORS 跨域资源共享，并配置其跨域规则
 @Bean
 public CorsConfigurationSource corsConfigurationSource() {
 
 	CorsConfiguration configuration = new CorsConfiguration();
-	configuration.addAllowedOrigin("http://frontend.example.com"); // 只允许特定前端跨域
-	configuration.addAllowedMethod("*"); // 支持所有方法
-	configuration.addAllowedHeader("*"); // 支持所有头部
-	configuration.setAllowCredentials(true); // 允许携带 Cookie、Session 等凭证
+	configuration.setAllowedOrigins(List.of("http://frontend.example.com", "http://localhost:3000"));
+	configuration.setAllowedOriginPatterns(List.of("http://*.example.com"));
+	configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+	configuration.setAllowedHeaders(List.of("*"));
+	configuration.setAllowCredentials(true);
 
 	UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	source.registerCorsConfiguration("/**", configuration); // 应用于本程序哪些路径
+	Map<String, CorsConfiguration> configMap = new HashMap<>();
+	configMap.put("/api/**", configuration);
+	configMap.put("/admin/**", configuration);
+	source.setCorsConfigurations(configMap);
+
 	return source;
 }
 ```
 
 > [!NOTE] 注意事项
-> 1. CORS 只解决跨域访问问题，对于受保护资源的访问，仍需要完成认证，甚至需要校验 CSRF Token。建议在跨域请求时携带一个 JWT，这样可以自动完成身份认证，无需手动处理。
+> 1. 之前开启 CORS 跨域资源共享，需要写 `http.cors` 开启 CORS，并且配置 `CorsConfigurationSource` 跨域规则，现在只需要配置 `CorsConfigurationSource` 既开启了 CORS，又配置了跨域规则
 
+<span style="background:#fff88f">1. configuration.setAllowedOrigins</span>
+用于配置**哪些源可以跨域访问我们**，不支持通配符，需精确指定 “源”（Origin），即需精确指定协议 + 域名 + 端口，注意不能包含后续的 URL 路径部分（因为不符合 Origin 的写法）
 ```
-@Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost:3000")); // 或 "*"
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-    config.setAllowedHeaders(List.of("*"));
-    config.setAllowCredentials(true); // 如果你前端携带 cookie，这里要开启
-
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
-    return source;
-}
-
+configuration.setAllowedOrigins(List.of("http://frontend.example.com:8888", "http://frontend.example.com", "*"));
 ```
 
------
+> [!NOTE] 注意事项
+> 1. 未指定端口，将使用协议的默认端口（http 默认是 80 端口，https 默认是 443 端口）
+> 2. 不能与 `configuration.setAllowedOriginPatterns` 同时使用
+
+
+<span style="background:#fff88f">2. configuration.setAllowedOriginPatterns</span>
+与 `configuration.setAllowedOrigins` 类似，但能支持通配符（`?`、`*`、`**`）
+```
+configuration.setAllowedOriginPatterns(List.of("http://*.example.com"));
+```
+
+> [!NOTE] 注意事项
+> 1. 由于是源匹配，不能包含后续的 URL 路径部分，所以 `**` 是不适用于这种情况的
+> 2. 补充一下三种通配符常见用法：
+```
+// 1. ?，匹配单个字符
+configuration.setAllowedOriginPatterns(List.of("http://a?.example.com"));
+
+
+// 2. *，匹配单个路径段的多个字符
+configuration.setAllowedOriginPatterns(List.of("http://*.example.com"));
+
+
+// 3. **，匹配任意层级的路径段（不适用于 Origin 匹配，适用于 URL 匹配）
+source.registerCorsConfiguration("/api/**", config);
+```
+
+
+<span style="background:#fff88f">3. configuration.setAllowedMethods</span>
+指定允许哪些 HTTP 方法能够执行跨域请求，例如：
+```
+configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "*"));
+```
+
+> [!NOTE] 注意事项
+> 1. 若要允许所有 HTTP 方法都能够执行跨域请求，可以写成：
+```
+configuration.setAllowedMethods(List.of("*"));
+```
+
+
+<span style="background:#fff88f">4. configuration.setAllowedHeaders</span>
+配置前端在跨域请求中**允许携带的请求头**，如果前端发送的请求头未被我们明确允许，浏览器会直接拦截请求，根本不会发送到服务器，例如：
+```
+configuration.setAllowedHeaders(List.of("Content-Type", "Authorization", "*"));
+```
+
+> [!NOTE] 注意事项
+> 1. 若要允许前端携带任意请求头，可以写成：
+```
+configuration.setAllowedHeaders(List.of("*"));
+```
+
+
+<span style="background:#fff88f">5. configuration.setAllowCredentials  </span>
+在讲解这个之前，我们先补充一个前置知识：当我们是同源访问时，前端访问后端，浏览器会自动携带 Cookie 发送到后端，这点大家都很熟悉。此外，还有 Authorization（JWT）等信息，是通过 AJAX 请求的请求头或请求体发送到后端的。  
+
+但是在跨域访问时，出于安全考虑，浏览器默认不会携带 Cookie。如果想让浏览器携带 Cookie，前端必须在 AJAX 请求中添加 `credentials: 'include'`，这样 Cookie 才会被发送。
+```
+// 前端请求示例：
+fetch('http://api.example.com/user/info', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer xxxxxx'
+  },
+  credentials: 'include'
+});
+```
+
+但并不是说你前端愿意携带 Cookie，我后端就理所当然地愿意接收。因为后端并不知道你发送过来的 Cookie 是出于正常用途，还是存在安全隐患。也就是说，我们的 `configuration.setAllowCredentials` 默认值是 `false`，即使前端执意携带 Cookie 发起请求，后端也不会允许浏览器将这个 Cookie 一并带上。这样即便接口本身正常返回了响应，浏览器也会因为安全策略自动屏蔽返回结果，导致前端无法正常获取数据。
+
+如果将其设置为 `true`，意味着前后端达成共识，允许使用 Cookie，这样跨域请求才能正常携带 Cookie 并获得返回结果：
+```
+configuration.setAllowCredentials(true);
+```
+
+> [!NOTE] 注意事项
+> 1. 当设置 `configuration.setAllowCredentials(true);` 时，不能再允许所有来源访问，即不能使用 `configuration.setAllowedOrigins(List.of("*"));`，需要明确指定允许的域名
+> 2. 如果不涉及到 `Cookie`，其实不用去做这样一系列操作
+
+
+<span style="background:#fff88f">6. source.setCorsConfigurations</span>
+指定我们配置的跨域规则作用于那些路径
+```
+configMap.put("/api/**", configuration);
+```
+
+> [!NOTE] 注意事项
+> 1. 全部路径我们可以写成：
+```
+configMap.put("/**", configuration);
+```
+
+----
 
 
 ### 3.6. 配置密码加密器
-
-#### 3.6.1. 密码加密器概述
 
 在实际应用中，用户密码绝不能以明文方式存储，因为这会带来极大的安全风险。为确保安全性，我们必须在存储前对密码进行加密处理。基于此，我们面临两大问题：
 1. 如何实现密码加密，即如何将明文密码转换为**不可逆**的密文，从而保护用户密码安全
 2. 如何校验密码，即用户提交的明文密码如何与存储的密文密码进行对比，从而验证密码的正确性
 
-`PasswordEncoder` 是 Spring Security 提供的一个接口，同时它也提供了该接口的很多实现类，能够解决上述两大问题
+`PasswordEncoder` 是 Spring Security 提供的一个接口，同时 Spring Security 也提供了该接口的很多实现类（未声明未 Bean），能够解决上述两大问题
 
----
-
-
-#### 3.6.2. PaswordEncoder 常用实现类
-
-Spring Security 提供了几种常见的 `PasswordEncoder` 实现类，常用的有：
-
-<span style="background:#fff88f">1. BCryptPasswordEncoder</span>
-基于 BCrypt 算法的密码加密工具，**不能解密，只能对比**，是一种提供较高安全的密码加密方式，能够有效防止暴力破解，适用于大多数应用。
-```
-@Bean  
-public PasswordEncoder passwordEncoder() {  
-    return new BCryptPasswordEncoder();  
-}
-```
-
-
-<span style="background:#fff88f">2. NoOpPasswordEncoder</span>
-不对密码进行加密，直接返回原始密码，通常用于开发、测试环境，不建议在生产环境中使用。
-```
-@Bean  
-public PasswordEncoder passwordEncoder() {  
-    return NoOpPasswordEncoder.getInstance();  
-}
-```
-
-
-<span style="background:#fff88f">3. Pbkdf2PasswordEncoder</span>
-基于 PBKDF2 算法的密码加密工具
-
-
-<span style="background:#fff88f">4. SCryptPasswordEncoder</span>
-基于 scrypt 算法的密码加密工具。
-
----
-
-
-#### 3.6.3. PasswordEncoder 使用步骤
-
-<span style="background:#fff88f">1. 配置 PasswordEncoder</span>
-就是将 `PasswordEncoder` 声明为一个 Bean，并指定返回一个合适的的实现类。这样当我们注入这个 Bean，并调用其接口方法时，实际执行的就是这个实现类的逻辑，这正体现了 Spring IoC 的核心理念：**面向接口编程，运行时注入实现**。不理解这一点，那确实建议回去复习一下 IoC。
+配置密码加密器，就是将 `PasswordEncoder` 声明为一个 Bean，并指定返回一个合适的的实现类。这样当我们注入这个 Bean，并调用其接口方法时，实际执行的就是这个实现类的逻辑，这正体现了 Spring IoC 的核心理念：**面向接口编程，运行时注入实现**。不理解这一点，那确实建议回去复习一下 IoC，我们密码加密器的配置，以及如何使用密码加密器解决上述两大问题，常按照这种流程：
+<span style="background:#fff88f">1. 配置密码加密器</span>
 ``` 
-@Configuration
-@EnableWebSecurity 
-public class SecurityConfig {
-    @Bean 
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // 返回合适的实现类
-    }
+/**
+ * ============================================
+ * 配置密码加密器
+ * --------------------------------------------
+ * Spring Security 提供的常见实现类：
+ * - BCryptPasswordEncoder
+ *      - 基于 BCrypt 算法的密码加密工具，不能解密，只能对比，是一种提供较高安全的密码加密方式，能够有效防止暴力破解，适用于大多数应用
+ *      - return new BCryptPasswordEncoder();
+ * - NoOpPasswordEncoder
+ *      - 不对密码进行加密，直接返回原始密码，通常用于开发、测试环境，不建议在生产环境中使用。
+ *      - return NoOpPasswordEncoder.getInstance();
+ * - Pbkdf2PasswordEncoder
+ *      - 基于 PBKDF2 算法的密码加密工具
+ * - SCryptPasswordEncoder
+ *      - 基于 scrypt 算法的密码加密工具
+ * ============================================
+ */
+@Bean
+public PasswordEncoder passwordEncoder() {
+	return NoOpPasswordEncoder.getInstance(); // 返回合适的实现类
 }
 ```
 
@@ -433,20 +519,40 @@ public class PasswordController {
 ```
 
 > [!NOTE] 注意事项
-> 1. 使用 `matches` 方法时，实际上是**先对 rawPassword 进行加密**，然后再与数据库中的加密密码进行匹配）
+> 1. 使用 `matches` 方法时，实际上是**先对 rawPassword 进行加密**，然后再与数据库中的加密密码进行匹配）
 > 2. 如果我们是使用 `AuthenticationManager` 进行认证，它会自动将用户发送来的用户名和密码，与我们的 `CustomerUserDetailsImpl` 中返回的用户名和密码进行比对，这是我们已知的逻辑。那你可能会有疑问：它在比对前，肯定需要先用密码加密器对用户发送来的明文密码进行加密，然后再比对吧？可我并没有做任何相关配置，`AuthenticationManager` 怎么知道该使用哪个加密器？
 > 3. 其实，只要你注册了一个类型为 `PasswordEncoder` 的 接口 Bean，这个 接口 Bean 有一个具体实现，`AuthenticationManager` 就会知道使用这个 `PasswordEncoder` Bean 与其具体实现，对密码进行加密，**无需我们手动配置**。
 > 4. 同样的，只要你注册了一个类型为 `UserDetailsService` 的 Bean（接口 Bean），这个 接口 Bean 有一个具体的实现，`AuthenticationManager` 就会知道使用这个 `UserDetailsService` Bean 与其具体实现，去获取 `CustomerUserDetailsImpl` **无需我们手动配置**。
 > 5. 上述，只限于接口 Bean 只有一个具体实现，如果有多个具体实现，那就要我们进行配置了，因为 Spring Security 虽然知道用这个 Bean，但是并不知道使用哪一个具体实现
 ```
-// 1. 这种方式，同时注册了 UserDetailsService 接口类型的 Bean 和 CustomerUserDetailsImplService 实现类类型的 Bean，CustomerUserDetailsImplService 只是该接口的下的一个具体实现，可能存在多个这样的实现类类型的 Bean（此方式，支持一个接口 Bean 有多个实现类 Bean，当需要切换实现时，只需调整配置，指定使用的实现类即可）
+/**
+ * ============================================
+ * Spring IoC 声明 Bean 的常用方式 1
+ * --------------------------------------------
+ * 概念：
+ * - 同时注册了 UserDetailsService 接口类型的 Bean 和 CustomerUserDetailsImplService 实现类类型的 Bean
+ * - CustomerUserDetailsImplService 是该接口的一个具体实现类，IoC 容器中可能存在多个这样的实现类 Bean
+ * - 我们既可以注入 CustomerUserDetailsImplService 类 Bean，也可以注入 UserDetailsService 接口 Bean
+ * - 如果注入的是 UserDetailsService，且只有一个实现类，那么调用接口方法时，实际就是调用该实现类的方法
+ * - 如果存在多个实现类，则需要通过配置明确指定使用哪个实现类
+ * - 简而言之，此方式支持一个接口 Bean 有多个实现类 Bean，切换实现时只需调整配置，指定使用哪一个实现即可
+ * ============================================
+ */
 @Service
 public class CustomerUserDetailsImplService implements UserDetailsService {
 	......
 }
 
 
-// 2. 这种方式仅注册了 UserDetailsService 类型的 Bean，返回的 CustomerUserDetailsImplService 实例是其具体实现类（此方式下，一个接口 Bean 只能绑定一个实现类，若要更换实现，需在此方法中直接修改返回的实例。）
+/**
+ * ============================================
+ * Spring IoC 声明 Bean 的常用方式 2
+ * --------------------------------------------
+ * 概念：
+ * - 仅注册了 UserDetailsService 类型的 Bean，返回的 CustomerUserDetailsImplService 实例是其具体实现类
+ * - 此方式下，一个接口 Bean 只能绑定一个实现类，若要更换实现，需在此方法中直接修改返回的实例。
+ * ============================================
+ */
 @Bean
 public UserDetailsService userDetailsService() {
     return new CustomerUserDetailsImplService();
@@ -465,33 +571,49 @@ http.authorizeHttpRequests(auth -> auth
     .requestMatchers("/manage/**").hasAuthority("MANAGE_PRIVILEGE")
     .requestMatchers("/special/**").access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") 
     .anyRequest().authenticated() // 其他所有路径均需经过认证
-"""
-1. requestMatchers()：
-	1. 设置 特定资源请求路径 访问控制规则
-2. anyRequest()：
-	1. 用于设置除上述规则外，其余 所有资源请求路径 的访问控制规则
-3. permitAll()：
-	1. 允许所有用户访问该资源（说是所有用户，其实你至少要有匿名的 Authentication）
-4. denyAll()：
-	1. 禁止所有用户访问该资源。
-5. hasRole()：
-	1. 要求用户必须具备指定角色才能访问
-	2. 注意：该方法会自动在角色名前添加 "ROLE_" 前缀，即：hasRole("ADMIN") 代表 ROLE_ADMIN
-6. hasAuthority()：
-	1. 要求用户必须具备指定权限才能访问，我们用这个就好
-	2. 注意：不会自动添加前缀，提供完整权限名称即可
-7. authenticated()：
-	1. 要求用户已通过身份验证（即非匿名 Authenticated 而是认证 Authenticated）后才能访问。
-8. access()：
-	1. 支持使用 SpEL 表达式，实现更复杂的访问控制逻辑。
-	2. 例如：access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") ，是说此路径仅允许拥有 ADMIN 角色且 IP 地址位于 192.168.1.0/24 网段的用户访问
-"""
 ```
 
 > [!NOTE] 注意事项
-> 1. 如需放行所有请求，可配置为：
+> 1. 同样能支持通配符（`?`、`*`、`**`）
+> 2. 如需放行所有请求，可配置为：
 ```
+// 允许匿名 Authentication 身份即可访问所有请求（非 Authentication 用户仍然不能访问）
 http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+```
+
+<span style="background:#fff88f">1. auth.requestMatchers()</span>
+设置**指定资源路径**的访问控制规则，例如：
+```
+/**
+ * ============================================
+ * 指定资源路径的访问控制规则
+ * --------------------------------------------
+ * 常用规则：
+ * - permitAll()
+ *      - 允许所有用户访问该资源（说是所有用户，其实你至少要有匿名的 Authentication）
+ * - denyAll()
+ *      - 禁止所有用户访问该资源。
+ * - hasRole()
+ *      - 要求用户必须具备指定角色才能访问
+ *      - 需要注意的是，该方法会自动在角色名前添加 "ROLE_" 前缀，即：hasRole("ADMIN") 代表 ROLE_ADMIN
+ * - hasAuthority()
+ *      - 要求用户必须具备指定权限才能访问，我们用这个就好
+ *      - 需要注意的是，不会自动添加前缀，提供完整权限名称即可
+ * - authenticated()
+ *      - 要求用户已通过身份验证（即非匿名 Authenticated 而是认证 Authenticated）后才能访问。
+ * - access()
+ *      - 支持使用 SpEL 表达式，实现更复杂的访问控制逻辑。
+ *      - 例如：access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") ，是说此路径仅允许拥有 ADMIN 角色且 IP 地址位于 192.168.1.0/24 网段的用户访问
+ * ============================================
+ */
+auth.requestMatchers("/public/**").permitAll();
+```
+
+
+<span style="background:#fff88f">2. auth.anyRequest()</span>
+除已配置的资源路径外，其余所有资源路径的访问控制规则
+```
+auth.anyRequest().authenticated()
 ```
 
 ----
@@ -507,20 +629,15 @@ http.sessionManagement(session -> session
 );
 """
 1. sessionCreationPolicy()：会话创建策略
-	1. SessionCreationPolicy.ALWAYS：
-		1. 始终创建会话。每个请求都会新建一个 HttpSession，覆盖之前的会话，并返回新的 JSESSIONID Cookie。
-	2. SessionCreationPolicy.IF_REQUIRED（默认）：
-		1. 按需创建会话。当需要使用 HttpSession 时，Spring Security 会自动创建会话，并返回对应的 JSESSIONID Cookie。
-	3. SessionCreationPolicy.STATELESS：
-		1. 不使用会话，适用于无状态应用场景（禁用 HttpSession，如 JWT）
+
 2. maximumSessions()：
-	1. 并发会话控制。限制每个用户在同一时间内的会话数量，也即用户可在多少台设备上同时登录（默认情况下，不限制）。
+	1. 。
 3. maxSessionsPreventsLogin()：
 	1. 是否阻止新会话登录。
 	2. true：
-		1. 达到最大会话数后阻止新会话登录，不允许替换旧会话。
+		1. 
 	3. false(默认)：
-		1. 允许新会话登录并替换旧会话，此时旧会话将被注销，旧的 JSESSIONID 失效。通常系统会通知用户被挤下线，并重定向到登录页面要求重新登录。
+		1. 
 """
 ```
 
@@ -532,22 +649,60 @@ http.sessionManagement(session -> session
 http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 ```
 
+<span style="background:#fff88f">1. session.sessionCreationPolicy()</span>
+用于配置会话的创建策略，常见策略有：
+1. SessionCreationPolicy.ALWAYS：
+	1. 始终创建会话。每个请求都会新建一个 HttpSession，覆盖之前的会话，并返回新的 JSESSIONID Cookie。
+2. SessionCreationPolicy.IF_REQUIRED（默认）：
+	1. 按需创建会话。当需要使用 HttpSession 时，Spring Security 会自动创建会话，并返回对应的 JSESSIONID Cookie。
+3. SessionCreationPolicy.STATELESS：
+	1. 不使用会话，适用于无状态应用场景（禁用 HttpSession，如 JWT）
+```
+session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+```
+
+
+<span style="background:#fff88f">2. session.maximumSessions()</span>
+并发会话控制，即限制每个用户在同一时间内的会话数量，也即用户可在多少台设备上同时登录（默认情况下，不限制）
+```
+session.maximumSessions(1)
+```
+
+
+<span style="background:#fff88f">3. maxSessionsPreventsLogin()</span>
+是否阻止新会话登录
+```
+/**
+ * ============================================
+ * 是否阻止新会话登录
+ * --------------------------------------------
+ * 选项：
+ * - true
+ *      - 达到最大会话数后阻止新会话登录，不允许替换旧会话。
+ * - false
+ *      - 允许新会话登录并替换旧会话
+ *      - 此时旧会话将被注销，旧的 JSESSIONID 失效。
+ *      - 我们通知用户被挤下线，并重定向到登录页面要求重新登录。
+ * ============================================
+ */
+session..maxSessionsPreventsLogin(true)
+```
+
 -----
 
 
 ### 3.9. 配置 SecurityContextPersistenceFilter 过滤器
 
 ```
-// 1. 禁用 SecurityContextPersistenceFilter 过滤器
+// 禁用 SecurityContextPersistenceFilter 过滤器（强烈不建议禁用）
 http.securityContext(securityContext -> securityContext.disable())  
-
-
-// 2. 启用 线程中的 SecurityContext 保存在 HttpSession 策略
-http.securityContext(securityContext -> securityContext.requireExplicitSave(false));
 ```
 
 > [!NOTE] 注意事项
-> 1. `SecurityContextPersistenceFilter` 过滤器，能自动将本线程的 `SecurityContext` 存入 `HttpSession`（前提是，这个发生变化），但是这个功能，不是默认开启的了，需要我们手动开启
+> 1. `SecurityContextPersistenceFilter` 过滤器会在当前线程中的 `SecurityContext` 发生变化时，将其自动保存到 `HttpSession` 中。但需要注意的是，这一功能默认并未开启，需要我们**显式手动开启**：
+```
+http.securityContext(securityContext -> securityContext.requireExplicitSave(false));
+```
 
 ----
 
@@ -555,10 +710,10 @@ http.securityContext(securityContext -> securityContext.requireExplicitSave(fals
 ### 3.10. 配置 CSRF 攻击防护
 
 Spring Security 默认启用跨站请求伪造（CSRF）防护机制，基于 **CSRF Token** 实现安全校验。其工作原理如下：
-1. 用户首次登录页面时，需要我们手动生成一个随机的 CSRF Token，将其保存在服务器端的 **HttpSession** 中，并同步返回给前端。
+1. 用户登录页面时，需要我们手动生成一个随机的 CSRF Token，将其保存在服务器端的 **HttpSession** 中，并同步返回给前端。
 2. 前端需妥善保存该 Token，在执行修改服务器状态的敏感操作（如 POST、PUT、DELETE、PATCH 等）时，前端必须将该 Token 携带，通常以请求头（默认名称：`X-CSRF-TOKEN`）或请求参数（名称：`_csrf`）的方式携带。
 3. 服务器在接收到请求后，会比对请求中携带的 CSRF Token 与存储在 HTTP Session 中的 Token 是否一致。如果两者不匹配或者无 CSRF Token，则会抛出 `accessDeniedException`（无权限异常），从而阻止非法请求继续执行。
-4. 即使攻击者能利用用户的 Cookie 发起请求，由于敏感操作必须携带合法的 CSRF Token，而攻击者无法获取或伪造该 Token，因而能有效防止 CSRF 攻击。
+4. 即使攻击者能利用用户的 Cookie 或者 JWT 发起请求，由于敏感操作必须携带合法的 CSRF Token，而攻击者无法获取或伪造该 Token，因而能有效防止 CSRF 攻击。
 ```
 @Bean 
 public CsrfTokenRepository csrfTokenRepository() { 
@@ -1266,6 +1421,178 @@ public class CustomerUserDetailsImplService implements UserDetailsService {
 
 
 #### 1.1.6. 进行 Spring Security 配置
+
+详见上文：Spring Security 配置
+
+-----
+
+
+#### 1.1.7. 创建 秘钥生成、加密、解密 工具类
+
+这个密钥生成工具类用于创建 AES 对称加密所需的密钥、加密、解密，我们可以在保存数据时（如注册用户时），可以对如手机号、邮箱等敏感信息进行加密，并在需要时解密还原。  
+
+我们常用的 `BCryptPasswordEncoder` 属于单向加密工具，无法还原原文，只能用于对加密结果进行比对验证，而这个工具，主要是加密那些不是特别敏感，但也比较敏感的信息，我们可以进行还原。
+
+该类位于 `com.example.securitywithhttpsession.util` 包下，关于如何使用 Java 进行密钥生成、加密、解密，详见笔记：Java 生成密钥与加密解密
+```
+@Component
+public class EncryptionUtils {
+    
+    /**
+     * ============================================
+     * 1. 生成 Base64 编码后的 AES 密钥方法
+     * --------------------------------------------
+     * 
+     * ============================================
+     */
+    public static String generateSecretKey() throws NoSuchAlgorithmException {
+        // 创建 AES 密钥生成器
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        // 指定密钥的位数，AES 支持 128、192、256 位
+        keyGenerator.init(256);
+        // 生成密钥
+        SecretKey secretKey = keyGenerator.generateKey();
+        // 将密钥编码为 Base64 字符串
+        return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+    }
+
+    /**
+     * ============================================
+     * 2. 加密方法
+     * --------------------------------------------
+     * 传入参数：
+     * - String plainText
+     *      - 要加密的明文字符串
+     * - String base64Key
+     *      - Base64 编码后的 AES 密钥字符串
+     * ============================================
+     */
+    public static String encrypt(String plainText, String base64Key) throws Exception {
+        // 把传入的 Base64 编码密钥转换为字节数组，供 AES 使用
+        byte[] keyBytes = Base64.getDecoder().decode(base64Key);
+        // 用字节数组创建一个 AES 对称密钥对象，供后续加密初始化使用
+        SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
+        // 获取 Cipher 实例，使用 AES 算法
+        Cipher cipher = Cipher.getInstance("AES");
+        // 初始化加密器，设置为加密模式，并指定使用的密钥
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+        // 执行加密，得到密文字节数组
+        byte[] encrypted = cipher.doFinal(plainText.getBytes());
+        // 把密文字节用 Base64 编码，便于作为字符串返回、存储或传输
+        return Base64.getEncoder().encodeToString(encrypted);
+    }
+
+    /**
+     * ============================================
+     * 3. 解密密方法
+     * --------------------------------------------
+     * 传入参数：
+     * - String encryptedText
+     *      - 加密后的密文字符串
+     * - String base64Key
+     *      - Base64 编码后的 AES 密钥字符串
+     * ============================================
+     */
+    public static String decrypt(String encryptedText, String base64Key) throws Exception {
+        byte[] keyBytes = Base64.getDecoder().decode(base64Key);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
+
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+        byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+
+        return new String(decrypted);
+    }
+}
+```
+
+---
+
+
+#### 1.1.8. 实现 登录 API、测试 API、注销 API
+
+```
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    private final AuthenticationManager authenticationManager;
+
+    public AuthController(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
+    @PostMapping("/login")
+    public String login(String username, String password) {
+        try {
+            // 将 username 和 password 封装成 UsernamePasswordAuthenticationToken
+            UsernamePasswordAuthenticationToken token =
+                    new UsernamePasswordAuthenticationToken(username, password);
+
+            // 传递给 AuthenticationManager 进行认证
+            Authentication auth = authenticationManager.authenticate(token);
+
+            // 将 Authentication 保存到当前线程的 SecurityContext
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            return "登录成功，欢迎用户：" + auth.getName();
+        } catch (AuthenticationException e) {
+            return "登录失败，用户名或密码错误";
+        }
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "您已实现从 HttpSession 中获取 Authentication";
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        // 获取当前 session，不创建新 session
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            // 使 session 失效，完成注销
+            session.invalidate();
+        }
+        return ResponseEntity.ok("用户已成功注销");
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 配置了密码加密器后，AuthenticationManager 会将用户提交的密码加密并与数据库中查询出的密码进行匹配。如果数据库中仍是明文密码，将无法通过校验，返回“登录失败，用户名或密码错误”。
+> 2. 因此，我们需要确保数据库中保存的也是经过加密处理的密码。
+
+1. CSRF（跨站请求伪造）攻击本质是什么？
+CSRF 是利用浏览器自动携带 Cookie 的特性，攻击者诱导用户在已登录的网站执行非本意的操作。
+
+其核心依赖是：浏览器会自动在请求中携带 Cookie（尤其是 Session Cookie）。
+
+2. JWT 的身份验证机制和 CSRF 的区别
+JWT 一般是通过 HTTP Header（通常是 Authorization: Bearer <token>）传递的，而不是依赖 Cookie。
+
+这种方式下，浏览器不会自动带上 JWT，必须前端主动将 Token 放到请求头中。
+
+因此攻击者无法通过简单的跨站请求强制浏览器带上有效的 JWT。
+
+3. CSRF 防护机制的作用和必要性
+传统基于 Session 的认证，服务器依赖 Cookie 识别用户状态，浏览器自动携带 Cookie，使得 CSRF 成为威胁。
+
+CSRF 防护机制（如同步令牌模式）就是为了防止这种自动携带 Cookie 的攻击。
+
+4. JWT 下禁用 CSRF 的合理性
+JWT 不依赖 Cookie，所以浏览器不会自动发送 JWT，攻击者没法利用自动带 Cookie 的漏洞发起 CSRF。
+
+因此，开启 CSRF 防护反而可能导致不必要的复杂性和配置负担。
+
+所以，在使用 JWT 且不使用 Cookie 存储 Token 的情况下，通常可以安全地禁用 CSRF 防护。
+
+
+
+
+
+
+----
 
 
 

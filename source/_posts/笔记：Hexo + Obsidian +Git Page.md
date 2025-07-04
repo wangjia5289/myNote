@@ -294,6 +294,96 @@ hexo s
 ---
 
 
+### 项目发布到云服务器
+
+#### 生成静态网页文件
+
+在 PowerShell 中运行以下命令：
+```
+# 1. 清除缓存和生成的静态文件
+hexo clean
+
+# 2. 根据当前的配置和文章，生成静态网页文件
+hexo g
+```
+
+----
+
+
+#### 开放云服务器 6666 端口和安全组
+
+-----
+
+
+#### 创建 /mystudy/hexo-blog 文件夹
+
+```
+mkdir -p /mystudy/hexo-blog
+```
+
+----
+
+
+#### 上传 /public 文件夹到 /mystudy/hexo-blog 文件夹下
+
+```
+cd /mystudy/hexo-blog/public
+
+
+python3 -m http.server 6666
+
+测试能不能访问 http://117.72.211.221:6666
+
+nohup python3 -m http.server 6666 > server.log 2>&1 &
+
+sudo nano /etc/systemd/system/hexo-blog.service
+“”“
+[Unit]
+Description=Hexo Blog Python HTTP Server
+After=network.target
+
+[Service]
+User=root                          # 改成你的用户名
+WorkingDirectory=/mysudy/hexo-blog/public   # 改成你的 public 路径
+ExecStart=/usr/bin/python3 -m http.server 666666
+Restart=always
+StandardOutput=append:/home/ubuntu/hexo-blog/http.log
+StandardError=append:/home/ubuntu/hexo-blog/http.err.log
+
+[Install]
+WantedBy=multi-user.target
+”“”
+
+
+# 重新加载 systemd 配置
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+
+# 设置服务开机启动
+sudo systemctl enable hexo-blog
+
+# 立即启动服务
+sudo systemctl start hexo-blog
+
+
+
+sudo systemctl status hexo-blog
+
+```
+
+> [!NOTE] 注意事项
+> 1. 受云服务带宽影响，上传的速度可能会很慢
+
+
+
+
+
+
+
+
+
+
+
 ### 补充：相关网站
 
 1. Hexo 主题库：
