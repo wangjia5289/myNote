@@ -33,17 +33,26 @@ layout: post
 ![](image-20250628224744251.png)
 
 
-<span style="background:#fff88f">3. UsernamePasswordAuthenticationFilter 介入</span>
+<span style="background:#fff88f">3. CsrfFilter 介入</span>
+该过滤器会尝试从我们配置的 CSRF Token 存储位置（配置的 `HttpSessionCsrfTokenRepository`）中加载 CSRF Token，且所有请求都会经过这一尝试。若成功加载，Token 会被放入 `HttpServletRequest` 中；如果未加载到，则会创建一个新的 CSRF Token，并同样放入请求中。
+
+对于启用 CSRF 防护的路径，当执行修改服务器状态的敏感操作（如 POST、PUT、DELETE、PATCH 等）时，过滤器会检查前端是否在指定的位置（配置的 `.setHeaderName("X-CSRF-TOKEN")` 等位置）携带了 Token。若未携带，则抛出 `MissingCsrfTokenException`；若携带，则会将前端 Token 与 `HttpServletRequest` 中的 Token 进行比对，匹配则继续执行，不匹配则抛出 `InvalidCsrfTokenException`。
+
+> [!NOTE] 注意事项
+> 1. CSRF 相关的异常都是 `AccessDeniedException` 的子类，所以我们应该在处理 `AccessDeniedException` 时处理这两个异常
+
+
+<span style="background:#fff88f">4. UsernamePasswordAuthenticationFilter 介入</span>
 该过滤器主要用于前后端未分离的场景，用于处理默认 `/login` 路径下的登录请求。  
 
 在前后端分离的架构中无需深入关注其具体逻辑，只需了解其在过滤器链中的位置，以便在插入自定义过滤器时能准确定位。
 
 
-<span style="background:#fff88f">4. AnonymousAuthenticationFilter 介入</span>
+<span style="background:#fff88f">5. AnonymousAuthenticationFilter 介入</span>
 如果当前没有任何 `Authentication`，系统会自动创建一个匿名身份，以避免后续流程中出现空指针异常。
 
 
-<span style="background:#fff88f">5. FilterSecurityInterceptor 介入</span>
+<span style="background:#fff88f">6. FilterSecurityInterceptor 介入</span>
 首先检查当前线程中是否存在 `Authentication`（无论是否为匿名身份），如果不存在，则抛出 `AuthenticationException`，表示用户尚未进行认证。
 
 接着判断是否为匿名用户访问受保护资源：即若用户尚未认证（即为匿名身份 `Authentication`），且访问的资源未被标注为 `permitAll`，则抛出 `AuthenticationException` 异常。
@@ -53,12 +62,12 @@ layout: post
 > 1. 整个流程中的异常由 `ExceptionTranslation` 过滤器统一处理，负责捕获**整个过滤器链中**抛出的 `AuthenticationException` 和 `AccessDeniedException` 异常，并执行相应的处理逻辑。
 
 
-<span style="background:#fff88f">6. 执行 API</span>
+<span style="background:#fff88f">7. 执行 API</span>
 在这一步，才真正开始执行我们的 API 逻辑；如果是登录 API，并且通过 AuthenticationManager 进行认证，流程如下：
 ![](image-20250628210023140.png)
 
 
-<span style="background:#fff88f">7. SecurityContextPersistenceFilter 再次介入</span>
+<span style="background:#fff88f">8. SecurityContextPersistenceFilter 再次介入</span>
 它会自动将本线程的 `SecurityContext` 存入服务器的 `HttpSession`，以便在后续请求中维持用户身份（需要手动开启）
 
  随后，过滤器会清空本线程 `SecurityContextHolder`，防止 `SecurityContext` 在后续请求中被无意复用，从而确保每个请求都能独立执行认证和授权流程。
@@ -71,19 +80,22 @@ layout: post
 ### 3.1. Spring Security 配置模板
 
 Spring Security 的配置主要在 Java 配置类中进行，而不是在 `application.yml` 文件中，因为安全配置通常涉及到逻辑和条件判断，这些无法简单地通过属性文件表达，我们可以完成以下配置：
+
+在 `com.example.securitywithhttpsession.configuration` 下创建 `SecurityConfiguration`，然后直接粘贴这份配置模板，再根据下方的详细说明按需进行调整。
 ```
 @Configuration
 @EnableMethodSecurity // 1. 启用方法级别的访问控制
 @EnableWebSecurity // 2. 启用 Spring Security 安全机制
 public class SecurityConfiguration {
-    
-    // 详见下文：配置 CSRF 攻击防护
+
+    // 详见下文：配置 CSRF 攻击防护（配置 CsrfFilter 过滤器）
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
 
-        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository(); // 在HttpSession 中存储
-        repository.setHeaderName("X-CSRF-TOKEN"); // 可自定义请求头名称
-        repository.setParameterName("_csrfToken"); // 可自定义请求参数名称
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository(); // CSRF Token 生成与加载的位置，这里是生成并保存在 HttpSession 中，并从 HttpSession 中加载
+
+        repository.setHeaderName("X-CSRF-TOKEN"); // 前端可在 X-CSRF-TOKEN 请求头中携带 CSRF Token
+        repository.setParameterName("_csrfToken"); // 前端可在 _csrfToken 请求体中携带 CSRF Token
         return repository;
     }
 
@@ -92,10 +104,18 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("http://frontend.example.com", "http://localhost:3000"));
+        configuration.setAllowedOriginPatterns(List.of("http://*.example.com"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); 
+        Map<String, CorsConfiguration> configMap = new HashMap<>();
+        configMap.put("/api/**", configuration);
+        configMap.put("/admin/**", configuration);
+        source.setCorsConfigurations(configMap);
+
         return source;
     }
 
@@ -119,51 +139,67 @@ public class SecurityConfiguration {
                 .formLogin(form -> {
                     form.disable();
                 })
+
                 // 7. 禁用默认注销功能
                 .logout(logout -> {
                     logout.disable();
                 })
+
                 // 8. 配置资源级别的访问控制
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/public/**").permitAll();
+                    auth
+                        .requestMatchers("/public/**").permitAll()
+                        .anyRequest().authenticated(); // 其他所有路径均需通过认证
                 })
+
                 // 9. 配置用户 未认证、权限不足 的处理
-                .exceptionHandling(handler -> handler
+                .exceptionHandling(handler -> {
+                    handler
                         // 未认证时的响应（处理 AuthenticationException 异常）
                         .authenticationEntryPoint((request, response, authException) -> {
-                                    response.setContentType("application/json;charset=UTF-8");
-                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                                    response.getWriter().write("{\"error\":\"未认证，请先登录\"}");
-                                }
-                        )
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("{\"error\":\"未认证，请先登录\"}");
+                        })
                         // 权限不足时的响应（处理 AccessDeniedException 异常）
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                                    response.setContentType("application/json;charset=UTF-8");
-                                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                                    response.getWriter().write("{\"error\":\"权限不足，无法访问此资源\"}");
-                                }
-                        )
-                )
+                            response.setContentType("application/json;charset=UTF-8");
+                            // 先判断是否是 CSRF 相关异常
+                            if (accessDeniedException instanceof MissingCsrfTokenException
+                                    || accessDeniedException instanceof InvalidCsrfTokenException) {
+                                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                                response.getWriter().write("{\"error\":\"CSRF Token 校验失败，无法访问此资源\"}");
+                            } else {
+                                // 普通权限不足
+                                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                                response.getWriter().write("{\"error\":\"权限不足，无法访问此资源\"}");
+                            }
+                        });
+                })
+
                 // 10. 配置 HttpSession
-                .sessionManagement(session -> session
+                .sessionManagement(session -> {
+                    session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                )
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true);
+                })
 
                 // 11. 配置 SecurityContextPersistenceFilter 过滤器
                 .securityContext(security -> {
                     security.requireExplicitSave(false);
                 })
 
-                // 12. 配置 CSRF 攻击防护
+                // 12. 配置 CSRF 攻击防护（配置 CsrfFilter 过滤器）
                 .csrf(csrf -> {
-                    csrf.ignoringRequestMatchers("/login");
-                    csrf.csrfTokenRepository(csrfTokenRepository());
+                    csrf
+                        .ignoringRequestMatchers("/login") // 忽略对这些路径的 CSRF 保护（默认全部保护）
+                        .csrfTokenRepository(CsrfTokenRepository()); // 使用我们自定义的 Token 存储库
                 })
-
                 // 13. 添加自定义过滤器
                 .addFilterAt(xxxx);
         return httpSecurity.build(); // 构建 SecurityFilterChain 对象
-	}
+    }
 }
 ```
 
@@ -217,75 +253,7 @@ public class UserService {
 ---
 
 
-### 3.4. 配置 AuthenticationManager
-
-在 `WebSecurityConfigurerAdapter` 时代，`AuthenticationManager` 是由 Spring 官方默认注册为 Bean 的，因此我们可以直接注入使用。
-
-但从 Spring Boot 3 开始，Spring 的设计理念发生了变化：“最少暴露、最少干预”，也就是说框架不再自动为你暴露未显式声明的组件，目的是减少默认暴露导致的 Bean 冲突或安全隐患。
-
-也就是说，Spring 将配置的主动权交还给开发者，所有需要使用的组件开发者都必须通过 `@Bean` 显式声明，而不是官方为你偷偷注入。即使 Spring Security 已经内部实现了默认的 `AuthenticationManager`，但也不会自动将其注册为 Bean。例如它在源码中是这样定义的：
-```
-public class AuthenticationConfiguration {  
-  
-    private AuthenticationManager getAuthenticationManagerBean() {  
-        return (AuthenticationManager)this.lazyBean(AuthenticationManager.class);  
-    }  
-    
-}
-```
-
-如果开发者想使用 `AuthenticationManager`，就需要自己显式地从官方配置中获取其默认实现，或者直接自定义一个。通常我们使用的 `AuthenticationManager` 实际上就是官方默认实现的那个，除非你有特殊需求需要进行自定义配置，因此我们可以这样手动声明：
-```
-@Bean  
-public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {  
-    return authenticationConfiguration.getAuthenticationManager(); // 从 Spring Security 配置中获取其默认的 AuthenticationManager 实例
-}
-```
-
-> [!NOTE] 注意事项
-> 1. 如果我们是使用 `AuthenticationManager` 进行认证，它会自动将用户发送来的用户名和密码，与我们的 `CustomerUserDetailsImpl` 中返回的用户名和密码进行比对，这是我们已知的逻辑。那你可能会有疑问：它在比对前，肯定需要先用密码加密器对用户发送来的明文密码进行加密，然后再比对吧？可我并没有做任何相关配置，`AuthenticationManager` 怎么知道该使用哪个加密器？
-> 2. 其实，只要你注册了一个类型为 `PasswordEncoder` 的 接口 Bean，这个 接口 Bean 有一个具体实现，`AuthenticationManager` 就会知道使用这个 `PasswordEncoder` Bean 与其具体实现，对密码进行加密，**无需我们手动配置**。
-> 3. 同样的，只要你注册了一个类型为 `UserDetailsService` 的 Bean（接口 Bean），这个 接口 Bean 有一个具体的实现，`AuthenticationManager` 就会知道使用这个 `UserDetailsService` Bean 与其具体实现，去获取 `CustomerUserDetailsImpl` **无需我们手动配置**。
-> 4. 上述，只限于接口 Bean 只有一个具体实现，如果有多个具体实现，那就要我们进行配置了，因为 Spring Security 虽然知道用这个 Bean，但是并不知道使用哪一个具体实现
-```
-/**
- * ============================================
- * Spring IoC 声明 Bean 的常用方式 1
- * --------------------------------------------
- * 概念：
- * - 同时注册了 UserDetailsService 接口类型的 Bean 和 CustomerUserDetailsImplService 实现类类型的 Bean
- * - CustomerUserDetailsImplService 是该接口的一个具体实现类，IoC 容器中可能存在多个这样的实现类 Bean
- * - 我们既可以注入 CustomerUserDetailsImplService 类 Bean，也可以注入 UserDetailsService 接口 Bean
- * - 如果注入的是 UserDetailsService，且只有一个实现类，那么调用接口方法时，实际就是调用该实现类的方法
- * - 如果存在多个实现类，则需要通过配置明确指定使用哪个实现类
- * - 简而言之，此方式支持一个接口 Bean 有多个实现类 Bean，切换实现时只需调整配置，指定使用哪一个实现即可
- * ============================================
- */
-@Service
-public class CustomerUserDetailsImplService implements UserDetailsService {
-	......
-}
-
-
-/**
- * ============================================
- * Spring IoC 声明 Bean 的常用方式 2
- * --------------------------------------------
- * 概念：
- * - 仅注册了 UserDetailsService 类型的 Bean，返回的 CustomerUserDetailsImplService 实例是其具体实现类
- * - 此方式下，一个接口 Bean 只能绑定一个实现类，若要更换实现，需在此方法中直接修改返回的实例。
- * ============================================
- */
-@Bean
-public UserDetailsService userDetailsService() {
-    return new CustomerUserDetailsImplService();
-}
-```
-
-----
-
-
-### 3.5. 配置 CORS 跨域资源共享
+### 3.4. 配置 CORS 跨域资源共享
 
 CORS 是指：出于安全考虑，浏览器默认会阻止网页从一个源（如 `http://a.com`）向另一个源（如 `http://b.com/api/data`）发起请求，这种“同源策略”能够有效防范诸如 CSRF、XSS 等跨站攻击。但在一些场景下我们确实需要跨源访问，例如当前端和后端分离部署在不同的源时，仍然需要让前端能够访问后端接口。
 
@@ -430,6 +398,74 @@ configMap.put("/**", configuration);
 ----
 
 
+### 3.5. 配置 AuthenticationManager
+
+在 `WebSecurityConfigurerAdapter` 时代，`AuthenticationManager` 是由 Spring 官方默认注册为 Bean 的，因此我们可以直接注入使用。
+
+但从 Spring Boot 3 开始，Spring 的设计理念发生了变化：“最少暴露、最少干预”，也就是说框架不再自动为你暴露未显式声明的组件，目的是减少默认暴露导致的 Bean 冲突或安全隐患。
+
+也就是说，Spring 将配置的主动权交还给开发者，所有需要使用的组件开发者都必须通过 `@Bean` 显式声明，而不是官方为你偷偷注入。即使 Spring Security 已经内部实现了默认的 `AuthenticationManager`，但也不会自动将其注册为 Bean。例如它在源码中是这样定义的：
+```
+public class AuthenticationConfiguration {  
+  
+    private AuthenticationManager getAuthenticationManagerBean() {  
+        return (AuthenticationManager)this.lazyBean(AuthenticationManager.class);  
+    }  
+    
+}
+```
+
+如果开发者想使用 `AuthenticationManager`，就需要自己显式地从官方配置中获取其默认实现，或者直接自定义一个。通常我们使用的 `AuthenticationManager` 实际上就是官方默认实现的那个，除非你有特殊需求需要进行自定义配置，因此我们可以这样手动声明：
+```
+@Bean  
+public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {  
+    return authenticationConfiguration.getAuthenticationManager(); // 从 Spring Security 配置中获取其默认的 AuthenticationManager 实例
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 如果我们是使用 `AuthenticationManager` 进行认证，它会自动将用户发送来的用户名和密码，与我们的 `CustomerUserDetailsImpl` 中返回的用户名和密码进行比对，这是我们已知的逻辑。那你可能会有疑问：它在比对前，肯定需要先用密码加密器对用户发送来的明文密码进行加密，然后再比对吧？可我并没有做任何相关配置，`AuthenticationManager` 怎么知道该使用哪个加密器？
+> 2. 其实，只要你注册了一个类型为 `PasswordEncoder` 的 接口 Bean，这个 接口 Bean 有一个具体实现，`AuthenticationManager` 就会知道使用这个 `PasswordEncoder` Bean 与其具体实现，对密码进行加密，**无需我们手动配置**。
+> 3. 同样的，只要你注册了一个类型为 `UserDetailsService` 的 Bean（接口 Bean），这个 接口 Bean 有一个具体的实现，`AuthenticationManager` 就会知道使用这个 `UserDetailsService` Bean 与其具体实现，去获取 `CustomerUserDetailsImpl` **无需我们手动配置**。
+> 4. 上述，只限于接口 Bean 只有一个具体实现，如果有多个具体实现，那就要我们进行配置了，因为 Spring Security 虽然知道用这个 Bean，但是并不知道使用哪一个具体实现
+```
+/**
+ * ============================================
+ * Spring IoC 声明 Bean 的常用方式 1
+ * --------------------------------------------
+ * 概念：
+ * - 同时注册了 UserDetailsService 接口类型的 Bean 和 CustomerUserDetailsImplService 实现类类型的 Bean
+ * - CustomerUserDetailsImplService 是该接口的一个具体实现类，IoC 容器中可能存在多个这样的实现类 Bean
+ * - 我们既可以注入 CustomerUserDetailsImplService 类 Bean，也可以注入 UserDetailsService 接口 Bean
+ * - 如果注入的是 UserDetailsService，且只有一个实现类，那么调用接口方法时，实际就是调用该实现类的方法
+ * - 如果存在多个实现类，则需要通过配置明确指定使用哪个实现类
+ * - 简而言之，此方式支持一个接口 Bean 有多个实现类 Bean，切换实现时只需调整配置，指定使用哪一个实现即可
+ * ============================================
+ */
+@Service
+public class CustomerUserDetailsImplService implements UserDetailsService {
+	......
+}
+
+
+/**
+ * ============================================
+ * Spring IoC 声明 Bean 的常用方式 2
+ * --------------------------------------------
+ * 概念：
+ * - 仅注册了 UserDetailsService 类型的 Bean，返回的 CustomerUserDetailsImplService 实例是其具体实现类
+ * - 此方式下，一个接口 Bean 只能绑定一个实现类，若要更换实现，需在此方法中直接修改返回的实例。
+ * ============================================
+ */
+@Bean
+public UserDetailsService userDetailsService() {
+    return new CustomerUserDetailsImplService();
+}
+```
+
+----
+
+
 ### 3.6. 配置密码加密器
 
 在实际应用中，用户密码绝不能以明文方式存储，因为这会带来极大的安全风险。为确保安全性，我们必须在存储前对密码进行加密处理。基于此，我们面临两大问题：
@@ -565,12 +601,11 @@ public UserDetailsService userDetailsService() {
 ### 3.7. 配置资源级别的访问控制
 
 ```
-http.authorizeHttpRequests(auth -> auth
-    .requestMatchers("/public/**", "/error").permitAll()
-    .requestMatchers("/admin/**").hasRole("ADMIN")
-    .requestMatchers("/manage/**").hasAuthority("MANAGE_PRIVILEGE")
-    .requestMatchers("/special/**").access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") 
-    .anyRequest().authenticated() // 其他所有路径均需经过认证
+.authorizeHttpRequests(auth -> {
+	auth
+		.requestMatchers("/public/**").permitAll()
+		.anyRequest().authenticated(); // 其他所有路径均需通过认证
+})
 ```
 
 > [!NOTE] 注意事项
@@ -606,14 +641,22 @@ http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
  *      - 例如：access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") ，是说此路径仅允许拥有 ADMIN 角色且 IP 地址位于 192.168.1.0/24 网段的用户访问
  * ============================================
  */
-auth.requestMatchers("/public/**").permitAll();
+.authorizeHttpRequests(auth -> {
+	auth
+		.requestMatchers("/public/**").permitAll()
+		.anyRequest().authenticated(); // 其他所有路径均需通过认证
+})
 ```
 
 
 <span style="background:#fff88f">2. auth.anyRequest()</span>
 除已配置的资源路径外，其余所有资源路径的访问控制规则
 ```
-auth.anyRequest().authenticated()
+.authorizeHttpRequests(auth -> {
+	auth
+		.requestMatchers("/public/**").permitAll()
+		.anyRequest().authenticated(); // 其他所有路径均需通过认证
+})
 ```
 
 ----
@@ -627,18 +670,6 @@ http.sessionManagement(session -> session
     .maximumSessions(1)
     .maxSessionsPreventsLogin(true)
 );
-"""
-1. sessionCreationPolicy()：会话创建策略
-
-2. maximumSessions()：
-	1. 。
-3. maxSessionsPreventsLogin()：
-	1. 是否阻止新会话登录。
-	2. true：
-		1. 
-	3. false(默认)：
-		1. 
-"""
 ```
 
 > [!NOTE] 注意事项
@@ -658,7 +689,10 @@ http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 3. SessionCreationPolicy.STATELESS：
 	1. 不使用会话，适用于无状态应用场景（禁用 HttpSession，如 JWT）
 ```
-session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+.sessionManagement(session -> {  
+    session  
+        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+})
 ```
 
 
@@ -666,6 +700,10 @@ session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 并发会话控制，即限制每个用户在同一时间内的会话数量，也即用户可在多少台设备上同时登录（默认情况下，不限制）
 ```
 session.maximumSessions(1)
+.sessionManagement(session -> {  
+    session  
+        .maximumSessions(1);
+})
 ```
 
 
@@ -685,7 +723,10 @@ session.maximumSessions(1)
  *      - 我们通知用户被挤下线，并重定向到登录页面要求重新登录。
  * ============================================
  */
-session..maxSessionsPreventsLogin(true)
+.sessionManagement(session -> {  
+    session  
+        .maxSessionsPreventsLogin(true);  
+})
 ```
 
 -----
@@ -707,40 +748,38 @@ http.securityContext(securityContext -> securityContext.requireExplicitSave(fals
 ----
 
 
-### 3.10. 配置 CSRF 攻击防护
+### 3.10. 配置 CSRF 攻击防护（配置 CsrfFilter 过滤器）
 
 Spring Security 默认启用跨站请求伪造（CSRF）防护机制，基于 **CSRF Token** 实现安全校验。其工作原理如下：
-1. 用户登录页面时，需要我们手动生成一个随机的 CSRF Token，将其保存在服务器端的 **HttpSession** 中，并同步返回给前端。
-2. 前端需妥善保存该 Token，在执行修改服务器状态的敏感操作（如 POST、PUT、DELETE、PATCH 等）时，前端必须将该 Token 携带，通常以请求头（默认名称：`X-CSRF-TOKEN`）或请求参数（名称：`_csrf`）的方式携带。
-3. 服务器在接收到请求后，会比对请求中携带的 CSRF Token 与存储在 HTTP Session 中的 Token 是否一致。如果两者不匹配或者无 CSRF Token，则会抛出 `accessDeniedException`（无权限异常），从而阻止非法请求继续执行。
-4. 即使攻击者能利用用户的 Cookie 或者 JWT 发起请求，由于敏感操作必须携带合法的 CSRF Token，而攻击者无法获取或伪造该 Token，因而能有效防止 CSRF 攻击。
-```
-@Bean 
-public CsrfTokenRepository csrfTokenRepository() { 
+1. 用户发出请求时，CsrfFilter 过滤器会尝试从我们配置的 CSRF Token 存储位置（配置的 `HttpSessionCsrfTokenRepository`）中加载 CSRF Token，且所有请求都会经过这一尝试。若成功加载，Token 会被放入 `HttpServletRequest` 中；如果未加载到，则会创建一个新的 CSRF Token，并同样放入请求中。
+2. 当用户进行登录时，我们可以从 `HttpServletRequest` 中拿到 CSRF Token，并返回给前端
+3. 前端需妥善保存该 Token（不得存入 Cookie），在执行修改服务器状态的敏感操作（如 POST、PUT、DELETE、PATCH 等）时，前端必须将该 Token 携带，通常以请求头（默认名称：`X-CSRF-TOKEN`）或请求参数（名称：`_csrf`）的方式携带。
+4. 对于启用 CSRF 防护的路径（默认全部启用），当执行修改服务器状态的敏感操作（如 POST、PUT、DELETE、PATCH 等）时，过滤器会检查前端是否在指定的位置（配置的 `.setHeaderName("X-CSRF-TOKEN")` 等位置）携带了 Token。若未携带，则抛出 `MissingCsrfTokenException`；若携带，则会将前端 Token 与 `HttpServletRequest` 中的 Token 进行比对，匹配则继续执行，不匹配则抛出 `InvalidCsrfTokenException`。
+5. 即使攻击者能利用用户的 Cookie 或者 JWT 发起请求，由于敏感操作必须携带合法的 CSRF Token，而攻击者无法获取或伪造该 Token，因而能有效防止 CSRF 攻击。
 
-		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository(); // 在HttpSession 中存储
-	
-		repository.setHeaderName("X-CSRF-TOKEN"); // 可自定义请求头名称 
-		repository.setParameterName("_csrfToken"); // 可自定义请求参数名称 
-		return repository; 
+```
+@Bean
+public CsrfTokenRepository csrfTokenRepository() {
+
+	HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository(); // CSRF Token 生成与加载的位置，这里是生成并保存在 HttpSession 中，并从 HttpSession 中加载
+
+	repository.setHeaderName("X-CSRF-TOKEN"); // 前端可在 X-CSRF-TOKEN 请求头中携带 CSRF Token
+	repository.setParameterName("_csrfToken"); // 前端可在 _csrfToken 请求体中携带 CSRF Token
+	return repository;
 }
 
-http.csrf(csrf -> csrf
-	.ignoringRequestMatchers("/login","/websocket/**", "/api/public/**"); // 忽略对这些路径的 CSRF 保护
-	.csrfTokenRepository(csrfTokenRepository()) // 使用我们自定义的 Token 存储库
-)；
-"""
-1. ignoringRequestMatchers()：
-	1. 忽略对这些路径的 CSRF 保护
-2. csrfTokenRepository()：
-	1. 指定 Token 的存储库，一般使用我们自定义的 Token 存储库
-"""
+http.csrf(csrf -> {  
+    csrf  
+        .ignoringRequestMatchers("/login") // 忽略对这些路径的 CSRF 保护（默认全部保护）  
+        .csrfTokenRepository(csrfTokenRepository()); // 使用我们自定义的 Token 存储库  
+});
 ```
 
 > [!NOTE] 注意事项
-> 1. 如果基于 JWT，我们直接禁用 CSRF 防护
-> 2. 如果你莫名其妙返回 `"error": "权限不足，无法访问此资源"` ，大概率是 CSRF 的问题
-> 3. 如果想要禁用 CSRF 防护，可以配置为：
+> 1. 同样能支持通配符（`?`、`*`、`**`）
+> 2. CSRF 攻击的本质是：利用浏览器自动携带 Cookie 的特性，攻击者诱导用户在已登录的网站执行非本意的操作
+> 3. 如果我们基于 JWT，通常可以直接禁用 CSRF 防护，因为浏览器是不会自动发送 JWT，必须前端主动将 Token 放到请求头中，因此攻击者无法通过简单的跨站请求强制浏览器带上有效的 JWT
+> 4. 如果想要禁用 CSRF 防护，可以配置为：
 ```
 http.csrf(csrf -> csrf.disable());
 ```
@@ -754,11 +793,14 @@ http.csrf(csrf -> csrf.disable());
 // 1. 直接添加过滤器，添加的过滤器必须是 Spring Security 提供的过滤器或其子类的实例
 http.addFilter(new CustomFilter());
 
+
 // 2. 在指定的过滤器位置添加过滤器，新添加的过滤器会替换指定位置的原有过滤器
 http.addFilterAt(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
 
+
 // 3. 在指定过滤器之前添加过滤器，自定义过滤器会在指定过滤器之前执行。
 http.addFilterBefore(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
+
 
 // 4. 在指定过滤器之后添加过滤器，自定义过滤器会在指定过滤器之后执行。
 http.addFilterAfter(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
@@ -805,6 +847,7 @@ http.addFilterAfter(new CustomFilter(),UsernamePasswordAuthenticationFilter.clas
 | **email**                    | VARCHAR(20) | 唯一约束      | 唯一索引 |     | john@example.com                  | 邮箱                                    |
 | **phone_number**             | VARCHAR(20) | 唯一约束      | 唯一索引 |     | 13800138000                       | 电话号码                                  |
 
+
 ```
 # 1. 创建表
 CREATE TABLE IF NOT EXISTS users (
@@ -826,12 +869,12 @@ ALTER TABLE users ADD CONSTRAINT unique_email UNIQUE (email);
 ALTER TABLE users ADD CONSTRAINT unique_phone UNIQUE (phone_number);
 
 
-# 2. 插入数据
+# 2. 插入数据-----
 INSERT INTO users (username, password, email, phone_number)
 VALUES
-    ('alice', 'pass123', 'alice@example.com', '13800000000'),
-    ('bob', 'pass456', 'bob@example.com', '13900000001'),
-    ('BaTian', 'pass789', 'batian@example.com', '13700000002');
+    ('alice', 'alice', 'alice@example.com', '13800000000'),
+    ('bob', 'bob', 'bob@example.com', '13900000001'),
+    ('BaTian', 'BaTian', 'batian@example.com', '13700000002');
 ```
 
 > [!NOTE] 注意事项
@@ -859,9 +902,7 @@ ALTER TABLE roles ADD CONSTRAINT unique_role_name UNIQUE (role_name);
 # 2. 插入数据
 INSERT INTO roles (role_name) VALUES 
 	('ROLE_ADMIN'),
-	('ROLE_USER'),
-	('ROLE_MANAGER'),
-	('ROLE_GUEST');
+	('ROLE_USER');
 ```
 
 
@@ -883,7 +924,7 @@ CREATE TABLE user_role (
 ) ;
 
 
-# 2. 插入数据
+# 2. 插入数据-----
 INSERT INTO user_role (user_id, role_id) VALUES
 	(1, 1);
 ```
@@ -983,11 +1024,12 @@ public class User {
 
 > [!NOTE] 注意事项
 > 1. 与数据库表映射的类通常称为 Entity 类，也可称为 DO 类或 PO 类，统属 POJO 类，通常只包含 getter、setter 、equals、hashCode、toString 方法及构造方法，不应包含业务逻辑方法
-> 2. 使用 MyBatisX 插件生成的 POJO 类默认包含 getter、setter、equals、hashCode、toString 方法，但不包含构造方法。
+> 2. 这里写 Integer 其实不太好，最好的是写 Boolean，但是也不影响，详见下文：实现 UserDetails 接口
+> 3. 使用 MyBatisX 插件生成的 POJO 类默认包含 getter、setter、equals、hashCode、toString 方法，但不包含构造方法。
 > 	1. 我们可以手动补全有参和无参构造方法；
 > 	2. 同时我么也可以删除自动生成的 equals、hashCode、toString 方法，改为使用 IDEA 生成
-> 3. 本 User 类不仅与 Users 表映射，还包含了 authorities 表中的 `authoritie_name` 字段。因此，别忘了添加 `private List<String> authorities;` 及其对应的方法（包括 getter、setter、equals、hashCode、toString 方法以及构造方法）
-> 4. 数据库中的表名一般使用复数形式，如 users，而在 Java 中则采用单数形式命名，如 User
+> 4. 本 User 类不仅与 Users 表映射，还包含了 authorities 表中的 `authoritie_name` 字段。因此，别忘了添加 `private List<String> authorities;` 及其对应的方法（包括 getter、setter、equals、hashCode、toString 方法以及构造方法）
+> 5. 数据库中的表名一般使用复数形式，如 users，而在 Java 中则采用单数形式命名，如 User
 
 ![](image-20250630183241212.png)
 
@@ -1028,24 +1070,13 @@ public interface UserMapper {
             <result property="isEnabled" column="is_enabled" jdbcType="TINYINT"/>
             <result property="email" column="email" jdbcType="VARCHAR"/>
             <result property="phoneNumber" column="phone_number" jdbcType="VARCHAR"/>
+            <!-- 不要忘记添加 authorities 的映射关系 -->
             <collection property="authorities" ofType="org.springframework.security.core.authority.SimpleGrantedAuthority">
                 <constructor>
                     <arg column="authority_name" javaType="java.lang.String" />
                 </constructor>
             </collection>
     </resultMap>
-
-    <sql id="Base_Column_List">
-        user_id,
-        username,
-        password,
-        is_accountNonExpired,
-        is_accountNonLocked,
-        is_credentialsNonExpired,
-        is_enabled,
-        email,
-        phone_number
-    </sql>
 
     <select id="getUserByUserName" resultMap="BaseResultMap" parameterType="String">
         SELECT
@@ -1435,7 +1466,6 @@ public class CustomerUserDetailsImplService implements UserDetailsService {
 
 该类位于 `com.example.securitywithhttpsession.util` 包下，关于如何使用 Java 进行密钥生成、加密、解密，详见笔记：Java 生成密钥与加密解密
 ```
-@Component
 public class EncryptionUtils {
     
     /**
@@ -1468,16 +1498,22 @@ public class EncryptionUtils {
      * ============================================
      */
     public static String encrypt(String plainText, String base64Key) throws Exception {
+    
         // 把传入的 Base64 编码密钥转换为字节数组，供 AES 使用
         byte[] keyBytes = Base64.getDecoder().decode(base64Key);
+        
         // 用字节数组创建一个 AES 对称密钥对象，供后续加密初始化使用
         SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
+        
         // 获取 Cipher 实例，使用 AES 算法
         Cipher cipher = Cipher.getInstance("AES");
+        
         // 初始化加密器，设置为加密模式，并指定使用的密钥
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+        
         // 执行加密，得到密文字节数组
         byte[] encrypted = cipher.doFinal(plainText.getBytes());
+        
         // 把密文字节用 Base64 编码，便于作为字符串返回、存储或传输
         return Base64.getEncoder().encodeToString(encrypted);
     }
@@ -1496,11 +1532,9 @@ public class EncryptionUtils {
     public static String decrypt(String encryptedText, String base64Key) throws Exception {
         byte[] keyBytes = Base64.getDecoder().decode(base64Key);
         SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
-
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
         byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
-
         return new String(decrypted);
     }
 }
@@ -1509,8 +1543,17 @@ public class EncryptionUtils {
 ---
 
 
-#### 1.1.8. 实现 登录 API、测试 API、注销 API
+#### 创建 从线程获取 Authentication 工具类
 
+在 `com.example.securitywithhttpsession.util` 下创建 `AuthenticationUtils`
+```
+
+```
+
+
+#### 1.1.8. 实现 注册 API、登录 API、授权 API、测试 API、注销 API
+
+在 `com.example.securitywithhttpsession.controller` 下创建 `AuthController`
 ```
 @RestController
 @RequestMapping("/auth")
@@ -1563,36 +1606,6 @@ public class AuthController {
 > 1. 配置了密码加密器后，AuthenticationManager 会将用户提交的密码加密并与数据库中查询出的密码进行匹配。如果数据库中仍是明文密码，将无法通过校验，返回“登录失败，用户名或密码错误”。
 > 2. 因此，我们需要确保数据库中保存的也是经过加密处理的密码。
 
-1. CSRF（跨站请求伪造）攻击本质是什么？
-CSRF 是利用浏览器自动携带 Cookie 的特性，攻击者诱导用户在已登录的网站执行非本意的操作。
-
-其核心依赖是：浏览器会自动在请求中携带 Cookie（尤其是 Session Cookie）。
-
-2. JWT 的身份验证机制和 CSRF 的区别
-JWT 一般是通过 HTTP Header（通常是 Authorization: Bearer <token>）传递的，而不是依赖 Cookie。
-
-这种方式下，浏览器不会自动带上 JWT，必须前端主动将 Token 放到请求头中。
-
-因此攻击者无法通过简单的跨站请求强制浏览器带上有效的 JWT。
-
-3. CSRF 防护机制的作用和必要性
-传统基于 Session 的认证，服务器依赖 Cookie 识别用户状态，浏览器自动携带 Cookie，使得 CSRF 成为威胁。
-
-CSRF 防护机制（如同步令牌模式）就是为了防止这种自动携带 Cookie 的攻击。
-
-4. JWT 下禁用 CSRF 的合理性
-JWT 不依赖 Cookie，所以浏览器不会自动发送 JWT，攻击者没法利用自动带 Cookie 的漏洞发起 CSRF。
-
-因此，开启 CSRF 防护反而可能导致不必要的复杂性和配置负担。
-
-所以，在使用 JWT 且不使用 Cookie 存储 Token 的情况下，通常可以安全地禁用 CSRF 防护。
-
-
-
-
-
-
-----
 
 
 

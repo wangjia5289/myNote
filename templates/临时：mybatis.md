@@ -1622,6 +1622,27 @@ public class SimpleGrantedAuthority implements GrantedAuthority {
 
 简单来说，就是
 
+你的resultMap 其实之影响查询，那么如果插入，需不需要要写paratype呢？
+
+
+
+
+
+
+
+
+![](image-20250704115942238.png)
+
+usermapper 返回的，是要经过controller 进行处理的
+
+
+
+
+
+
+
+
+
 
 ## --------
 

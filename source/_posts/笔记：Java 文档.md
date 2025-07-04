@@ -635,35 +635,35 @@ UI 文档默认为： http://localhost:8080/swagger-ui/index.html
 
 #### 4.1. 创建 Java 项目
 
-![](source/_posts/笔记：Java%20程序文档/image-20250517161956335.png)
+![](source/_posts/笔记：Java%20文档/image-20250517161956335.png)
 
 ---
 
 
 #### 4.2. 安装 Apifox 插件
 
-![](source/_posts/笔记：Java%20程序文档/image-20250517162033549.png)
+![](source/_posts/笔记：Java%20文档/image-20250517162033549.png)
 
 ---
 
 
 #### 4.3. 创建团队和项目
 
-![](source/_posts/笔记：Java%20程序文档/image-20250517162135984.png)
+![](source/_posts/笔记：Java%20文档/image-20250517162135984.png)
 
 ---
 
 
 #### 4.4. 配置 Java 项目与 Apifox 项目映射关系
 
-![](source/_posts/笔记：Java%20程序文档/image-20250517162243052.png)
+![](source/_posts/笔记：Java%20文档/image-20250517162243052.png)
 
 ---
 
 
 #### 4.5. 上传 Java 项目
 
-![](source/_posts/笔记：Java%20程序文档/image-20250517162530905.png)
+![](source/_posts/笔记：Java%20文档/image-20250517162530905.png)
 
 ---
 

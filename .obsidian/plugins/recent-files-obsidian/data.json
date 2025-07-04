@@ -5,24 +5,40 @@
       "path": "source/_posts/笔记：Spring Security.md"
     },
     {
-      "basename": "笔记：阿里云代码规约",
-      "path": "source/_posts/笔记：阿里云代码规约.md"
-    },
-    {
-      "basename": "笔记：Java SE",
-      "path": "source/_posts/笔记：Java SE.md"
-    },
-    {
-      "basename": "笔记：Spring Boot",
-      "path": "source/_posts/笔记：Spring Boot.md"
+      "basename": "临时：security",
+      "path": "templates/临时：security.md"
     },
     {
       "basename": "笔记：Spring IOC",
       "path": "source/_posts/笔记：Spring IOC.md"
     },
     {
-      "basename": "临时：security",
-      "path": "templates/临时：security.md"
+      "basename": "笔记：Spring Boot",
+      "path": "source/_posts/笔记：Spring Boot.md"
+    },
+    {
+      "basename": "笔记：Java 文档",
+      "path": "source/_posts/笔记：Java 文档.md"
+    },
+    {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
+    },
+    {
+      "basename": "笔记：Java 异常处理",
+      "path": "source/_posts/笔记：Java 异常处理.md"
+    },
+    {
+      "basename": "笔记：MySQL 基础",
+      "path": "source/_posts/笔记：MySQL 基础.md"
+    },
+    {
+      "basename": "笔记：阿里云代码规约",
+      "path": "source/_posts/笔记：阿里云代码规约.md"
+    },
+    {
+      "basename": "笔记：Java SE",
+      "path": "source/_posts/笔记：Java SE.md"
     },
     {
       "basename": "笔记：Java 生成密钥与加密解密",
@@ -57,16 +73,8 @@
       "path": "templates/临时：es.md"
     },
     {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
-    },
-    {
       "basename": "笔记：Java 数据类型",
       "path": "source/_posts/笔记：Java 数据类型.md"
-    },
-    {
-      "basename": "笔记：MySQL 基础",
-      "path": "source/_posts/笔记：MySQL 基础.md"
     },
     {
       "basename": "问题总结",
@@ -191,14 +199,6 @@
     {
       "basename": "笔记：Md 分级标题 → Xmind 小工具",
       "path": "source/_posts/笔记：Md 分级标题 → Xmind 小工具.md"
-    },
-    {
-      "basename": "笔记：Mall 商城",
-      "path": "source/_posts/笔记：Mall 商城.md"
-    },
-    {
-      "basename": "笔记：Mac",
-      "path": "source/_posts/笔记：Mac.md"
     }
   ],
   "omittedPaths": [],

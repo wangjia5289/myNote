@@ -9,6 +9,11 @@ tags:
 author: 霸天
 layout: post
 ---
+![](image-20250704122212717.png)
+
+不能这样做，会报错，要想在本方法用，只能 csrfTokenRepository()
+
+
 ![](image-20250703215302874.png)
 
 
