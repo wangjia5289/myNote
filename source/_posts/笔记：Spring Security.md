@@ -20,11 +20,11 @@ layout: post
 
 ## 2. Spring Security 执行流程
 
-<span style="background:#fff88f">1. 用户请求（客户端请求）</span>
+<span style="background:#9254de">1. 用户请求（客户端请求）</span>
 每次用户访问受 `Spring Security` 保护的资源，都会经过以下流程
 
 
-<span style="background:#fff88f">2. SecurityContextPersistenceFilter 介入</span>
+<span style="background:#9254de">2. SecurityContextPersistenceFilter 介入</span>
 自动为本线程初始化 `SecurityContextHolder` 并根据 `JSESSIONID` 向 `HttpSession` 查找 `SecurityContext`（其内保存最重要的 `Authentication`）
 1. 若存在 `SecurityContext`，便将其加载到本线程的 `SecurityContextHolder` 中（基于 HttpSession 实现 “记住我” 功能，我们也可基于 JWT 实现 “记住我” 功能）
 2. 若不存在 `SecurityContext`，则在本线程中自动初始化一个新的 `SecurityContext`
@@ -33,7 +33,7 @@ layout: post
 ![](image-20250628224744251.png)
 
 
-<span style="background:#fff88f">3. CsrfFilter 介入</span>
+<span style="background:#9254de">3. CsrfFilter 介入</span>
 该过滤器会尝试从我们配置的 CSRF Token 存储位置（配置的 `HttpSessionCsrfTokenRepository`）中加载 CSRF Token，且所有请求都会经过这一尝试。若成功加载，Token 会被放入 `HttpServletRequest` 中；如果未加载到，则会创建一个新的 CSRF Token，并同样放入请求中。
 
 对于启用 CSRF 防护的路径，当执行修改服务器状态的敏感操作（如 POST、PUT、DELETE、PATCH 等）时，过滤器会检查前端是否在指定的位置（配置的 `.setHeaderName("X-CSRF-TOKEN")` 等位置）携带了 Token。若未携带，则抛出 `MissingCsrfTokenException`；若携带，则会将前端 Token 与 `HttpServletRequest` 中的 Token 进行比对，匹配则继续执行，不匹配则抛出 `InvalidCsrfTokenException`。
@@ -42,17 +42,17 @@ layout: post
 > 1. CSRF 相关的异常都是 `AccessDeniedException` 的子类，所以我们应该在处理 `AccessDeniedException` 时处理这两个异常
 
 
-<span style="background:#fff88f">4. UsernamePasswordAuthenticationFilter 介入</span>
+<span style="background:#9254de">4. UsernamePasswordAuthenticationFilter 介入</span>
 该过滤器主要用于前后端未分离的场景，用于处理默认 `/login` 路径下的登录请求。  
 
 在前后端分离的架构中无需深入关注其具体逻辑，只需了解其在过滤器链中的位置，以便在插入自定义过滤器时能准确定位。
 
 
-<span style="background:#fff88f">5. AnonymousAuthenticationFilter 介入</span>
+<span style="background:#9254de">5. AnonymousAuthenticationFilter 介入</span>
 如果当前没有任何 `Authentication`，系统会自动创建一个匿名身份，以避免后续流程中出现空指针异常。
 
 
-<span style="background:#fff88f">6. FilterSecurityInterceptor 介入</span>
+<span style="background:#9254de">6. FilterSecurityInterceptor 介入</span>
 首先检查当前线程中是否存在 `Authentication`（无论是否为匿名身份），如果不存在，则抛出 `AuthenticationException`，表示用户尚未进行认证。
 
 接着判断是否为匿名用户访问受保护资源：即若用户尚未认证（即为匿名身份 `Authentication`），且访问的资源未被标注为 `permitAll`，则抛出 `AuthenticationException` 异常。
@@ -62,12 +62,12 @@ layout: post
 > 1. 整个流程中的异常由 `ExceptionTranslation` 过滤器统一处理，负责捕获**整个过滤器链中**抛出的 `AuthenticationException` 和 `AccessDeniedException` 异常，并执行相应的处理逻辑。
 
 
-<span style="background:#fff88f">7. 执行 API</span>
+<span style="background:#9254de">7. 执行 API</span>
 在这一步，才真正开始执行我们的 API 逻辑；如果是登录 API，并且通过 AuthenticationManager 进行认证，流程如下：
 ![](image-20250628210023140.png)
 
 
-<span style="background:#fff88f">8. SecurityContextPersistenceFilter 再次介入</span>
+<span style="background:#9254de">8. SecurityContextPersistenceFilter 再次介入</span>
 它会自动将本线程的 `SecurityContext` 存入服务器的 `HttpSession`，以便在后续请求中维持用户身份（需要手动开启）
 
  随后，过滤器会清空本线程 `SecurityContextHolder`，防止 `SecurityContext` 在后续请求中被无意复用，从而确保每个请求都能独立执行认证和授权流程。
@@ -212,7 +212,7 @@ public class SecurityConfiguration {
 
 而方法级别的访问控制则是指：用户必须具备指定的权限或身份，才能调用某方法，详细步骤如下：
 
-<span style="background:#fff88f">1. 配置类上添加 @EnableMethodSecurity 注解</span>
+<span style="background:#9254de">1. 配置类上添加 @EnableMethodSecurity 注解</span>
 ```
 @Configuration  
 @EnableMethodSecurity  // 启用方法级别的访问控制  
@@ -223,7 +223,7 @@ public class SecurityConfig {
 ```
 
 
-<span style="background:#fff88f">2. 进行方法级别的访问控制</span>
+<span style="background:#9254de">2. 进行方法级别的访问控制</span>
 需要注意的是，方法级别的访问控制，一般进行在服务层（Service 层）。
 ```
 @Service
@@ -296,7 +296,7 @@ public CorsConfigurationSource corsConfigurationSource() {
 > [!NOTE] 注意事项
 > 1. 之前开启 CORS 跨域资源共享，需要写 `http.cors` 开启 CORS，并且配置 `CorsConfigurationSource` 跨域规则，现在只需要配置 `CorsConfigurationSource` 既开启了 CORS，又配置了跨域规则
 
-<span style="background:#fff88f">1. configuration.setAllowedOrigins</span>
+<span style="background:#9254de">1. configuration.setAllowedOrigins</span>
 用于配置**哪些源可以跨域访问我们**，不支持通配符，需精确指定 “源”（Origin），即需精确指定协议 + 域名 + 端口，注意不能包含后续的 URL 路径部分（因为不符合 Origin 的写法）
 ```
 configuration.setAllowedOrigins(List.of("http://frontend.example.com:8888", "http://frontend.example.com", "*"));
@@ -307,7 +307,7 @@ configuration.setAllowedOrigins(List.of("http://frontend.example.com:8888", "htt
 > 2. 不能与 `configuration.setAllowedOriginPatterns` 同时使用
 
 
-<span style="background:#fff88f">2. configuration.setAllowedOriginPatterns</span>
+<span style="background:#9254de">2. configuration.setAllowedOriginPatterns</span>
 与 `configuration.setAllowedOrigins` 类似，但能支持通配符（`?`、`*`、`**`）
 ```
 configuration.setAllowedOriginPatterns(List.of("http://*.example.com"));
@@ -330,7 +330,7 @@ source.registerCorsConfiguration("/api/**", config);
 ```
 
 
-<span style="background:#fff88f">3. configuration.setAllowedMethods</span>
+<span style="background:#9254de">3. configuration.setAllowedMethods</span>
 指定允许哪些 HTTP 方法能够执行跨域请求，例如：
 ```
 configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "*"));
@@ -343,7 +343,7 @@ configuration.setAllowedMethods(List.of("*"));
 ```
 
 
-<span style="background:#fff88f">4. configuration.setAllowedHeaders</span>
+<span style="background:#9254de">4. configuration.setAllowedHeaders</span>
 配置前端在跨域请求中**允许携带的请求头**，如果前端发送的请求头未被我们明确允许，浏览器会直接拦截请求，根本不会发送到服务器，例如：
 ```
 configuration.setAllowedHeaders(List.of("Content-Type", "Authorization", "*"));
@@ -356,7 +356,7 @@ configuration.setAllowedHeaders(List.of("*"));
 ```
 
 
-<span style="background:#fff88f">5. configuration.setAllowCredentials  </span>
+<span style="background:#9254de">5. configuration.setAllowCredentials  </span>
 在讲解这个之前，我们先补充一个前置知识：当我们是同源访问时，前端访问后端，浏览器会自动携带 Cookie 发送到后端，这点大家都很熟悉。此外，还有 Authorization（JWT）等信息，是通过 AJAX 请求的请求头或请求体发送到后端的。  
 
 但是在跨域访问时，出于安全考虑，浏览器默认不会携带 Cookie。如果想让浏览器携带 Cookie，前端必须在 AJAX 请求中添加 `credentials: 'include'`，这样 Cookie 才会被发送。
@@ -383,7 +383,7 @@ configuration.setAllowCredentials(true);
 > 2. 如果不涉及到 `Cookie`，其实不用去做这样一系列操作
 
 
-<span style="background:#fff88f">6. source.setCorsConfigurations</span>
+<span style="background:#9254de">6. source.setCorsConfigurations</span>
 指定我们配置的跨域规则作用于那些路径
 ```
 configMap.put("/api/**", configuration);
@@ -475,7 +475,7 @@ public UserDetailsService userDetailsService() {
 `PasswordEncoder` 是 Spring Security 提供的一个接口，同时 Spring Security 也提供了该接口的很多实现类（未声明未 Bean），能够解决上述两大问题
 
 配置密码加密器，就是将 `PasswordEncoder` 声明为一个 Bean，并指定返回一个合适的的实现类。这样当我们注入这个 Bean，并调用其接口方法时，实际执行的就是这个实现类的逻辑，这正体现了 Spring IoC 的核心理念：**面向接口编程，运行时注入实现**。不理解这一点，那确实建议回去复习一下 IoC，我们密码加密器的配置，以及如何使用密码加密器解决上述两大问题，常按照这种流程：
-<span style="background:#fff88f">1. 配置密码加密器</span>
+<span style="background:#9254de">1. 配置密码加密器</span>
 ``` 
 /**
  * ============================================
@@ -501,7 +501,7 @@ public PasswordEncoder passwordEncoder() {
 ```
 
 
-<span style="background:#fff88f">2. 使用 PasswordEncoder 实现密码加密</span>
+<span style="background:#9254de">2. 使用 PasswordEncoder 实现密码加密</span>
 ```
 @Controller  
 @RequestMapping("/security")  
@@ -526,7 +526,7 @@ public class PasswordController {
 ```
 
 
-<span style="background:#fff88f">3. 校验密码匹配</span>
+<span style="background:#9254de">3. 校验密码匹配</span>
 ```
 @Controller
 @RequestMapping("/security")  
@@ -616,7 +616,7 @@ public UserDetailsService userDetailsService() {
 http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 ```
 
-<span style="background:#fff88f">1. auth.requestMatchers()</span>
+<span style="background:#9254de">1. auth.requestMatchers()</span>
 设置**指定资源路径**的访问控制规则，例如：
 ```
 /**
@@ -649,7 +649,7 @@ http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 ```
 
 
-<span style="background:#fff88f">2. auth.anyRequest()</span>
+<span style="background:#9254de">2. auth.anyRequest()</span>
 除已配置的资源路径外，其余所有资源路径的访问控制规则
 ```
 .authorizeHttpRequests(auth -> {
@@ -680,7 +680,7 @@ http.sessionManagement(session -> session
 http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 ```
 
-<span style="background:#fff88f">1. session.sessionCreationPolicy()</span>
+<span style="background:#9254de">1. session.sessionCreationPolicy()</span>
 用于配置会话的创建策略，常见策略有：
 1. SessionCreationPolicy.ALWAYS：
 	1. 始终创建会话。每个请求都会新建一个 HttpSession，覆盖之前的会话，并返回新的 JSESSIONID Cookie。
@@ -696,7 +696,7 @@ http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 ```
 
 
-<span style="background:#fff88f">2. session.maximumSessions()</span>
+<span style="background:#9254de">2. session.maximumSessions()</span>
 并发会话控制，即限制每个用户在同一时间内的会话数量，也即用户可在多少台设备上同时登录（默认情况下，不限制）
 ```
 session.maximumSessions(1)
@@ -707,7 +707,7 @@ session.maximumSessions(1)
 ```
 
 
-<span style="background:#fff88f">3. maxSessionsPreventsLogin()</span>
+<span style="background:#9254de">3. maxSessionsPreventsLogin()</span>
 是否阻止新会话登录
 ```
 /**
@@ -833,7 +833,7 @@ http.addFilterAfter(new CustomFilter(),UsernamePasswordAuthenticationFilter.clas
 
 我们一般会创建五个表：`users` 表（用户表）存储所有注册用户的信息，`roles` 表（角色表）定义了系统中存在的各种角色，`user_role` 表（用户-角色关联表）用于建立用户和角色之间的多对多关系，`authorities` 表（权限表）定义了系统中的各种操作权限，`role_authoritie` 表（角色-权限表）用于建立角色和权限之间的多对多关系
 
-<span style="background:#fff88f">1. users 表（用户表）</span>
+<span style="background:#9254de">1. users 表（用户表）</span>
 
 | 列名                           | 数据类型        | 约束        | 索引   | 默认值 | 示例值                               | 说明                                    |
 | ---------------------------- | ----------- | --------- | ---- | --- | --------------------------------- | ------------------------------------- |
@@ -883,7 +883,7 @@ VALUES
 > 3. 虽然 camelCase 在 Java 中使用广泛，例如 phoneNumber，但在 SQL 表列名中更建议统一为 snake_case，例如 phone_number
 
 
-<span style="background:#fff88f">2. roles 表（角色表）</span>
+<span style="background:#9254de">2. roles 表（角色表）</span>
 
 | 列名            | 数据类型        | 约束        | 默认值 | 索引   | 示例值        | 说明                                             |
 | ------------- | ----------- | --------- | --- | ---- | ---------- | ---------------------------------------------- |
@@ -906,7 +906,7 @@ INSERT INTO roles (role_name) VALUES
 ```
 
 
-<span style="background:#fff88f">3. user_role 表（用户-角色关联表）</span>
+<span style="background:#9254de">3. user_role 表（用户-角色关联表）</span>
 
 | 列名          | 数据类型 | 约束                                                 | 索引     | 默认值 | 示例值 | 说明           |
 | ----------- | ---- | -------------------------------------------------- | ------ | --- | --- | ------------ |
@@ -933,7 +933,7 @@ INSERT INTO user_role (user_id, role_id) VALUES
 > 1. 两表的关联表，一般是取其两表名的单数形式，以 `_` 进行衔接
 
 
-<span style="background:#fff88f">4. authorities 表（权限表）</span>
+<span style="background:#9254de">4. authorities 表（权限表）</span>
 
 | 列名                 | 数据类型        | 约束        | 索引   | 默认值 | 示例值                     | 说明                                |
 | ------------------ | ----------- | --------- | ---- | --- | ----------------------- | --------------------------------- |
@@ -959,7 +959,7 @@ INSERT INTO authorities (authority_name) VALUES
 > 1. 表名叫做 `authorities`，列名叫做 `authority_xxx`
 
 
-<span style="background:#fff88f">5. role_authority 表（角色-权限关联表）</span>
+<span style="background:#9254de">5. role_authority 表（角色-权限关联表）</span>
 
 | 列名               | 数据类型 | 约束                                                             | 索引     | 默认值 | 示例值 | 说明                 |
 | ---------------- | ---- | -------------------------------------------------------------- | ------ | --- | --- | ------------------ |
@@ -981,6 +981,9 @@ CREATE TABLE role_authority (
 INSERT INTO role_authority (role_id, authority_id) VALUES
     (1, 1);
 ```
+
+> [!NOTE] 注意事项
+> 1. 五张表符合 RBAC 规范，详见下文：RBAC 规范
 
 ---
 
@@ -1663,6 +1666,11 @@ public class AuthController {
 ----
 
 
+### 基于 JWT 的 Spring Security
+
+#### JWT 概述
+
+若是基于 HttpSession 的登录方式，如果后端服务器只有一台，那还好，但我们仍需防范如 CSRF 等攻击。不过现实中，后端服务器显然不可能仅有一台，通常是多台服务器共同工作。此时，若你在登录时被负载均衡到服务器 1，并在该服务器上创建了 HttpSession，该服务器确实保存了你的 Authentication，但下次请求若被负载均衡到了服务器 2，就相当于你从未登录过，需要重新认证。同样地，若再次被分配到服务器 3、服务器 4……你要登录多少次才够？所以，在多服务器环境下，单纯依赖 HttpSession 显然不可行，我们是否可以考虑一种支持**单点登录**的机制呢？
 
 
 
@@ -1670,9 +1678,33 @@ public class AuthController {
 
 
 
+## 补充
 
+### RBAC 规范
 
-
+RBAC 的核心思想就是：“不直接给用户分配权限，而是把权限分配给角色，再把用户加入到相应角色”
+1. ==用户（User）==：
+	1. 系统中的操作主体，比如某个登录系统的人。
+	2. 命名方式：
+		1. 直接使用用户账号 / 用户名，例如：
+		2. alice、bob、zhangsan
+		3. user_001、admin_001
+		4. alice@example、1386524789等等
+	3. 注意事项：
+		1. 唯一性是关键，用户名不能重复
+2. ==角色（Role）==：
+	1. 一组权限的集合，代表一种职责，比如“管理员”“编辑”“普通用户”。
+	2. 命名方式：
+		1. 按照 职责 / 岗位 的方式进行命名，例如：
+		2. ceo（首席执行官）
+		3. admin（管理员）
+		4. editor（编辑）
+3. ==权限（Permission）==：
+	1. 对系统中资源的访问权，比如“读数据”“改配置”“删用户”等。
+	2. 命名方式：
+		1. 按照 模块_操作 的方式进行命名，例如：
+		2. user_read（读取用户信息）
+		3. order_delete（删除订单）
 
 
 

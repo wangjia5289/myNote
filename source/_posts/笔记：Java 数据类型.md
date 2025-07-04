@@ -452,13 +452,13 @@ public class UserEntity {
 
 这些都是架构层面的“角色分类”，虽然本质上也是 POJO，但各自的职责不同：
 
-|类名|全称|用途/职责|
-|---|---|---|
-|DTO|Data Transfer Object|用于前后端或服务间传输数据|
-|VO|View Object|表示视图层展示的数据结构|
-|BO|Business Object|表示业务逻辑中的对象|
-|DO|Data Object|数据库中的数据对象，基本等于 Entity|
-|PO|Persistent Object|与数据库表对应的持久化对象（=Entity）|
+| 类名  | 全称                   | 用途/职责                  |
+| --- | -------------------- | ---------------------- |
+| DTO | Data Transfer Object | 用于前后端或服务间传输数据          |
+| VO  | View Object          | 表示视图层展示的数据结构           |
+| BO  | Business Object      | 表示业务逻辑中的对象             |
+| DO  | Data Object          | 数据库中的数据对象，基本等于 Entity  |
+| PO  | Persistent Object    | 与数据库表对应的持久化对象（=Entity） |
 
 💬 这些可以理解为一个公司里的不同岗位人员：DTO 是快递员，VO 是展示小姐姐，Entity 是档案馆员工……
 

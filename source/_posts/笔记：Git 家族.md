@@ -8,6 +8,7 @@ author: 霸天
 layout: post
 ---
 
+
 ./ignore
 
 
@@ -79,6 +80,8 @@ git push -u origin main
 # 8. 后续推送
 我们可以通过命令行或使用 GitHub Desktop 等工具来推送代码。
 ```
+
+----
 
 
 

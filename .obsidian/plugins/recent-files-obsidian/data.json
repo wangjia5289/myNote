@@ -1,10 +1,6 @@
 {
   "recentFiles": [
     {
-      "basename": "笔记：Git 家族",
-      "path": "source/_posts/笔记：Git 家族.md"
-    },
-    {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
     },
@@ -13,20 +9,32 @@
       "path": "templates/临时：security.md"
     },
     {
-      "basename": "笔记：Spring IOC",
-      "path": "source/_posts/笔记：Spring IOC.md"
+      "basename": "笔记：Git 家族",
+      "path": "source/_posts/笔记：Git 家族.md"
+    },
+    {
+      "basename": "笔记：Java 数据类型",
+      "path": "source/_posts/笔记：Java 数据类型.md"
+    },
+    {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
+    },
+    {
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
     },
     {
       "basename": "笔记：Spring Boot",
       "path": "source/_posts/笔记：Spring Boot.md"
     },
     {
-      "basename": "笔记：Java 文档",
-      "path": "source/_posts/笔记：Java 文档.md"
+      "basename": "笔记：Spring IOC",
+      "path": "source/_posts/笔记：Spring IOC.md"
     },
     {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
+      "basename": "笔记：Java 文档",
+      "path": "source/_posts/笔记：Java 文档.md"
     },
     {
       "basename": "笔记：Java 异常处理",
@@ -77,10 +85,6 @@
       "path": "templates/临时：es.md"
     },
     {
-      "basename": "笔记：Java 数据类型",
-      "path": "source/_posts/笔记：Java 数据类型.md"
-    },
-    {
       "basename": "问题总结",
       "path": "问题总结.md"
     },
@@ -91,10 +95,6 @@
     {
       "basename": "README",
       "path": "README.md"
-    },
-    {
-      "basename": "Todo 看板",
-      "path": "Todo 看板.md"
     },
     {
       "basename": "笔记：本地图库小工具",
