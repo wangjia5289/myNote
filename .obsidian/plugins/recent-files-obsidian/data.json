@@ -1,16 +1,28 @@
 {
   "recentFiles": [
     {
-      "basename": "笔记：Spring Security",
-      "path": "source/_posts/笔记：Spring Security.md"
-    },
-    {
       "basename": "临时：security",
       "path": "templates/临时：security.md"
     },
     {
+      "basename": "笔记：本地图库小工具",
+      "path": "source/_posts/笔记：本地图库小工具.md"
+    },
+    {
+      "basename": "笔记：Windows",
+      "path": "source/_posts/笔记：Windows.md"
+    },
+    {
       "basename": "笔记：Git 家族",
       "path": "source/_posts/笔记：Git 家族.md"
+    },
+    {
+      "basename": "笔记：Md 分级标题 → Xmind 小工具",
+      "path": "source/_posts/笔记：Md 分级标题 → Xmind 小工具.md"
+    },
+    {
+      "basename": "笔记：Spring Security",
+      "path": "source/_posts/笔记：Spring Security.md"
     },
     {
       "basename": "笔记：Java 数据类型",
@@ -97,10 +109,6 @@
       "path": "README.md"
     },
     {
-      "basename": "笔记：本地图库小工具",
-      "path": "source/_posts/笔记：本地图库小工具.md"
-    },
-    {
       "basename": "Categories 总纲",
       "path": "templates/Categories 总纲.md"
     },
@@ -135,10 +143,6 @@
     {
       "basename": "hello-world",
       "path": "source/_posts/hello-world.md"
-    },
-    {
-      "basename": "笔记：Windows",
-      "path": "source/_posts/笔记：Windows.md"
     },
     {
       "basename": "笔记：Webmin",
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：MIME 类型",
       "path": "source/_posts/笔记：MIME 类型.md"
-    },
-    {
-      "basename": "笔记：Mermaid",
-      "path": "source/_posts/笔记：Mermaid.md"
     }
   ],
   "omittedPaths": [],

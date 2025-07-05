@@ -7,7 +7,9 @@ tags:
 author: 霸天
 layout: post
 ---
-
+```
+pyinstaller --onefile --windowed  --distpath "D:\文件集合" "D:\文件集合\内网 IP 修改小工具.py"
+```
 
 ./ignore
 
