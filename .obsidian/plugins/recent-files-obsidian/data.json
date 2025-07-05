@@ -1,6 +1,14 @@
 {
   "recentFiles": [
     {
+      "basename": "笔记：Spring Security",
+      "path": "source/_posts/笔记：Spring Security.md"
+    },
+    {
+      "basename": "笔记：Spring IOC",
+      "path": "source/_posts/笔记：Spring IOC.md"
+    },
+    {
       "basename": "临时：security",
       "path": "templates/临时：security.md"
     },
@@ -21,10 +29,6 @@
       "path": "source/_posts/笔记：Md 分级标题 → Xmind 小工具.md"
     },
     {
-      "basename": "笔记：Spring Security",
-      "path": "source/_posts/笔记：Spring Security.md"
-    },
-    {
       "basename": "笔记：Java 数据类型",
       "path": "source/_posts/笔记：Java 数据类型.md"
     },
@@ -39,10 +43,6 @@
     {
       "basename": "笔记：Spring Boot",
       "path": "source/_posts/笔记：Spring Boot.md"
-    },
-    {
-      "basename": "笔记：Spring IOC",
-      "path": "source/_posts/笔记：Spring IOC.md"
     },
     {
       "basename": "笔记：Java 文档",
