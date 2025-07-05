@@ -194,7 +194,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> {
                     csrf
                         .ignoringRequestMatchers("/login") // 忽略对这些路径的 CSRF 保护（默认全部保护）
-                        .csrfTokenRepository(CsrfTokenRepository()); // 使用我们自定义的 Token 存储库
+                        .csrfTokenRepository(csrfTokenRepository()); // 使用我们自定义的 Token 存储库
                 })
                 // 13. 添加自定义过滤器
                 .addFilterAt(xxxx);
@@ -224,7 +224,7 @@ public class SecurityConfig {
 
 
 <span style="background:#9254de">2. 进行方法级别的访问控制</span>
-需要注意的是，方法级别的访问控制，一般进行在服务层（Service 层）。
+需要注意的是，方法级别的访问控制，一般进行在服务层（Service 层）、控制器层（Controller 层）
 ```
 @Service
 public class UserService {
@@ -237,6 +237,19 @@ public class UserService {
     public void readUser() {
         // 只有具有 user:user:select 权限的用户可以执行 用户模块的用户表的查询操作
     }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 如果你在 `Service` 层进行了方法级别的访问控制，那么就有可能出现：能够执行前半部分逻辑，但调用 `Service` 方法时会被拒绝，并抛出 AccessDeniedException
+```
+@GetMapping("/test")  
+public String test() {  
+    System.out.println("正在执行只有 test:test:test 权限才能执行的 Service 方法");  
+    System.out.println("现在的 Authentication 信息如下：");  
+    System.out.println(AuthenticationUtils.getAuthentication());  
+    String testString = testService.test();  // 对 testService 进行方法级别的访问控制
+    return testString;  
 }
 ```
 
@@ -867,14 +880,6 @@ ALTER TABLE users ADD CONSTRAINT unique_username UNIQUE (username);
 ALTER TABLE users ADD CONSTRAINT unique_email UNIQUE (email);
 
 ALTER TABLE users ADD CONSTRAINT unique_phone UNIQUE (phone_number);
-
-
-# 2. 插入数据-----
-INSERT INTO users (username, password, email, phone_number)
-VALUES
-    ('alice', 'alice', 'alice@example.com', '13800000000'),
-    ('bob', 'bob', 'bob@example.com', '13900000001'),
-    ('BaTian', 'BaTian', 'batian@example.com', '13700000002');
 ```
 
 > [!NOTE] 注意事项
@@ -922,11 +927,6 @@ CREATE TABLE user_role (
     FOREIGN KEY (user_id) REFERENCES users (user_id),
     FOREIGN KEY (role_id) REFERENCES roles (role_id)
 ) ;
-
-
-# 2. 插入数据-----
-INSERT INTO user_role (user_id, role_id) VALUES
-	(1, 1);
 ```
 
 > [!NOTE] 注意事项
@@ -1017,6 +1017,7 @@ public class User {
 	// authorities 表中的数据（用户的权限，不要忘记添加这个）
     private List<SimpleGrantedAuthority> authorities;
 
+	// 构造方法
     // getter 方法
 	// setter 方法
 	// equals 方法
@@ -1026,7 +1027,7 @@ public class User {
 ```
 
 > [!NOTE] 注意事项
-> 1. 与数据库表映射的类通常称为 Entity 类，也可称为 DO 类或 PO 类，统属 POJO 类，通常只包含 getter、setter 、equals、hashCode、toString 方法及构造方法，不应包含业务逻辑方法
+> 1. 与数据库表映射的类，通常称为 Entity 类，也可称为 DO 类或 PO 类，统属 POJO 类，通常只包含 getter、setter 、equals、hashCode、toString 方法及构造方法，不应包含业务逻辑方法
 > 2. 这里写 Integer 其实不太好，最好的是写 Boolean，但是也不影响，详见下文：实现 UserDetails 接口
 > 3. 使用 MyBatisX 插件生成的 POJO 类默认包含 getter、setter、equals、hashCode、toString 方法，但不包含构造方法。
 > 	1. 我们可以手动补全有参和无参构造方法；
@@ -1461,7 +1462,7 @@ public class CustomerUserDetailsImplService implements UserDetailsService {
 -----
 
 
-#### 1.1.7. 创建 秘钥生成、加密、解密 工具类
+#### 1.1.7. 编写 秘钥生成、加密、解密 工具类
 
 这个密钥生成工具类用于创建 AES 对称加密所需的密钥、加密、解密，我们可以在保存数据时（如注册用户时），可以对如手机号、邮箱等敏感信息进行加密，并在需要时解密还原。  
 
@@ -1546,7 +1547,7 @@ public class EncryptionUtils {
 ---
 
 
-#### 创建 从线程获取 Authentication 工具类
+#### 1.1.8. 编写 从线程获取 Authentication 工具类
 
 在 `com.example.securitywithhttpsession.util` 下创建 `AuthenticationUtils`
 ```
@@ -1560,7 +1561,7 @@ public class AuthenticationUtils {
 ---
 
 
-#### 1.1.8. 实现 注册 API、登录 API、授权 API、测试 API、注销 API
+#### 1.1.9. 实现 注册 API、登录 API、授权 API、测试 API、注销 API
 
 在 `com.example.securitywithhttpsession.controller` 下创建 `AuthController`
 ```
@@ -1666,11 +1667,164 @@ public class AuthController {
 ----
 
 
-### 基于 JWT 的 Spring Security
+### 1.2. 基于 JWT 的 Spring Security
 
-#### JWT 概述
+#### 1.2.1. JWT 概述
 
-若是基于 HttpSession 的登录方式，如果后端服务器只有一台，那还好，但我们仍需注意防范如 CSRF 等攻击。不过现实中，后端服务器显然不可能仅有一台，通常是多台服务器共同工作。此时，若你在登录时被负载均衡到服务器 1，并在该服务器上创建了 HttpSession，该服务器确实保存了你的 Authentication，但下次请求若被负载均衡到了服务器 2，就相当于你从未登录过，需要重新认证。同样地，若再次被分配到服务器 3、服务器 4……你要登录多少次才够？所以，在多服务器环境下，单纯依赖 HttpSession 显然不可行，我们是否可以考虑一种支持**单点登录**的机制呢？
+若是基于 HttpSession 的登录方式，如果后端服务器只有一台，那还算可行，但我们仍需关注诸如 CSRF 等安全风险。然而在现实应用中，后端服务器显然不可能只有一台，通常是多台服务器协同处理请求。在这种场景下，假如用户在登录时被负载均衡到服务器 1，并在该服务器上创建了 HttpSession，该服务器确实保存了用户的 Authentication 信息；但后续请求若被分配到服务器 2，由于该服务器并无用户的 Session 信息，就会导致用户“看似从未登录”，需要重新认证。同理，如果接下来被路由到服务器 3、服务器 4……难道用户每次都要重新登录？显然，在多服务器环境下，单纯依赖 HttpSession 并不可靠。此时，我们是否应当引入一种能够**支持单点登录**（SSO）的机制，来统一管理用户身份认证信息？
+
+而 JWT（JSON Web Token）就能够实现单点登录，其核心价值在于：无需依赖服务器端的会话存储（如 `HttpSession`），便可安全地完成用户身份验证，并携带必要的用户信息进行传递。
+
+JWT 由三部分组成：**Header**、**Payload** 和 **Signature**，中间用英文句点 `.` 分隔，形成 `xxxxx.yyyyy.zzzzz` 的格式，例如：
+```
+eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImNyZWF0ZWQiOjE1NTY3NzkxMjUzMDksImV4cCI6MTU1NzM4MzkyNX0.d-iki0193X0bBOETf2UN3r3PotNIEAV7mzIxxeI5IxFyzzkOZxS0PGfF_SK6wxCv2K8S0cZjMkv6b5bCqc0VBw
+```
+
+<span style="background:#9254de">1. Header（头部）</span>
+Header 用于声明该令牌的类型，这里是 JWT，以及 JWT 中用于生成和验证签名（即 Signature）的加密算法的种类（如 HMAC SHA256 或 RSA 等，作用于签名的算法）
+
+其是一个 JSON 对象，通常长这样：
+```
+{
+  "alg": "HS256",     // 表示签名使用的算法，如 HMAC SHA256
+  "typ": "JWT"        // 表示类型是 JWT
+}
+```
+
+在生成 JWT 时会对其进行 Base64URL 编码，形成：
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+```
+
+
+<span style="background:#9254de">2. Payload（负载）</span>
+Payload 中一般包含两部分内容：第一部分是 Registered Claims，这是 JWT 推荐的标准字段，具有约定俗成的意义。这些字段虽然是可选的，但非常推荐使用，因为它们有助于后端进行有效的校验，比如判断 Token 是否已过期、是否有效、是否来自合法的客户端等。
+
+| 字段    | 示例                 | 含义                                                          |
+| ----- | ------------------ | ----------------------------------------------------------- |
+| `iss` | `"auth.myapp.com"` | 表示签发者是谁                                                     |
+| `sub` | `"user123"`        | 表示主题，通常用于标识用户身份（如用户 ID、用户名），实际中，可以选择不使用，而是在第二部分自定义字段来表示用户身份 |
+| `aud` | `"myapp-client"`   | 表示接收方是谁                                                     |
+| `exp` | `1710000000`       | 表示过期时间，要以时间戳的形式                                             |
+| `nbf` | `1709900000`       | 表示生效时间，要以时间戳的形式                                             |
+| `iat` | `1709890000`       | 表示签发时间，要以时间戳的形式                                             |
+| `jti` | `"a-b-c-d-e"`      | 表示 JWT 的唯一标识 ID，用于防止重复                                      |
+
+第二部分是 Private Claims，这是根据业务场景自定义的数据字段，可以根据实际需求灵活添加。前端与后端需要对这些字段的格式和含义达成一致约定。例如：
+```
+{
+  "userId": "123456",
+  "username": "alice",
+  "role": "admin",
+}
+```
+
+最终，我们 JWT 的 Payload 写法如下：
+```
+{
+  "userId": "123456",
+  "username": "alice",
+  "role": "admin",
+  "iat": 1710000000,
+  "exp": 1710003600
+}
+```
+
+在生成 JWT 时会对其进行 Base64URL 编码，形成：
+```
+eyJ1c2VySWQiOiIxMjM0NTYiLCJ1c2VybmFtZSI6ImFsaWNlIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzEwMDAwMDAwLCJleHAiOjE3MTAwMDM2MDB9
+```
+
+
+> [!NOTE] 注意事项
+> 1. 实际上，JWT 的 Payload 部分包含三类字段。除了我们前面提到的 Registered Claims 和 Private Claims 之外，还有一种是 Public Claims。这类字段也是自定义的，但需要遵循一定的命名规范（如使用 URI 命名空间），主要用于跨组织共享场景，在实际开发中，Public Claims 使用较少。
+
+
+<span style="background:#9254de">3. Signature（签名）</span>
+Signature 用于防止数据被篡改、伪造，验证数据完整性和来源，它的生成方式大致如下。
+```
+Signature = HMACSHA256(
+  base64UrlEncode(header) + "." + base64UrlEncode(payload),
+  secret
+)
+```
+
+由前两部分的 Base64URL 编码拼接而成的字符串，会结合我们的密钥 `secret` 以及 Header 中指定的签名算法（`alg`）生成签名。
+
+这个密钥是保存在我们的服务器中，当 JWT 被客户端发送回来时，服务器会使用这个密钥和签名算法对前两部分重新计算签名，并将其与 JWT 中附带的签名部分进行比对。如果比对一致，就说明该令牌未被篡改，可信；否则，说明令牌可能已被伪造或篡改，应视为无效。
+
+> [!NOTE] 注意事项
+> 1. 由于密钥是保存在服务器中的，只有你掌握，即使攻击者截获了 JWT，也无法伪造一个合法的 Token。因为即便他可以从 JWT 中解析出 Header 和 Payload，但没有你的密钥，就无法生成一个正确的签名。使用其他密钥伪造出来的签名，无法通过我们服务器使用原密钥重新计算的签名比对，因此验证会失败。
+> 2. 虽然 JWT 的 Header 和 Payload 看起来像一串很高端的字符，但实际上它们只是经过了 Base64URL 编码（注意不是 Base64 编码），目的是便于传输，并没有加密。因此任何人都可以解码查看其中的内容。例如在网站 [https://jwt.io/](https://jwt.io/) 上，就可以轻松将一个 JWT 解码并查看 Header 和 Payload 中的信息。
+> 3. 这也提醒我们：JWT 虽然具有防伪能力，能够有效防止前端伪造 Token，但由于其前两部分很容易被解码，因此不能将敏感信息（如密码、邮箱、手机号等）放入 Header 或 Payload 中。一般来说，像过期时间、生效时间、签发时间、用户 ID、用户名等信息已经足够。同时，为防止 Token 在传输过程中被截获，应通过 HTTPS 进行传输，而非明文 HTTP
+> 4. 如果攻击者真的截获了 JWT，在其未过期的有效时间内，是可以冒充用户发起请求的。如果系统只靠 Token 的签名来识别身份，因此无法判断是真用户还是伪装者。因此我们应尽量缩短 JWT 的有效期，例如设置为 15 分钟，以减小安全风险。
+> 5. 除此之外，我们还应配合一系列安全机制，辅助判断用户行为是否异常或存在风险。例如，在执行敏感操作时，可以要求用户进行额外验证，如输入身份证号码、手机验证码或进行人脸识别等，以增强身份校验的可靠性，这类多因子验证手段有助于防止 Token 被盗用后的非法操作，进一步提升系统的整体安全性。
+
+---
+
+
+#### 1.2.2. 创建 Spring Web 项目，添加 Security 相关依赖
+
+1. Web：
+	1. Spring Web
+2. Security：
+	1. Spring Security
+3. SQL
+	1. JDBC API
+	2. MyBatis Framework
+	3. MySQL Driver
+
+----
+
+
+#### 1.2.3. 添加 JWT 相关依赖
+
+添加 [jjwt-api 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api)
+``` 
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.12.6</version>
+</dependency>
+```
+
+----
+
+
+#### 1.2.4. 前置步骤
+
+和基于 HttpSession 的 Spring Security 的步骤 1.1.2 ~ 1.1.8 一致
+
+----
+
+
+
+#### 1.2.5. 编写 JwtResponse DTO 类
+
+JwtResponse DTO 类位于 `com.example.securitywithjwt.dto` 包下
+```
+public class JwtResponse {
+
+    private String token;
+
+	// 构造方法
+    // getter 方法
+	// setter 方法
+	// equals 方法
+	// hashCode 方法
+	// toString 方法
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 用于前后端或服务间传输数据的类，通常称为 DTO 类，属于 POJO 类
+
+----
+
+
+#### 编写 JWT 生成、提取、验证工具类
+
+JwtUtil 类位于 `com.example.securitywithjwt.util` 包下
 
 
 
@@ -1678,12 +1832,16 @@ public class AuthController {
 
 
 
-## 补充
 
-### RBAC 规范
+
+
+
+## 2. 补充
+
+### 2.1. RBAC 规范
 
 RBAC 的核心思想就是：“不直接给用户分配权限，而是把权限分配给角色，再把用户加入到相应角色”
-1. ==用户（User）==：
+1. 用户（User）：
 	1. 系统中的操作主体，比如某个登录系统的人。
 	2. 命名方式：
 		1. 直接使用用户账号 / 用户名，例如：
@@ -1692,14 +1850,14 @@ RBAC 的核心思想就是：“不直接给用户分配权限，而是把权限
 		4. alice@example、1386524789等等
 	3. 注意事项：
 		1. 唯一性是关键，用户名不能重复
-2. ==角色（Role）==：
+2. 角色（Role）：
 	1. 一组权限的集合，代表一种职责，比如“管理员”“编辑”“普通用户”。
 	2. 命名方式：
 		1. 按照 职责 / 岗位 的方式进行命名，例如：
 		2. ceo（首席执行官）
 		3. admin（管理员）
 		4. editor（编辑）
-3. ==权限（Permission）==：
+3. 权限（Permission）：
 	1. 对系统中资源的访问权，比如“读数据”“改配置”“删用户”等。
 	2. 命名方式：
 		1. 按照 模块_操作 的方式进行命名，例如：

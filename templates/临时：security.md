@@ -13,7 +13,7 @@
 我们这里只把用户名封进 Token，每次操作再去查一次数据库——反正有 Redis 托底，不虚。
 
 ----
-用于前后端或服务间传输数据 DTO
+
 
 ##### 1.1. 创建 Spring Web 项目，添加 Security 相关依赖
 
@@ -31,40 +31,11 @@
 
 ##### 引入 JWT 相关依赖
 
-引入 [jjwt-api 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api/0.12.6)
-``` 
-<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-api</artifactId>
-    <version>0.12.6</version>
-</dependency>
-```
+
 
 ---
 
-##### 创建 JWT 响应实体类 
 
-理应放到 `model.dto` 下
-```
-public class JwtResponse {
-
-    private String token;
-
-    // 构造器
-    public JwtResponse(String token) {
-        this.token = token;
-    }
-
-    // getter 和 setter
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-}
-```
 
 ---
 
@@ -320,68 +291,6 @@ public class AuthController {
 > [!NOTE] 注意事项
 > 1. 如果登录不上去，看看是不是因为密码加密器
 > 2. 你会发现，JWT 真是有点“吓人”——不管你重启服务器还是干啥，这个 JWT 都有效。只要密钥不换，它就能一直用下去，简直“一辈子有效”。所以，我们得给 JWT 设置个短一点的有效期，再通过 HTTPS 安全传输，才能放心用。
-
----
-
-
-### Spring Boot 集成 HTTPS
-
----
-
-
-
-
-### 2. JWT
-
-#### 2.1. JWT 概述
-
-JSON Web Token (JWT) 是一种基于JSON格式的开放标准（RFC 7519）身份验证和信息交换机制，其核心价值在于能够在不依赖服务器端会话存储（`HttpSession`）的情况下，安全地验证客户端身份并传递必要的用户信息，这使其成为现代Web应用、微服务架构和单点登录系统中的关键技术。
-
----
-
-
-#### 2.2. JWT 组成部分
-
-JWT（JSON Web Token）采用简洁明了的三段式结构，各部分之间以点号（`.`）分隔，形成类似 `"xxxxx.yyyyy.zzzzz"` 的字符串。这样的设计不仅保证了信息传输的高效性，也具备良好的结构可读性和完整性校验能力，例如：
-```
-eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImNyZWF0ZWQiOjE1NTY3NzkxMjUzMDksImV4cCI6MTU1NzM4MzkyNX0.d-iki0193X0bBOETf2UN3r3PotNIEAV7mzIxxeI5IxFyzzkOZxS0PGfF_SK6wxCv2K8S0cZjMkv6b5bCqc0VBw
-```
-
-我们可以在该网站轻松解码： https://jwt.io/
-
-
-==第一部分：Header（头部）==
-Header 通常是一个 JSON 对象，用于说明令牌的类型（即 "JWT"）以及所使用的**签名算法**（如 HMAC SHA256 或 RSA 等，作用于签名的算法）。例如：
-```
-{ "alg": "HS256", "typ": "JWT" }
-```
-这个部分在编码后会使用 Base64Url 编码形成字符串，作为 JWT 的第一个部分。
-
-
-==第二部分：Payload（载荷）==
-Payload 是 JWT 的核心部分，包含了实际需要传输的声明（claims），如用户 ID、用户名、角色权限、令牌的签发时间（`iat`）、过期时间（`exp`）等。例如：
-```
-{ "sub": "1234567890", "iat": 1516239022, "exp": 1516239022 + 1000*60*60*24*15 }
-```
-Payload 同样会被进行 Base64Url 编码，成为 JWT 的第二部分。
-
-注意：sub 是专门存用户名、用户 ID 的，iat 是专门存签发时间的，exp 是专门存过期时间的，其他的乱七八糟的字段都是我们的自定义字段
-
-
-==第三部分：Signature（签名）==
-Signature 是 **密钥 + 算法** 进行签名，用于验证 JWT 在传输过程中是否被篡改。生成方式通常如下：
-```
-HMACSHA256(
-  base64UrlEncode(header) + "." + base64UrlEncode(payload),
-  secret
-)
-```
-签名部分确保了前两部分内容的完整性，如果任何一部分被更改，签名验证将失败，从而防止伪造或篡改。
-
-> [!NOTE] 注意事项
-> 1. 由于密钥仅掌握在你手中，即使攻击者截获了 JWT，也无法伪造一个合法的 Token。这意味着 JWT 能够保证令牌的真实性，但无法阻止被盗用（你有这个密钥，能用它验证 JWT 是不是用你的密钥生成的。攻击者没有你的密钥，哪怕截获了用户名，用别的密钥伪造 JWT，也会被你的密钥一眼识破，无法通过验证。）
-> 2. 由于 Header 和 Payload 是明文（Base64Url 编码）形式，任何人都可以解码查看内容，因此必须使用 HTTPS 进行传输，并且不要存储敏感隐私数据。
-> 3. 如果攻击者获取了完整的 JWT（例如通过本地存储劫持），就可以在有效期内冒充用户发起请求。因此应尽可能**缩短 JWT 的有效期**（如 15 分钟），不然只能通过 “黑名单” 机制或 Refresh Token 来进行补救。
 
 ---
 
