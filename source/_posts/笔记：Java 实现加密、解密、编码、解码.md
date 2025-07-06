@@ -6,6 +6,15 @@ tags:
 author: 霸天
 layout: post
 ---
+## 加密
+
+
+
+
+
+
+
+
 
 
 ## 编码
@@ -45,7 +54,7 @@ a-z （26个）
 String original = "abc";
 
 
-String encoded = Base64.getEncoder().encodeToString(original.getBytes("UTF-8")); // original.getBytes(StandardCharsets.UTF_8) 返回的是 byte[]，也就是在内存中的二进制数据
+String encoded = Base64.getEncoder().encodeToString(original.getBytes("UTF-8")); // original.getBytes(StandardCharsets.UTF_8) 返回的是 byte[] 字节数组，也就是在内存中的二进制数据
 ```
 
 编码后的结果为：
@@ -70,83 +79,284 @@ a → YQ==（补 2 个 =）
 ----
 
 
+#### Base64 编码、解码工具类
+
+```
+public class Base64Utils {
+
+    /**
+     * ============================================
+     * 将字符串进行 Base64 编码
+     * --------------------------------------------
+     * 传入参数：
+     * - String input
+     *      - 需要进行编码的字符串
+     *
+     * 注意事项：
+     * - 看似是对字符串直接进行 Base64 编码，其实是对其在内存中经 UTF-8 编码后的的字节数组进行 Base64 编码
+     * - getBytes(StandardCharsets.UTF_8) 是获取 UTF-8 形式的字节数组
+     * ============================================
+     */
+    public static String encodeString (String input) {
+        if (input == null) return null;
+        return Base64.getEncoder().encodeToString(input.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * ============================================
+     * 将 Base64 字符串进行解码成字符串
+     * --------------------------------------------
+     * 传入参数：
+     * - String base64Str
+     *      - 需要进行解码的 Base64 字符串
+     * ============================================
+     */
+    public static String decodeToString (String base64Str) {
+        if (base64Str == null) return null;
+        byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+        return new String(decodedBytes, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * ============================================
+     * 将字节数组进行 Base64 编码
+     * --------------------------------------------
+     * 传入参数：
+     * - byte[] date
+     *      - 需要进行编码的字节数组
+     * ============================================
+     */
+    public static String encodeBytes(byte[] data) {
+        if (data == null) return null;
+        return Base64.getEncoder().encodeToString(data);
+    }
+
+    /**
+     * ============================================
+     * 将 Base64 字符串解码为字节数组
+     * --------------------------------------------
+     * 传入参数：
+     * - String base64Str
+     *      - 需要进行解码的 Base64 字符串
+     * ============================================
+     */
+    public static byte[] decodeToBytes(String base64Str) {
+        if (base64Str == null) return null;
+        return Base64.getDecoder().decode(base64Str);
+    }
+
+    /**
+     * ============================================
+     * 将 InputStream 的内容进行 Base64 编码
+     * --------------------------------------------
+     * 传入参数：
+     * - InputStream in
+     *      - 需要进行编码的 InputStream
+     *
+     * 注意事项：
+     * - 这串代码适用于小型数据流
+     * - 若是大型数据流，需要优化代码，如使用缓存流、分块处理等
+     * ============================================
+     */
+    public static String encodeStream(InputStream in) throws IOException {
+        if (in == null) return null;
+        byte[] bytes = in.readAllBytes();
+        return Base64.getEncoder().encodeToString(bytes);
+    }
+
+    /**
+     * ============================================
+     * 将 Base64 字符串写入 OutputStream
+     * --------------------------------------------
+     * 传入参数：
+     * - String base64Str
+     *      - 要进行解码的 Base64 字符串
+     * - OutputStream out
+     *      - 解码内容要写入的 OotputStream
+     * ============================================
+     */
+    public static void decodeToStream(String base64Str, OutputStream out) throws IOException {
+        if (base64Str == null || out == null) return;
+        byte[] data = Base64.getDecoder().decode(base64Str);
+        out.write(data);
+        out.flush();
+    }
+}
+```
+
+---
+
+
+
+
 ### Base64URL 编码
 
+#### Base64URL 编码概述
+
+Base64 编码后的字符串中可能会包含字符如 `+`、`/` 和 `=`，而这些字符在 URL、HTTP 头、文件名等场景中可能引起语义歧义或被错误转义。
+
+为了解决 Base64 在 Web 场景中的兼容性问题，诞生了 **Base64URL 编码规范**。Base64URL 是专为 URL 和 Web 应用设计的安全变种，避免了标准 Base64 中可能造成冲突的字符，如：
+
+| 编码字符 | Base64 编码 | Base64URL 编码 |
+| ---- | --------- | ------------ |
+| `+`  | +         | `-`          |
+| `/`  | /         | `_`          |
+| `=`  | =         | 通常省略         |
+
+> [!NOTE] 注意事项
+> 1. JWT 明确规定必须使用 Base64URL 编码。我们常见的使用方式是将 JWT 放入 HTTP 请求头中，例如：`Authorization: Bearer <token>`。从协议上讲，请求头是支持标准 Base64 的，因此你可能会觉得没必要使用 Base64URL
+> 2. 然而，JWT 并不仅仅出现在请求头中，它还常用于 URL 参数（如 OAuth 重定向中的 token）、Cookie、Web Storage 等 Web 场景，在这些环境中，标准 Base64 中的 `+`、`/` 和 `=` 字符会引发各种问题：
+> 	1. 例如在 URL 场景下：
+> 		1. `+` 在 URL 中可能被解释为空格
+> 		2. `/` 是路径分隔符
+> 		3. `=` 通常用于参数赋值或被截断、转义
+> 3. 因此，为了确保在各种 Web 环境中的兼容性，JWT 规范强制要求使用 Base64URL 编码
+
+-----
 
 
-
-
-
-
+#### Base64URL 编码、解码工具类
 
 ```
-"中"（字符）
-   ↓  UTF-8 编码
-[E4, B8, AD]（字节）
-   ↓  Base64 编码
-"5Lit"（字符串）
-   ↓ 编译（javac）
-Hello.class 字节码
+public class Base64UrlUtils {
 
+    /**
+     * ============================================
+     * 将字符串进行 Base64URL 编码
+     * --------------------------------------------
+     * 传入参数：
+     * - String input
+     *      - 需要进行编码的字符串
+     * ============================================
+     */
+    public static String encodeString (String input) {
+        if (input == null) return null;
+        byte[] data = input.getBytes(StandardCharsets.UTF_8);
+        return Base64.getUrlEncoder().encodeToString(data);
+    }
+
+    /**
+     * ============================================
+     * 将 Base64URL 字符串进行解码成字符串
+     * --------------------------------------------
+     * 传入参数：
+     * - String base64UrlStr
+     *      - 需要进行解码的 Base64URL 字符串
+     * ============================================
+     */
+    public static String decodeToString (String base64UrlStr) {
+        if (base64UrlStr == null) return null;
+        byte[] decoded = Base64.getUrlDecoder().decode(base64UrlStr);
+        return new String(decoded, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * ============================================
+     * 将字节数组进行 Base64URL 编码
+     * --------------------------------------------
+     * 传入参数：
+     * - byte[] data
+     *      - 需要进行编码的字节数组
+     * ============================================
+     */
+    public static String encodeBytes(byte[] data) {
+        if (data == null) return null;
+        return Base64.getUrlEncoder().encodeToString(data);
+    }
+
+    /**
+     * ============================================
+     * 将 Base64URL 字符串解码为字节数组
+     * --------------------------------------------
+     * 传入参数：
+     * - String base64UrlStr
+     *      - 需要进行解码的 Base64URL 字符串
+     * ============================================
+     */
+    public static byte[] decodeToBytes(String base64UrlStr) {
+        if (base64UrlStr == null) return null;
+        return Base64.getUrlDecoder().decode(base64UrlStr);
+    }
+
+    /**
+     * ============================================
+     * 将 InputStream 的内容进行 Base64URL 编码
+     * --------------------------------------------
+     * 传入参数：
+     * - InputStream in
+     *      - 需要进行编码的 InputStream
+     * ============================================
+     */
+    public static String encodeStream(InputStream in) throws IOException {
+        if (in == null) return null;
+        byte[] bytes = in.readAllBytes();
+        return Base64.getUrlEncoder().encodeToString(bytes);
+    }
+
+    /**
+     * ============================================
+     * 将 Base64URL 字符串写入 OutputStream
+     * --------------------------------------------
+     * 传入参数：
+     * - String base64UrlStr
+     *      - 要进行解码的 Base64URL 字符串
+     * - OutputStream out
+     *      - 解码内容要写入的 OutputStream
+     * ============================================
+     */
+    public static void decodeToStream(String base64UrlStr, OutputStream out) throws IOException {
+        if (base64UrlStr == null || out == null) return;
+        byte[] data = Base64.getUrlDecoder().decode(base64UrlStr);
+        out.write(data);
+        out.flush();
+    }
+}
 ```
 
+-----
 
 
-|原始字符串长度|字节数（UTF-8）|编码后 Base64 字符数|
-|---|---|---|
-|3|3|4|
-|6|6|8|
-|9|9|12|
-|48|48|64|
-|64|64|88|
+### Java 程序 代码 → 保存 → 编译 → 运行 流程
 
-> 你那段字符串 `aVeryLongAndSecureSecretKeyThatIsAtLeast64BytesLong`，原始长度是 **53 字节**，Base64 编码后长度是 **72 字符**
+假如你在 Java 程序中，写了这样一段代码：
+```
+public class Demo {
+    public static void main(String[] args) {
+        String s = "中";
+        byte[] utf8 = s.getBytes(StandardCharsets.UTF_8);
+        String base64 = Base64.getEncoder().encodeToString(utf8);
+        System.out.println(base64);
+    }
+}
+```
+
+当你保存这段代码时，编辑器会将 `.java` 文件以 UTF-8 的方式将所有内容编码为字节并写入硬盘，例如 `"中"` 会被编码为字节序列 `E4 B8 AD`。
+
+在编译阶段，`javac` 编译器从硬盘读取 `.java` 文件，并按照 UTF-8 解码字节，将 `E4 B8 AD` 还原为字符 `"中"`
+
+当程序运行，执行到 `String s = "中";` 这一行时，由于 JVM 内部的字符串编码是 UTF-16，所以JVM 会将 `"中"` 存储为 UTF-16 编码的字符串，在内存中对应的编码值是 `0x4E2D`（不同的数据类型在 Java 中对应着不同的编码形式）
+
+执行到 `byte[] utf8 = s.getBytes(StandardCharsets.UTF_8);` 时，会将 UTF-16 编码的字符串转换为 UTF-8 编码的字节数组，即`0x4E2D` → `[0xE4, 0xB8, 0xAD]`
+
+当执行 `String base64 = Base64.getEncoder().encodeToString(utf8);` 时，就是将上述 UTF-8 字节数组进行 Base64 编码，最终得到字符串 `"5Lit"`，并在控制台输出。
+
+> [!NOTE] 注意事项
+> 1. 我们常说 Java 使用 UTF-8 编码，实际上指的是源代码文件在保存到硬盘时采用 UTF-8 作为编码格式
 
 ---
 
-### ✅ 3. **我们能控制 Base64 的输出长度吗？**
 
-**不能直接控制“精确长度”，但可以“间接控制”**：
 
-- 如果你想编码后长度正好是 **64 字符**，那你就得**控制原始字节数为 48 字节**
-    
-- 如果你想编码后正好是 **88 字符**，原始长度就要是 **64 字节**
-    
 
-💡你可以用这个反向推导公式：
 
-```
-原始字节数 = (Base64长度 / 4) * 3
-```
 
-所以想编码成 **64 个字符**，就应该：
 
-```
-原始长度 = (64 / 4) * 3 = 48 字节
-```
 
----
 
-### 🧪 举例：
 
-```java
-byte[] data = new byte[48]; // 48字节
-String base64 = Base64.getEncoder().encodeToString(data);
-System.out.println(base64.length());  // 输出为64
-```
 
----
 
-### 🔚 总结：
 
-|问题|答案|
-|---|---|
-|Base64 是固定编码成 64 字节吗？|❌ 不是，64 指的是编码表的字符数|
-|编码后长度可控吗？|✅ 可以通过控制原始字节数间接控制|
-|Base64 是加密吗？|❌ 不是，只是编码，能被轻松解码|
 
----
-
-需要我帮你设计一个**原始密钥长度刚好使 Base64 编码后是 64 个字符的字符串**吗？我可以帮你生成。
 
 

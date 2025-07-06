@@ -700,7 +700,8 @@ http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 2. SessionCreationPolicy.IF_REQUIRED（默认）：
 	1. 按需创建会话。当需要使用 HttpSession 时，Spring Security 会自动创建会话，并返回对应的 JSESSIONID Cookie。
 3. SessionCreationPolicy.STATELESS：
-	1. 不使用会话，适用于无状态应用场景（禁用 HttpSession，如 JWT）
+	1. 不使用会话（每次请求都不会创建或使用现有的 Session）
+	2. 适用于无状态应用场景（如 JWT、OAuth2）
 ```
 .sessionManagement(session -> {  
     session  
@@ -820,6 +821,69 @@ http.addFilterAfter(new CustomFilter(),UsernamePasswordAuthenticationFilter.clas
 ```
 
 -----
+
+
+## 4. Spring Security 核心 API
+
+### 4.1. Authentication
+
+`Authentication` 是 Spring Security 中的核心接口，负责封装用户的身份信息和认证数据，其源码定义如下：
+```
+public interface Authentication extends Principal, Serializable {
+
+	// 用户拥有的权限集合，比如 ["ROLE_USER", "ROLE_ADMIN"]
+    Collection<? extends GrantedAuthority> getAuthorities();
+
+	// 用户的密码，一般设置为 null
+    Object getCredentials();
+
+	// 请求附加信息，比如客户端 IP、会话 ID，以及其他自定义信息
+    Object getDetails();
+
+	// 用户对象，即 UserDetails 对象，比如 CustomerUserDetailsImpl
+    Object getPrincipal();
+
+	// 用户是否已经过认证（true 表示认证的 Authentication，false 表示匿名的 Authentication）
+    boolean isAuthenticated();
+
+	// 用于手动设置用户是否认证（只能将 true 设置为 false，不能将 false 设置为 true）
+    void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException;
+}
+```
+
+该接口有多种实现类，其中最常用的是 `UsernamePasswordAuthenticationToken`，用于表示已认证用户的身份认证信息（`AuthenticationManager` 默认使用的就是这种）；而 `AnonymousAuthenticationToken` 则常用于表示匿名用户的身份（`AnonymousAuthenticationFilter` 默认使用的就是这种）。
+
+我们常说将 `Authentication` 放入线程中，如果不通过 `AuthenticationManager` 来完成认证流程，而是手动构造并设置一个 `Authentication` 对象，通常做法如下：
+```
+// 1. 加载用户信息  
+UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+
+// 2. 创建 Authentication 对象（选择一个合适的实现类，创建实现类的对象）  
+UsernamePasswordAuthenticationToken auth =  new UsernamePasswordAuthenticationToken( userDetails, null, userDetails.getAuthorities() );  
+
+
+// 3. 设置请求附加信息
+auth.setDetails(自定义类的对象);  
+
+
+// 4. 将认证信息存入本线程的安全上下文  
+SecurityContextHolder.getContext().setAuthentication(auth);
+```
+
+> [!NOTE] 注意事项
+> 1. 使用这种构造方式创建的 `Authentication` 对象，其 `isAuthenticated()` 默认为 `true`，因为构造函数中传入了权限（`authorities`），Spring Security 会自动将其标记为已认证。如果我们未传入权限，则默认为 `false`。
+> 2. Spring Security **不允许**我们手动将 `isAuthenticated` 从 `false` 设置为 `true`。若希望构造一个 `isAuthenticated` 为 `true` 的 `Authentication` 对象，必须使用带权限参数的构造方法重新创建对象
+```
+// isAuthenticated 为 false 的构造方法
+UsernamePasswordAuthenticationToken auth =  new UsernamePasswordAuthenticationToken( userDetails, null );  
+
+
+// isAuthenticated 为 true 的构造方法
+UsernamePasswordAuthenticationToken auth =  new UsernamePasswordAuthenticationToken( userDetails, null, userDetails.getAuthorities() );  
+```
+
+----
 
 
 # 二、实操
@@ -1547,13 +1611,20 @@ public class EncryptionUtils {
 ---
 
 
-#### 1.1.8. 编写 从线程获取 Authentication 工具类
+#### 1.1.8. 编写 从线程获取 Authentication、CustomerUserDetailsImpl 工具类
 
 在 `com.example.securitywithhttpsession.util` 下创建 `AuthenticationUtils`
 ```
 public class AuthenticationUtils {
+    
+    // 从本线程中获取 Authentication
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
+    }
+    
+    // 从本线程中获取 CustomerUserDetailsImpl
+    public static CustomerUserDetailsImpl getCustomerUserDetailsImpl() {
+        return (CustomerUserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
 ```
@@ -1586,6 +1657,7 @@ public class AuthController {
     // 注册方法
     @PostMapping("/public/signup")
     public String signUp(@RequestBody User user) {
+    
         String encodePassword = passwordEncoder.encode(user.getPassword());
 
         int i = userMapper.insertUser(user.getUsername(), encodePassword, user.getEmail(), user.getPhoneNumber());
@@ -1662,7 +1734,7 @@ public class AuthController {
 
 > [!NOTE] 注意事项
 > 1. 配置了密码加密器后，AuthenticationManager 会将用户提交的密码加密并与数据库中查询出的密码进行匹配。如果数据库中仍是明文密码，将无法通过校验，返回“登录失败，用户名或密码错误”。
-> 2. 为了实现这些 API，我还另外书写了 UserRole.java、UserRoleMapper.java、UserRoleMapper.xml、TestService，详细请下载源码查看：summer/SecurityWithHttpSession
+> 2. 为了实现这些 API，我还另外书写了 UserRole.java、UserRoleMapper.java、UserRoleMapper.xml、TestService.java，并补充了 UserMapper.java、UserMapper.xml 详细请下载源码查看：summer/SecurityWithHttpSession
 
 ----
 
@@ -1759,6 +1831,7 @@ Signature = HMACSHA256(
 > 3. 这也提醒我们：JWT 虽然具有防伪能力，能够有效防止前端伪造 Token，但由于其前两部分很容易被解码，因此不能将敏感信息（如密码、邮箱、手机号等）放入 Header 或 Payload 中。一般来说，像过期时间、生效时间、签发时间、用户 ID、用户名等信息已经足够。同时，为防止 Token 在传输过程中被截获，应通过 HTTPS 进行传输，而非明文 HTTP
 > 4. 如果攻击者真的截获了 JWT，在其未过期的有效时间内，是可以冒充用户发起请求的。如果系统只靠 Token 的签名来识别身份，因此无法判断是真用户还是伪装者。因此我们应尽量缩短 JWT 的有效期，例如设置为 15 分钟，以减小安全风险。
 > 5. 除此之外，我们还应配合一系列安全机制，辅助判断用户行为是否异常或存在风险。例如，在执行敏感操作时，可以要求用户进行额外验证，如输入身份证号码、手机验证码或进行人脸识别等，以增强身份校验的可靠性，这类多因子验证手段有助于防止 Token 被盗用后的非法操作，进一步提升系统的整体安全性。
+> 6. 前端发送 JWT 的格式一般为：Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
 
 ---
 
@@ -1779,12 +1852,24 @@ Signature = HMACSHA256(
 
 #### 1.2.3. 添加 JWT 相关依赖
 
-添加 [jjwt-api 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api)
+添加 [jjwt-api 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api)、[jjwt-impl 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl)、[jjwt-jackson 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson)
 ``` 
-<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-api</artifactId>
-    <version>0.12.6</version>
+<dependency>  
+    <groupId>io.jsonwebtoken</groupId>  
+    <artifactId>jjwt-api</artifactId>  
+    <version>0.11.2</version>  
+</dependency>  
+<dependency>  
+    <groupId>io.jsonwebtoken</groupId>  
+    <artifactId>jjwt-impl</artifactId>  
+    <version>0.11.2</version>  
+    <scope>runtime</scope>  
+</dependency>  
+<dependency>  
+    <groupId>io.jsonwebtoken</groupId>  
+    <artifactId>jjwt-jackson</artifactId>  
+    <version>0.11.2</version>  
+    <scope>runtime</scope>  
 </dependency>
 ```
 
@@ -1822,53 +1907,278 @@ public class JwtResponse {
 ----
 
 
-#### 编写 JWT 生成、提取、验证工具类
+#### 1.2.6. 编写 JWT 生成、提取工具类
 
 JwtUtil 类位于 `com.example.securitywithjwt.util` 包下
+```
+@Component
+public class JwtUtil {
+
+    /**
+     * ============================================
+     * JWT 的加密密钥
+     * --------------------------------------------
+     * 要求：
+     * - 不同加密算法，密钥长度要求不同
+     *      - HMAC-SHA256：32 字节（256 bit）
+     *      - HMAC-SHA384：48 字节（384 bit）
+     *      - HMAC-SHA512：64 字节（512 bit）
+     * - 我们使用的时 HMAC-SHA512 加密算法，即密钥长度至少 64 字节。在 UTF-8 编码下，一个英文占一个字节，也就是说字符串长度至少为 64
+     * - JJWT 关注的是密钥中包含的真实位数，而不是你包装后的长度。简单来说，你可以将一个 46 字符的字符串进行 Base64 编码，编码后的字节数恰好是 64 字节
+     * - 在内存中占用 512 bit，看似长度变大了，但 JJWT 仍会报错，因为这只是包装变大了，实际只有 376 位的“真实信息量”
+     *
+     * 注意事项：
+     * - JWT 签名实际上需要的是一个 二进制的密钥对象，而不是简单的字符串
+     * - 本方法是根据一个字节数组创建一个 符合 HMAC SHA 算法要求的密钥对象（字节数组必须满足 512 bit，即 64 字节，也就是说字符串长度至少为 64，这样获取到的字符串字节数组就满足 512 bit）
+     * ============================================
+     */
+    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789++".getBytes(StandardCharsets.UTF_8));
+
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // Token过期时间，以毫秒为单位，这里是 1 天
+
+    private static final String TOKEN_PREFIX = "Bearer "; // JWT在HTTP请求中的标准前缀，前端发送 JWT 的格式一般为：Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
+
+    private static final String HEADER_STRING = "Authorization"; // HTTP请求头中存放 JWT 的字段名
+
+    // 生成 JWT
+    public static String generateToken(CustomerUserDetailsImpl customerUserDetails) {
+        return Jwts.builder()
+                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)// Header 部分，使用 HS512 算法
+                .setIssuedAt(new Date()) // Payload 部分，设置签发时间（Registered Claims 部分），JWT 库会自动把它转换成秒级时间戳
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // Payload 部分，设置过期时间（Registered Claims 部分），JWT 库会自动把它转换成秒级时间戳
+                .claim("username", customerUserDetails.getUsername()) // Payload 部分，设置用户的用户名（Private Claims 部分）
+                .compact(); // 组合 JWT
+    }
+
+    // 从 JWT 中提取用户名
+    public static String getUsernameFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token)  // 自动检查签名 & 过期时间
+                    .getBody();
+
+            return claims.get("username", String.class);
+
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            System.out.println("Token 已过期");
+        } catch (io.jsonwebtoken.SignatureException e) {
+            System.out.println("Token 签名不合法，可能被伪造");
+        } catch (Exception e) {
+            System.out.println("Token 解析失败：" + e.getMessage());
+        }
+        return null;
+    }
+
+    // 从 Authorization头中提取 JWT
+    public static String extractBearerToken(String authorizationHeader) {
+        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
+            return authorizationHeader.substring(7);  // 去除"Bearer "前缀
+        }
+        return null;
+    }
+}
+```
+
+----
+
+#### 1.2.7. 编写 JwtRequestFilter 过滤器类
+
+该自定义过滤器负责：每次请求到达时，首先从请求头中的 `Authorization` 字段提取出 JWT，并校验其签名是否合法以及是否过期，校验通过后，从 JWT 中解析出 `username`。
+
+随后，通过 `username` 调用 `CustomerUserDetailsImplService` 加载完整的 `CustomerUserDetailsImpl` 用户信息，并将其封装为 `Authentication` 对象，最终将该对象设置到当前线程的安全上下文中。
+
+如果不能从请求头中提取出 JWT，则直接跳过该过滤器。
+
+JwtRequestFilter 类位于 `com.example.securitywithjwt.filter` 包下
+```
+@Component
+public class JwtRequestFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+
+        // 从请求头中提取 JWT
+        String token = JwtUtil.extractBearerToken(request.getHeader("Authorization"));
+
+        // 如果 token 存在，则进行认证
+        if (token != null) {
+            // 从 token 中提取 username，验证已在 getUsernameFromToken 中完成
+            String username = JwtUtil.getUsernameFromToken(token);
+            // 如果 username 有效且当前上下文未认证
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                try {
+                    // 加载用户信息
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    // 创建认证对象
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities()
+                            );
+                    // 设置请求详情
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    // 将认证信息存入安全上下文
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                } catch (Exception e) {
+                    // 加载用户信息失败时记录日志，不影响后续流程
+                    logger.error("Failed to load user details for username: " + username, e);
+                }
+            }
+        }
+
+        // 继续执行过滤器链
+        filterChain.doFilter(request, response);
+    }
+}
+```
+
+----
 
 
+#### 1.2.8. 添加 JwtRequestFilter 过滤器到 Security 过滤器链
+
+```
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    @Autowired
+	private JwtRequestFilter jwtRequestFilter;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); 
+        
+    }
+}
+```
+
+----
 
 
+#### 1.2.9. 实现 注册 API、登录 API、授权 API、测试 API、注销 API
+
+AuthController 类位于 `com.example.securitywithjwt.controller` 包下
+```
+@RestController
+public class AuthController {
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private UserRoleMapper userRoleMapper;
+
+    @Autowired
+    private TestService testService;
+
+    // 注册方法
+    @PostMapping("/public/signup")
+    public String signUp(@RequestBody User user) {
+        String encodePassword = passwordEncoder.encode(user.getPassword());
+
+        int i = userMapper.insertUser(user.getUsername(), encodePassword, user.getEmail(), user.getPhoneNumber());
+        if (i != 1) {
+            return "服务器繁忙，请稍后再试";
+        }
+        return "用户注册成功";
+    }
+
+    // 登录方法
+    @PostMapping("/public/login")
+    public String logIn(@RequestParam("username") String username,
+                        @RequestParam("password") String password,
+                        HttpServletRequest request,
+                        HttpServletResponse response) {
+        try {
+            // 将 username 和 password 封装成 UsernamePasswordAuthenticationToken
+            UsernamePasswordAuthenticationToken token =
+                    new UsernamePasswordAuthenticationToken(username, password);
+
+            // 传递给 AuthenticationManager 进行认证
+            Authentication auth = authenticationManager.authenticate(token);
+
+            // 将 Authentication 保存到当前线程的 SecurityContext
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            // 获取当前请求中的 CSRF Token（此 token 是 Spring Security 自动生成并放入 request 中的）
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+
+            String jwtToken = JwtUtil.generateToken(AuthenticationUtils.getCustomerUserDetailsImpl());
+
+            // 将 token 返回给前端，常见做法是放入响应头，也可以放入响应体
+            response.setHeader("X-CSRF-TOKEN", csrfToken.getToken());
+            response.setHeader("JWT-TOKEN", jwtToken);
+
+            return "登录成功，欢迎用户：" + auth.getName();
+        } catch (AuthenticationException e) {
+            return "登录失败，用户名或密码错误";
+        }
+    }
+
+    // 授权方法
+    @PostMapping("/grantaccess")
+    public String grantAccess(@RequestParam("userid") int userid,
+                              @RequestParam("roleid") int roleid) {
+        int i = userRoleMapper.insertUserRole(userid, roleid);
+        if (i != 1) {
+            return "服务器繁忙，请稍后再试";
+        }
+        return "成功将 " + roleid + " 授权给 " + userid;
+    }
+
+    // 测试方法
+    @GetMapping("/test")
+    public String test() {
+        System.out.println("正在执行只有 test:test:test 权限才能执行的 Service 方法");
+        System.out.println("现在的 Authentication 信息如下：");
+        System.out.println(AuthenticationUtils.getAuthentication());
+        String testString = testService.test();
+        return testString;
+    }
+
+    // 注销方法
+    @PostMapping("/public/logOut")
+    public void logout(HttpServletRequest request) {
+        // 注销方法我们可以使用黑名单的方式，但是最简单的方式是，前端直接把 JWT 丢弃。
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 配置了密码加密器后，AuthenticationManager 会将用户提交的密码加密并与数据库中查询出的密码进行匹配。如果数据库中仍是明文密码，将无法通过校验，返回“登录失败，用户名或密码错误”。
+> 2. 为了实现这些 API，我还另外书写了 UserRole.java、UserRoleMapper.java、UserRoleMapper.xml、TestService.java，并补充了 UserMapper.java、UserMapper.xml 详细请下载源码查看：summer/SecurityWithHttpSession
+
+----
 
 
+# 三、补充
 
-
-
-
-
-## 2. 补充
-
-### 2.1. RBAC 规范
+## 1. RBAC 规范
 
 RBAC 的核心思想就是：“不直接给用户分配权限，而是把权限分配给角色，再把用户加入到相应角色”
 1. 用户（User）：
 	1. 系统中的操作主体，比如某个登录系统的人。
-	2. 命名方式：
-		1. 直接使用用户账号 / 用户名，例如：
-		2. alice、bob、zhangsan
-		3. user_001、admin_001
-		4. alice@example、1386524789等等
-	3. 注意事项：
-		1. 唯一性是关键，用户名不能重复
+	2. 需要注意的，用户的唯一性是关键，即用户名不能重复
 2. 角色（Role）：
-	1. 一组权限的集合，代表一种职责，比如“管理员”“编辑”“普通用户”。
-	2. 命名方式：
-		1. 按照 职责 / 岗位 的方式进行命名，例如：
-		2. ceo（首席执行官）
-		3. admin（管理员）
-		4. editor（编辑）
+	1. 一组权限的集合，比如管理员、编辑、普通用户等
+	2. 命名方式按照 `ROLE_职责` 的方式进行命名，如 `ROLE_CEO`、`ROLE_ADMIN`（命名全大写）
 3. 权限（Permission）：
-	1. 对系统中资源的访问权，比如“读数据”“改配置”“删用户”等。
-	2. 命名方式：
-		1. 按照 模块_操作 的方式进行命名，例如：
-		2. user_read（读取用户信息）
-		3. order_delete（删除订单）
+	1. 对系统中资源的访问权，比如读数据、改配置、删用户等
+	2. 命名方式按照 模块:资源:操作 / 模块_资源_操作 的方式进行命名，如 `user:user:select`、`order_order_delete`（命名全小写）
 
-
-
-
-
-
-
-
-
+----
