@@ -1,16 +1,20 @@
 {
   "recentFiles": [
     {
+      "basename": "笔记：OAuth 协议",
+      "path": "source/_posts/笔记：OAuth 协议.md"
+    },
+    {
+      "basename": "笔记：一键启动小工具",
+      "path": "source/_posts/笔记：一键启动小工具.md"
+    },
+    {
       "basename": "笔记：一键启动 WLAN 小工具",
       "path": "source/_posts/笔记：一键启动 WLAN 小工具.md"
     },
     {
       "basename": "笔记：本地图库小工具",
       "path": "source/_posts/笔记：本地图库小工具.md"
-    },
-    {
-      "basename": "笔记：OAuth 协议",
-      "path": "source/_posts/笔记：OAuth 协议.md"
     },
     {
       "basename": "笔记：Spring Security",
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：RabbitMQ 基础",
       "path": "source/_posts/笔记：RabbitMQ 基础.md"
-    },
-    {
-      "basename": "笔记：Nginx 基础",
-      "path": "source/_posts/笔记：Nginx 基础.md"
     }
   ],
   "omittedPaths": [],
