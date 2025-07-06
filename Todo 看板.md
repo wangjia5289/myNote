@@ -8,6 +8,7 @@ kanban-plugin: board
 
 - [ ] Spring Security
 - [ ] Java 生成密钥与加密解密
+- [ ] Spring Security 集成 Oauth2，要看视频：尚硅谷 Spring Security + OAuth2、Spring AuthorizationServer 极简入门
 
 
 ## Done

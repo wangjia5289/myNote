@@ -1,8 +1,36 @@
 {
   "recentFiles": [
     {
+      "basename": "问题总结",
+      "path": "问题总结.md"
+    },
+    {
+      "basename": "笔记：Apifox",
+      "path": "source/_posts/笔记：Apifox.md"
+    },
+    {
+      "basename": "笔记：Java 文档",
+      "path": "source/_posts/笔记：Java 文档.md"
+    },
+    {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
+    },
+    {
+      "basename": "Categories 总纲",
+      "path": "templates/Categories 总纲.md"
+    },
+    {
+      "basename": "default-template",
+      "path": "templates/default-template.md"
+    },
+    {
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
+    },
+    {
+      "basename": "笔记：Spring Authorization Server",
+      "path": "source/_posts/笔记：Spring Authorization Server.md"
     },
     {
       "basename": "笔记：阿里云代码规约",
@@ -49,16 +77,8 @@
       "path": "source/_posts/笔记：Java 数据类型.md"
     },
     {
-      "basename": "Todo 看板",
-      "path": "Todo 看板.md"
-    },
-    {
       "basename": "笔记：Spring Boot",
       "path": "source/_posts/笔记：Spring Boot.md"
-    },
-    {
-      "basename": "笔记：Java 文档",
-      "path": "source/_posts/笔记：Java 文档.md"
     },
     {
       "basename": "笔记：MySQL 基础",
@@ -97,16 +117,8 @@
       "path": "templates/临时：es.md"
     },
     {
-      "basename": "问题总结",
-      "path": "问题总结.md"
-    },
-    {
       "basename": "README",
       "path": "README.md"
-    },
-    {
-      "basename": "Categories 总纲",
-      "path": "templates/Categories 总纲.md"
     },
     {
       "basename": "笔记：搭建 MySQL 环境",
@@ -123,10 +135,6 @@
     {
       "basename": "测试",
       "path": "templates/测试.md"
-    },
-    {
-      "basename": "default-template",
-      "path": "templates/default-template.md"
     },
     {
       "basename": "笔记：Kafka 基础",
@@ -191,10 +199,6 @@
     {
       "basename": "笔记：Minio 基础",
       "path": "source/_posts/笔记：Minio 基础.md"
-    },
-    {
-      "basename": "笔记：MIME 类型",
-      "path": "source/_posts/笔记：MIME 类型.md"
     }
   ],
   "omittedPaths": [],

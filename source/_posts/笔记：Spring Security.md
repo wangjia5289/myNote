@@ -2166,6 +2166,25 @@ public class AuthController {
 ----
 
 
+## 业务处理
+
+### Spring Security 集成 OAuth2
+
+#### OAuth2 概述
+
+Auth 表示授权（Authorization），O 表示开放（Open），OAuth2 是一种开放式的授权协议，用于在不暴露用户凭据的前提下，让第三方应用获得访问权限。
+
+![](image-20250706092222409.png)
+
+---
+
+
+
+
+
+
+
+
 # 三、补充
 
 ## 1. RBAC 规范
