@@ -77,7 +77,7 @@
   "shiba-theme-settings@@background-settings-workplace-theme-dark-custom": "url(\"http://127.0.0.1:5000/image/random\")",
   "shiba-theme-settings@@shib-custom-bg-blur-dark": 0,
   "shiba-theme-settings@@shib-custom-bg-brightness-dark": 1,
-  "shiba-theme-settings@@shib-custom-bg-card-fg-opacity-dark": 0.7,
+  "shiba-theme-settings@@shib-custom-bg-card-fg-opacity-dark": 0.4,
   "shiba-theme-settings@@shiba-colors-theme-dark": "default-dark-theme",
   "shiba-theme-settings@@font-size-code": "1em",
   "shiba-theme-settings@@shiba-toggle-folder-icons": true,

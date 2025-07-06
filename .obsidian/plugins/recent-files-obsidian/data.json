@@ -1,36 +1,68 @@
 {
   "recentFiles": [
     {
-      "basename": "问题总结",
-      "path": "问题总结.md"
+      "basename": "笔记：一键启动 WLAN 小工具",
+      "path": "source/_posts/笔记：一键启动 WLAN 小工具.md"
     },
     {
-      "basename": "笔记：Apifox",
-      "path": "source/_posts/笔记：Apifox.md"
+      "basename": "笔记：本地图库小工具",
+      "path": "source/_posts/笔记：本地图库小工具.md"
     },
     {
-      "basename": "笔记：Java 文档",
-      "path": "source/_posts/笔记：Java 文档.md"
+      "basename": "笔记：OAuth 协议",
+      "path": "source/_posts/笔记：OAuth 协议.md"
     },
     {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
     },
     {
-      "basename": "Categories 总纲",
-      "path": "templates/Categories 总纲.md"
+      "basename": "笔记：Spring Authorization Server",
+      "path": "source/_posts/笔记：Spring Authorization Server.md"
     },
     {
-      "basename": "default-template",
-      "path": "templates/default-template.md"
+      "basename": "笔记：Java 项目创建和结构",
+      "path": "source/_posts/笔记：Java 项目创建和结构.md"
+    },
+    {
+      "basename": "笔记：Windows",
+      "path": "source/_posts/笔记：Windows.md"
+    },
+    {
+      "basename": "笔记：Java 文档",
+      "path": "source/_posts/笔记：Java 文档.md"
+    },
+    {
+      "basename": "question",
+      "path": "question.md"
+    },
+    {
+      "basename": "笔记：RBAC 规范",
+      "path": "source/_posts/笔记：RBAC 规范.md"
+    },
+    {
+      "basename": "Categories",
+      "path": "Categories.md"
+    },
+    {
+      "basename": "README",
+      "path": "README.md"
     },
     {
       "basename": "Todo 看板",
       "path": "Todo 看板.md"
     },
     {
-      "basename": "笔记：Spring Authorization Server",
-      "path": "source/_posts/笔记：Spring Authorization Server.md"
+      "basename": "firstTest",
+      "path": "Excalidraw/firstTest.md"
+    },
+    {
+      "basename": "笔记：Apifox",
+      "path": "source/_posts/笔记：Apifox.md"
+    },
+    {
+      "basename": "default-template",
+      "path": "templates/default-template.md"
     },
     {
       "basename": "笔记：阿里云代码规约",
@@ -45,10 +77,6 @@
       "path": "source/_posts/笔记：Java 异常处理.md"
     },
     {
-      "basename": "笔记：Windows",
-      "path": "source/_posts/笔记：Windows.md"
-    },
-    {
       "basename": "临时：mybatis",
       "path": "templates/临时：mybatis.md"
     },
@@ -59,10 +87,6 @@
     {
       "basename": "笔记：Spring IOC",
       "path": "source/_posts/笔记：Spring IOC.md"
-    },
-    {
-      "basename": "笔记：本地图库小工具",
-      "path": "source/_posts/笔记：本地图库小工具.md"
     },
     {
       "basename": "笔记：Git 家族",
@@ -105,20 +129,12 @@
       "path": "source/_posts/笔记：Spring Boot/image-20250513162343394.png"
     },
     {
-      "basename": "笔记：Java 项目创建和结构",
-      "path": "source/_posts/笔记：Java 项目创建和结构.md"
-    },
-    {
       "basename": "笔记：Hexo + Obsidian +Git Page",
       "path": "source/_posts/笔记：Hexo + Obsidian +Git Page.md"
     },
     {
       "basename": "临时：es",
       "path": "templates/临时：es.md"
-    },
-    {
-      "basename": "README",
-      "path": "README.md"
     },
     {
       "basename": "笔记：搭建 MySQL 环境",
@@ -183,22 +199,6 @@
     {
       "basename": "笔记：Nginx 基础",
       "path": "source/_posts/笔记：Nginx 基础.md"
-    },
-    {
-      "basename": "笔记：NFS 基础",
-      "path": "source/_posts/笔记：NFS 基础.md"
-    },
-    {
-      "basename": "笔记：MVC 与三层架构",
-      "path": "source/_posts/笔记：MVC 与三层架构.md"
-    },
-    {
-      "basename": "笔记：MongoDB 基础",
-      "path": "source/_posts/笔记：MongoDB 基础.md"
-    },
-    {
-      "basename": "笔记：Minio 基础",
-      "path": "source/_posts/笔记：Minio 基础.md"
     }
   ],
   "omittedPaths": [],

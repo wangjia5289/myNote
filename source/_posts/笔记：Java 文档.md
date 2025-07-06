@@ -182,7 +182,6 @@ public class OpenApiConfiguration {
 ---
 
 
-
 #### 3.3.2. API 文档相关配置
 
 ##### 3.3.2.1. 设置 OpenAPI 文档的访问路径
@@ -222,20 +221,6 @@ springdoc:
 
 ----
 
-
-
-
-
-
-
-
-> [!NOTE] 注意事项
-> 1. 在使用 Spring Security 时，Swagger 文档页面可能会出现空白，这通常是由于其依赖的一些静态资源被 Spring Security 的资源访问控制机制拦截导致的。你可以按下 F12 打开浏览器开发者工具，查看哪些资源被拦截，然后将这些资源路径配置为 `permitAll`。常见被拦截的资源包括：
-```
-"/swagger-ui/**", "/swagger-resources/**", "webjars/**", "v3/**"
-```
-
-![](image-20250706105924291.png)
 
 # 二、实操
 
@@ -435,11 +420,11 @@ public class SupportController {
 
 #### 1.1.5. 标注 SpringDoc 相关注解
 
-##### 1.1.5.1. Controller 注解
+##### 1.1.5.1. Controller上的注解
 
 ###### 1.1.5.1.1. @Tag
 
-`@Tag` 用于为 Controller 类或方法添加标签，可以用来组织 API 文档中的接口分组。
+`@Tag` 用于**为 Controller 类中所有方法添加标签**，可以用来组织 API 文档中的接口分组。
 ```
 @RestController
 @Tag(name = "Admin API",description = "Operation related to admins")
@@ -461,7 +446,7 @@ public class UserController {
 
 ###### 1.1.5.1.2. @Operation
 
-`@Operation` 用于标注一个**方法**，并对该方法进行详细说明。
+`@Operation` 用于**为一个方法添加标签**，并对该方法进行详细说明。
 ```
 @Operation(  
 	summary = "Get user by ID",  
@@ -501,17 +486,17 @@ public User getUserById(
 
 
 <span style="background:#9254de">4. perameters</span>
-包含由 `@Parameter` 注解组成的数组，用于**描述接口参数**，而 `@Parameter` 注解的具体属性，可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文：`@Parameter` ，其中列出了常用属性
+包含由 `@Parameter` 注解组成的数组，用于**描述接口的传入参数**，而 `@Parameter` 注解的具体属性，可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文：`@Parameter` ，其中列出了常用属性
 
 
 <span style="background:#9254de">5. requestBody</span>
-`@RequestBody` 注解的实例，用于描述请求体的内容，通常用于 `POST`、`PUT`、`PATCH` 等请求方法
+`@RequestBody` 注解的实例，用于**描述请求体的内容**，通常用于 `POST`、`PUT`、`PATCH` 等请求方法
 
 `@RequestBody` 注解的具体属性，可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文：`@RequestBody` ，其中列出了常用属性
 
 
 <span style="background:#9254de">6. responses</span>
-包含由 `@ApiResponse` 注解构成的数组，用于描述接口可能返回的 HTTP 响应，而 `@ApiResponse` 注解的具体属性，可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文： `@ApiResponse` ，其中列出了常用属性
+包含由 `@ApiResponse` 注解构成的数组，用于描述接口可能**返回的 HTTP 响应**，而 `@ApiResponse` 注解的具体属性，可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文： `@ApiResponse` ，其中列出了常用属性
 
 
 <span style="background:#9254de">7. deprecated</span>
@@ -552,7 +537,7 @@ public User getUserById(
 
 
 <span style="background:#9254de">4. schema  </span>
-指向参数所对应的数据模型类（Model 类），用于生成结构化文档。
+指向参数所对应的类，大多数情况下，你不需要手动指定 `schema`，因为 SpringDoc 能自动根据参数类型推断出来。
 
 
 <span style="background:#9254de">5. in  </span>
@@ -565,6 +550,7 @@ public User getUserById(
 	1. 表示来自 HTTP 请求头部，例如 Authorization 令牌  
 4. cookie：
 	1. 表示来自 HTTP 请求的 Cookie，例如 JSESSIONID
+5. 需要注意的是，如果参数来自请求体，需要使用 `@RequestBody` 注解
 
 
 <span style="background:#9254de">6. required  </span>
@@ -650,12 +636,12 @@ content = @Content(
 ---
 
 
-##### 1.1.5.2. Model 注解
+##### 1.1.5.2. POJO 上的注解
 
 ###### 1.1.5.2.1. @Schema
 
 ```
-@Schema(name = "User", description = "User object representing a system user")
+@Schema(name = "User", description = "User object representing a system user") // 类上建议写 name、属性上不建议
 public class User {  
 
     @Schema(description = "Unique identifier of the user", example = "1", defaultValue = "100")
@@ -672,6 +658,9 @@ public class User {
 
     @Schema(description = "Creation date of the user account", format = "date-time", example = "2024-01-01T00:00:00Z")
     private LocalDateTime createdAt;  
+    
+	@Schema(allowableValues = {"True", "False"})
+	private Boolean isTrue;
 
     // Getters and Setters
 }
@@ -689,6 +678,8 @@ public User createUser(@RequestBody User user) {
 }
 ```
 ![](source/_posts/笔记：Java%20文档/image-20250517160013458.png)
+
+![](image-20250706160803198.png)
 
 <span style="background:#9254de">1. name  </span>
 指定模型属性的名称。
@@ -725,4 +716,23 @@ public User createUser(@RequestBody User user) {
  Swagger UI 界面默认为： http://localhost:8080/swagger-ui/index.html
 
 ---
+
+
+## 业务处理
+
+### Springdoc 集成 Spring Security
+
+在使用 Spring Security 时，访问 Swagger UI 界面或者访问 API 文档时，会出现空白或被拒绝，这通常是由于其需要获取的资源被 Spring Security 的资源访问控制机制拦截导致的。你可以按下 F12 打开浏览器开发者工具，查看哪些资源被拦截，然后将这些资源路径配置为 `permitAll`。常见被拦截的资源包括：
+```
+"/swagger-ui/**", "/swagger-resources/**", "webjars/**", "v3/**"
+```
+
+然后你就可以配置为：
+```
+auth..requestMatchers("/swagger-ui/**", "/swagger-resources/**", "webjars/**", "v3/**").permitAll()
+```
+
+![](image-20250706105924291.png)
+
+----
 
