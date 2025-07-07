@@ -3,13 +3,14 @@ title: 笔记：一键启动 WLAN 小工具
 date: 2025-07-06
 categories:
   - 自研小工具
+  - 一键启动 WLAN 小工具
 tags: 
 author: 霸天
 layout: post
 ---
-## Py 代码
+## 1. Py 代码
 
-创建 `一键启动 WLAN 小工具.py` 并编写代码：
+创建 `一键启动 WLAN 小工具.py`，并编写代码：
 ```
 import subprocess
 
@@ -36,7 +37,7 @@ if __name__ == "__main__":
 ----
 
 
-## 打包为 exe
+## 2. 打包为 exe
 
 ```
 # 1. 安装打包工具
@@ -50,9 +51,6 @@ pyinstaller --onefile --windowed --icon="D:\文件集合\ICO\一键启动 WLAN �
 	1. 打包为单个 .exe 文件。
 2. --windowed
 	1. 确保 GUI 程序无控制台窗口
-3. --distpath "D:\文件集合\"  "D:\文件集合\本地图库.py"
-	1. D:\文件集合\ 是输出位置
-	2. D:\文件集合\本地图库.py 是输入位置
 """
 ```
 
