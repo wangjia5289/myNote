@@ -1,80 +1,148 @@
 {
   "recentFiles": [
     {
-      "basename": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC",
-      "path": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md"
-    },
-    {
-      "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
-      "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
-    },
-    {
-      "basename": "笔记：跨站请求伪造攻击（CSRF）",
-      "path": "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md"
-    },
-    {
-      "basename": "笔记：Spring Security",
-      "path": "source/_posts/笔记：Spring Security.md"
+      "basename": "笔记：Spring 整合 Minio",
+      "path": "source/_posts/笔记：Spring 整合 Minio.md"
     },
     {
       "basename": "笔记：Spring Boot",
       "path": "source/_posts/笔记：Spring Boot.md"
     },
     {
-      "basename": "笔记：OAuth 协议",
-      "path": "source/_posts/笔记：OAuth 协议.md"
+      "basename": "minio 临时",
+      "path": "minio 临时.md"
+    },
+    {
+      "basename": "笔记：Minio 基础",
+      "path": "source/_posts/笔记：Minio 基础.md"
+    },
+    {
+      "basename": "笔记：阿里云代码规约",
+      "path": "source/_posts/笔记：阿里云代码规约.md"
     },
     {
       "basename": "Todo 看板",
       "path": "Todo 看板.md"
     },
     {
+      "basename": "笔记：Java 异常处理",
+      "path": "source/_posts/笔记：Java 异常处理.md"
+    },
+    {
       "basename": "笔记：Spring IOC",
       "path": "source/_posts/笔记：Spring IOC.md"
     },
     {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
+      "basename": "笔记：搭建 Minio 环境",
+      "path": "source/_posts/笔记：搭建 Minio 环境.md"
     },
     {
-      "basename": "笔记：奶块攻略",
-      "path": "source/_posts/笔记：奶块攻略.md"
-    },
-    {
-      "basename": "笔记：本地图库小工具",
-      "path": "source/_posts/笔记：本地图库小工具.md"
-    },
-    {
-      "basename": "笔记：一键启动小工具",
-      "path": "source/_posts/笔记：一键启动小工具.md"
-    },
-    {
-      "basename": "笔记：一键启动 WLAN 小工具",
-      "path": "source/_posts/笔记：一键启动 WLAN 小工具.md"
-    },
-    {
-      "basename": "笔记：Java 项目创建和结构",
-      "path": "source/_posts/笔记：Java 项目创建和结构.md"
-    },
-    {
-      "basename": "笔记：Windows",
-      "path": "source/_posts/笔记：Windows.md"
+      "basename": "笔记：HttpClient",
+      "path": "source/_posts/笔记：HttpClient.md"
     },
     {
       "basename": "笔记：Java 文档",
       "path": "source/_posts/笔记：Java 文档.md"
     },
     {
+      "basename": "笔记：Spring Security",
+      "path": "source/_posts/笔记：Spring Security.md"
+    },
+    {
+      "basename": "笔记：URL、URI、API",
+      "path": "source/_posts/笔记：URL、URI、API.md"
+    },
+    {
+      "basename": "笔记：JUC",
+      "path": "source/_posts/笔记：JUC.md"
+    },
+    {
+      "basename": "笔记：JVM",
+      "path": "source/_posts/笔记：JVM.md"
+    },
+    {
       "basename": "question",
       "path": "question.md"
     },
     {
-      "basename": "笔记：RBAC 规范",
-      "path": "source/_posts/笔记：RBAC 规范.md"
+      "basename": "笔记：奶块攻略",
+      "path": "source/_posts/笔记：奶块攻略.md"
+    },
+    {
+      "basename": "临时：es",
+      "path": "templates/临时：es.md"
+    },
+    {
+      "basename": "mysql 临时",
+      "path": "templates/mysql 临时.md"
+    },
+    {
+      "basename": "笔记：ElasticSearch 基础",
+      "path": "source/_posts/笔记：ElasticSearch 基础.md"
+    },
+    {
+      "basename": "笔记：MySQL 基础",
+      "path": "source/_posts/笔记：MySQL 基础.md"
+    },
+    {
+      "basename": "笔记：一键启动 WLAN 小工具",
+      "path": "source/_posts/笔记：一键启动 WLAN 小工具.md"
+    },
+    {
+      "basename": "笔记：本地图库小工具",
+      "path": "source/_posts/笔记：本地图库小工具.md"
+    },
+    {
+      "basename": "笔记：Docker 基础",
+      "path": "source/_posts/笔记：Docker 基础.md"
+    },
+    {
+      "basename": "笔记：Linux",
+      "path": "source/_posts/笔记：Linux.md"
+    },
+    {
+      "basename": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC",
+      "path": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md"
+    },
+    {
+      "basename": "笔记：OAuth 协议",
+      "path": "source/_posts/笔记：OAuth 协议.md"
+    },
+    {
+      "basename": "笔记：RBAC 思想",
+      "path": "source/_posts/笔记：RBAC 思想.md"
     },
     {
       "basename": "Categories",
       "path": "Categories.md"
+    },
+    {
+      "basename": "笔记：跨站请求伪造攻击（CSRF）",
+      "path": "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md"
+    },
+    {
+      "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
+      "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
+    },
+    {
+      "basename": "笔记：Apifox",
+      "path": "source/_posts/笔记：Apifox.md"
+    },
+    {
+      "basename": "笔记：Windows",
+      "path": "source/_posts/笔记：Windows.md"
+    },
+    {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
+    },
+    {
+      "basename": "笔记：一键启动小工具",
+      "path": "source/_posts/笔记：一键启动小工具.md"
+    },
+    {
+      "basename": "笔记：Java 项目创建和结构",
+      "path": "source/_posts/笔记：Java 项目创建和结构.md"
     },
     {
       "basename": "README",
@@ -85,28 +153,12 @@
       "path": "Excalidraw/firstTest.md"
     },
     {
-      "basename": "笔记：Apifox",
-      "path": "source/_posts/笔记：Apifox.md"
-    },
-    {
       "basename": "default-template",
       "path": "templates/default-template.md"
     },
     {
-      "basename": "笔记：阿里云代码规约",
-      "path": "source/_posts/笔记：阿里云代码规约.md"
-    },
-    {
       "basename": "笔记：Java 实现加密、解密、编码、解码",
       "path": "source/_posts/笔记：Java 实现加密、解密、编码、解码.md"
-    },
-    {
-      "basename": "笔记：Java 异常处理",
-      "path": "source/_posts/笔记：Java 异常处理.md"
-    },
-    {
-      "basename": "笔记：Linux",
-      "path": "source/_posts/笔记：Linux.md"
     },
     {
       "basename": "笔记：Git 家族",
@@ -119,10 +171,6 @@
     {
       "basename": "笔记：Java 数据类型",
       "path": "source/_posts/笔记：Java 数据类型.md"
-    },
-    {
-      "basename": "笔记：MySQL 基础",
-      "path": "source/_posts/笔记：MySQL 基础.md"
     },
     {
       "basename": "笔记：Java SE",
@@ -149,56 +197,8 @@
       "path": "source/_posts/笔记：Hexo + Obsidian +Git Page.md"
     },
     {
-      "basename": "临时：es",
-      "path": "templates/临时：es.md"
-    },
-    {
       "basename": "笔记：搭建 MySQL 环境",
       "path": "source/_posts/笔记：搭建 MySQL 环境.md"
-    },
-    {
-      "basename": "笔记：ElasticSearch 基础",
-      "path": "source/_posts/笔记：ElasticSearch 基础.md"
-    },
-    {
-      "basename": "可加密码",
-      "path": "templates/可加密码.md"
-    },
-    {
-      "basename": "测试",
-      "path": "templates/测试.md"
-    },
-    {
-      "basename": "笔记：Kafka 基础",
-      "path": "source/_posts/笔记：Kafka 基础.md"
-    },
-    {
-      "basename": "笔记：Java 功能测试",
-      "path": "source/_posts/笔记：Java 功能测试.md"
-    },
-    {
-      "basename": "hello-world",
-      "path": "source/_posts/hello-world.md"
-    },
-    {
-      "basename": "笔记：Webmin",
-      "path": "source/_posts/笔记：Webmin.md"
-    },
-    {
-      "basename": "笔记：VMware",
-      "path": "source/_posts/笔记：VMware.md"
-    },
-    {
-      "basename": "笔记：Tomcat 服务器",
-      "path": "source/_posts/笔记：Tomcat 服务器.md"
-    },
-    {
-      "basename": "笔记：Spring AI",
-      "path": "source/_posts/笔记：Spring AI.md"
-    },
-    {
-      "basename": "笔记：Spring 整合 Minio",
-      "path": "source/_posts/笔记：Spring 整合 Minio.md"
     }
   ],
   "omittedPaths": [],

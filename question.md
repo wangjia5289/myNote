@@ -53,3 +53,13 @@
 8. Spring Ioc 六大注解
 	1. RRSCCB
 	2. @RestController、@Repository、@Service、@Component、@Controller、@Bean
+
+---
+
+
+## 术语
+
+1. 主从和主备的区别
+	1. 主从和主备的区别是，备节点不参与业务处理，只有主节点挂掉时才会切换到备节点继续服务。
+
+----

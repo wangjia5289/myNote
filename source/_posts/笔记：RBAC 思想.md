@@ -1,5 +1,5 @@
 ---
-title: 笔记：RBAC 规范
+title: 笔记：RBAC 思想
 date: 2025-07-06
 categories:
   - Java

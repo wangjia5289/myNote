@@ -198,14 +198,6 @@
       "key": "G"
     }
   ],
-  "editing-toolbar:change-font-color": [
-    {
-      "modifiers": [
-        "Mod"
-      ],
-      "key": "E"
-    }
-  ],
   "obsidian-enhancing-mindmap:Toggle to markdown or mindmap": [
     {
       "modifiers": [
@@ -215,7 +207,7 @@
       "key": "N"
     }
   ],
-  "editing-toolbar:change-background-color": [
+  "editing-toolbar:change-font-color": [
     {
       "modifiers": [
         "Mod"

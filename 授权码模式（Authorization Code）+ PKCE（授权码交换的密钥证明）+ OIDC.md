@@ -31,6 +31,7 @@
 
 前端的行为可能如下所示：
 
+1. xxxxxxxxx
 ```javascript
 // 前端生成 PKCE 参数（如果使用 PKCE）
 async function generatePKCEParams() {

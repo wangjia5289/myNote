@@ -61,7 +61,7 @@ paths:
 
 Swagger UI 能根据 API 文档提供一个交互式的 API 文档界面，用户可以直接通过浏览器进行 API 的测试和查看，其使用方法是：
 
-<span style="background:#9254de">1. 引入 springfox-swagger-ui 依赖</span>
+<font color="#92d050">1. 引入 springfox-swagger-ui 依赖</font>
 引入 [springfox-swagger-ui 依赖](https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui)
 ```
 <dependency>
@@ -72,7 +72,7 @@ Swagger UI 能根据 API 文档提供一个交互式的 API 文档界面，用�
 ```
 
 
-<span style="background:#9254de">2. 输入访问 Swagger UI 的 URL</span>
+<font color="#92d050">2. 输入访问 Swagger UI 的 URL</font>
 ```
 http://localhost:8080/swagger-ui.html
 ```
@@ -94,7 +94,7 @@ Swagger Editor 是一个[在线编译器](https://editor.swagger.io/)，用于�
 
 #### 3.3.1. 配置模板
 
-<span style="background:#9254de">1. 在 application.yaml 中</span>
+<font color="#92d050">1. 在 application.yaml 中</font>
 ```
 springdoc:
   api-docs:                                                   # API 文档相关配置
@@ -162,7 +162,7 @@ springdoc:
 ```
 
 
-<span style="background:#9254de">2. 在配置类中</span>
+<font color="#92d050">2. 在配置类中</font>
 在配置类中用于配置 API 文档的基本信息
 ```
 @Configuration
@@ -193,7 +193,7 @@ springdoc:
     path: /v3/api-docs 
 ```
 
-<span style="background:#9254de">1. 获取 JSON 格式的文档</span>
+<font color="#92d050">1. 获取 JSON 格式的文档</font>
 访问： http://localhost:8080/v3/api-docs.json
 ![](image-20250706110513245.png)
 
@@ -205,7 +205,7 @@ springdoc:
 ![](source/_posts/笔记：Java%20文档/image-20250413223920691.png)
 
 
-<span style="background:#9254de">2. 获取 YAML 格式的文档</span>
+<font color="#92d050">2. 获取 YAML 格式的文档</font>
 访问： http://localhost:8080/v3/api-docs.yaml ，浏览器会自动下载 YAML 格式的文档
 ![](image-20250706110600089.png)
 
@@ -257,7 +257,7 @@ springdoc:
 
 ##### 1.1.3.1. 在 Controller1 包下
 
-<span style="background:#9254de">1. AdminController.java</span>
+<font color="#92d050">1. AdminController.java</font>
 ```
 @RestController
 public class AdminController {
@@ -275,7 +275,7 @@ public class AdminController {
 ```
 
 
-<span style="background:#9254de">2. UserController.java</span>
+<font color="#92d050">2. UserController.java</font>
 ```
 @RestController
 public class UserController {
@@ -293,7 +293,7 @@ public class UserController {
 ```
 
 
-<span style="background:#9254de">3. OrderController.java</span>
+<font color="#92d050">3. OrderController.java</font>
 ```
 @RestController
 public class OrderController {
@@ -311,7 +311,7 @@ public class OrderController {
 ```
 
 
-<span style="background:#9254de">4. ProductController.java</span>
+<font color="#92d050">4. ProductController.java</font>
 ```
 @RestController
 public class ProductController {
@@ -333,7 +333,7 @@ public class ProductController {
 
 ##### 1.1.3.2. 在 Controller2 包下
 
-<span style="background:#9254de">1. ReportController.java</span>
+<font color="#92d050">1. ReportController.java</font>
 ```
 @RestController
 public class ReportController {
@@ -353,7 +353,7 @@ public class ReportController {
 ---
 
 
-<span style="background:#9254de">2. NotificationController.java</span>
+<font color="#92d050">2. NotificationController.java</font>
 ```
 @RestController
 public class NotificationController {
@@ -373,7 +373,7 @@ public class NotificationController {
 ---
 
 
-<span style="background:#9254de">3. FeedbackController.java</span>
+<font color="#92d050">3. FeedbackController.java</font>
 ```
 @RestController
 public class FeedbackController {
@@ -393,7 +393,7 @@ public class FeedbackController {
 ---
 
 
-<span style="background:#9254de">4. SupportController.java</span>
+<font color="#92d050">4. SupportController.java</font>
 ```
 @RestController
 public class SupportController {
@@ -474,32 +474,32 @@ public User getUserById(
 }
 ```
 
-<span style="background:#9254de">1. summary</span>
+<font color="#92d050">1. summary</font>
 对 API 方法的简短描述
 
-<span style="background:#9254de">2. description</span>
+<font color="#92d050">2. description</font>
 对 API 方法的详细描述
 
 
-<span style="background:#9254de">3. tags</span>
+<font color="#92d050">3. tags</font>
 用于指定 API 方法的标签
 
 
-<span style="background:#9254de">4. perameters</span>
+<font color="#92d050">4. perameters</font>
 包含由 `@Parameter` 注解组成的数组，用于**描述接口的传入参数**，而 `@Parameter` 注解的具体属性，可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文：`@Parameter` ，其中列出了常用属性
 
 
-<span style="background:#9254de">5. requestBody</span>
+<font color="#92d050">5. requestBody</font>
 `@RequestBody` 注解的实例，用于**描述请求体的内容**，通常用于 `POST`、`PUT`、`PATCH` 等请求方法
 
 `@RequestBody` 注解的具体属性，可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文：`@RequestBody` ，其中列出了常用属性
 
 
-<span style="background:#9254de">6. responses</span>
+<font color="#92d050">6. responses</font>
 包含由 `@ApiResponse` 注解构成的数组，用于描述接口可能**返回的 HTTP 响应**，而 `@ApiResponse` 注解的具体属性，可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文： `@ApiResponse` ，其中列出了常用属性
 
 
-<span style="background:#9254de">7. deprecated</span>
+<font color="#92d050">7. deprecated</font>
 用于标记接口是否已弃用。如果设置为 `true`，表示该接口已不推荐使用，通常会在文档中注明，默认为 `false`
 
 > [!NOTE] 注意事项：对此处 `tags` 的理解
@@ -524,23 +524,23 @@ public User getUserById(
 )
 ```
 
-<span style="background:#9254de">1. name  </span>
+<font color="#92d050">1. name  </font>
 描述参数的名称，通常应与方法参数名保持一致。
 
 
-<span style="background:#9254de">2. description  </span>
+<font color="#92d050">2. description  </font>
 用于说明参数的含义或用途，便于使用者理解其业务意义。
 
 
-<span style="background:#9254de">3. example  </span>
+<font color="#92d050">3. example  </font>
 为参数提供一个示例值，帮助文档阅读者更直观地了解其典型输入。
 
 
-<span style="background:#9254de">4. schema  </span>
+<font color="#92d050">4. schema  </font>
 指向参数所对应的类，大多数情况下，你不需要手动指定 `schema`，因为 SpringDoc 能自动根据参数类型推断出来。
 
 
-<span style="background:#9254de">5. in  </span>
+<font color="#92d050">5. in  </font>
 用于指定参数的来源位置。常见取值如下：  
 1. path：
 	1. 表示来自 URL 路径，常用于路径变量（如 `/users/{id}`）  
@@ -553,11 +553,11 @@ public User getUserById(
 5. 需要注意的是，如果参数来自请求体，需要使用 `@RequestBody` 注解
 
 
-<span style="background:#9254de">6. required  </span>
+<font color="#92d050">6. required  </font>
 用于指定该参数是否为必填项，默认值为 `false`。若设置为 `true`，则参数在请求中必须存在。
 
 
-<span style="background:#9254de">7. allowEmptyValue  </span>
+<font color="#92d050">7. allowEmptyValue  </font>
 指示该参数是否允许为空值，默认值为 `false`。
 
 ---
@@ -573,15 +573,15 @@ public User getUserById(
 )
 ```
 
-<span style="background:#9254de">1. description  </span>
+<font color="#92d050">1. description  </font>
 描述请求体的内容。
 
 
-<span style="background:#9254de">2. required  </span>
+<font color="#92d050">2. required  </font>
 指定请求体是否为必填项，默认值为 `true`。
 
 
-<span style="background:#9254de">3. content  </span>
+<font color="#92d050">3. content  </font>
 `@Content` 注解的实例，用于描述请求体或响应体的内容类型与结构。而`@Content` 注解的具体属性可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文：`@Content` ，其中列出了常用属性。
 
 ---
@@ -597,15 +597,15 @@ public User getUserById(
 	)
 ```
 
-<span style="background:#9254de">1. responseCode  </span>
+<font color="#92d050">1. responseCode  </font>
 用于指定响应的 HTTP 状态码，例如 `200`、`400`、`404`、`500` 等。
 
 
-<span style="background:#9254de">2. description  </span>
+<font color="#92d050">2. description  </font>
 为对应的响应状态码提供详细描述，说明响应的含义或返回条件。
 
 
-<span style="background:#9254de">3. content  </span>
+<font color="#92d050">3. content  </font>
 `@Content` 注解的实例，用于描述请求体或响应体的内容类型与结构。而`@Content` 注解的具体属性可以通过 `Ctrl + 鼠标点击` 查看其来源，或详见下文：`@Content` 部分，其中列出了常用属性。
 
 ---
@@ -622,15 +622,15 @@ content = @Content(
 )
 ```
 
-<span style="background:#9254de">1. mediaType  </span>
+<font color="#92d050">1. mediaType  </font>
 用于指定响应体的 MIME 类型，例如 `application/json`、`text/plain` 等。
 
 
-<span style="background:#9254de">2. schema  </span>
+<font color="#92d050">2. schema  </font>
 指向响应体对应的模型类（Model 类），用于定义返回数据的结构。
 
 
-<span style="background:#9254de">3. examples  </span>
+<font color="#92d050">3. examples  </font>
 用于提供响应内容的示例数据，帮助使用者理解接口的典型返回结果
 
 ---
@@ -681,22 +681,22 @@ public User createUser(@RequestBody User user) {
 
 ![](image-20250706160803198.png)
 
-<span style="background:#9254de">1. name  </span>
+<font color="#92d050">1. name  </font>
 指定模型属性的名称。
 
-<span style="background:#9254de">2. description  </span>
+<font color="#92d050">2. description  </font>
 为该属性提供简短描述，说明其用途或含义。
 
-<span style="background:#9254de">3. required  </span>
+<font color="#92d050">3. required  </font>
 表示该属性是否为必填项，默认值为 `false`。
 
-<span style="background:#9254de">4. example  </span>
+<font color="#92d050">4. example  </font>
 用于提供该字段的示例值，帮助理解其典型输入。
 
-<span style="background:#9254de">5. defaultValue  </span>
+<font color="#92d050">5. defaultValue  </font>
 指定该字段的默认值，当未显式赋值时将使用此值。
 
-<span style="background:#9254de">6. format  </span>
+<font color="#92d050">6. format  </font>
 用于指定字段的格式，特别适用于日期、时间等类型，便于文档工具正确渲染数据格式。  
 1. date-time：
 	1. 日期 + 时间，符合 ISO 8601 格式

@@ -41,34 +41,12 @@ Object 是存储到 Minio 中的基本对象，对用户而言，相当于**文�
 
 ### 1. 环境搭建
 
-#### 1.1. 单机测试环境搭建
-
-##### 1.1.1. 安装 Minio
-
-```
-docker run -d \
-  --name minio-test \
-  -p 9000:9000 \
-  -p 9001:9001 \
-  -e "MINIO_ROOT_USER=admin" \
-  -e "MINIO_ROOT_PASSWORD=admin123" \
-  minio/minio server /data --console-address ":9001"
-"""
-注意事项：密码长度至少 8 个字符
-"""
-```
-
----
-
-
-##### 1.1.2. 访问 Minio 控制台
-
-访问 Minio 控制台： http://192.168.136.8:9001
-
----
-
-
 #### 分布式集群环境搭建
+纯对等分布式集群
+
+与 es 的对等分布式 集群不同，她又master 这里没有master
+
+
 
 ##### 架构说明
 

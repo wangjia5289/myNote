@@ -9,6 +9,16 @@ tags:
 author: 霸天
 layout: post
 ---
+![](image-20250708185639252.png)
+
+
+![](image-20250708182201629.png)
+
+
+
+![](image-20250708180840473.png)
+
+
 
 ![](image-20250707155119821.png)
 
@@ -295,6 +305,10 @@ public String createUser(@RequestBody User user) {
     return "收到: 用户名=" + user.getUsername() + ", 邮箱=" + user.getEmail();
 }
 ```
+
+是把所有请求体都映射到一个参数，不是一个参数映射一个懂吗
+
+
 
 ---
 

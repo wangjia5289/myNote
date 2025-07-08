@@ -59,7 +59,140 @@ OAuth2 的授权码模式（Authorization Code Grant）是目前最常见、最�
 
 以 Gitee 使用第三方 GitHub 登录为例，在整个授权流程中，Gitee 作为 OAuth 客户端，而 GitHub 同时提供授权服务器与资源服务器的角色。整体流程如下所示：
 
-<span style="background:#9254de">1. Gitee 前端页面发起请求，并跳转到 GitHub 授权页</span>
+<font color="#92d050">1. Gitee 需要在 GitHub 中注册</font>
+在这个过程中，Gitee 需要填写其客户端应用的信息，例如名称、首页地址、回调地址等。注册成功后，GitHub 会返回 Client ID 和 Client Secret，这两个参数是 GitHub 用于识别和验证 Gitee 客户端身份的依据。
+
+
+<font color="#92d050">2. 用户在 Gitee 前端页面，点击 GitHub 登录</font>
+![](image-20250707084023923.png)
+
+
+<font color="#92d050">3. Gitee 前端向 Gitee 后端请求 GitHub 授权 URL</font>
+其代码可能是这样：
+```
+const res = await fetch('/api/oauth/github/authorize');
+const { authUrl } = await res.json();
+```
+
+
+<font color="#92d050">4. Gitee 后端返回给前端 GitHub 授权 URL</font>
+在这个流程中，Gitee 后端需要生成 PKCE 参数，即 codeVerfier和 codeChallenge
+其代码可能是这样：
+```
+@GetMapping("/api/oauth/github/authorize")
+public ResponseEntity<?> authorize(HttpSession session) {
+
+    // 1. 生成 PKCE 参数（codeVerfier、codeChallenge）和 CSRF Token（state）
+    String codeVerifier = generateRandomCodeVerifier();
+    String codeChallenge = sha256AndBase64Url(codeVerifier);
+    String state = UUID.randomUUID().toString();
+
+
+    // 2. 将 PKCE 参数（只需要保存 codeVerfier）和 CSRF Token（state）进行保存（HttpSession、Redis 等）
+    session.setAttribute("oauth_state", state);
+    session.setAttribute("code_verifier", codeVerifier);
+
+    // 3. 构造 GitHub 授权 URL
+    String authUrl = UriComponentsBuilder.fromHttpUrl("https://github.com/login/oauth/authorize")
+            .queryParam("client_id", "xxx")
+            .queryParam("redirect_uri", "https://gitee.com/auth/github/callback")
+            .queryParam("response_type", "code")
+            .queryParam("scope", "openid user email")
+            .queryParam("state", state)
+            .queryParam("code_challenge", codeChallenge)
+            .queryParam("code_challenge_method", "S256")
+            .build().toUriString();
+
+    // 4. 返回给前端跳转
+    return ResponseEntity.ok(Map.of("authUrl", authUrl));
+}
+```
+
+> [!NOTE] 注意事项
+> 1. GitHub 授权 URL 不仅包括 GitHub 授权服务器提供的授权接口 API（`/login/oauth/authorize`），还需要携带一些参数，常携带的参数有：
+> 	1. client_id
+> 	2. redirect_uri
+> 	3. response_type
+> 	4. scop
+> 	5. state
+> 	6. code_challenge
+> 	7. code_challenge_method
+> 2. 之所以说 `/login/oauth/authorize` 是后端的接口 API，而不是前端的页面 URI，是因为授权服务器本身并不是前后端分离的架构，因此该路径由后端统一处理授权流程并返回相应页面，而非前端控制的路由页面
+
+
+<font color="#92d050">5. 前端跳转到 GitHub 授权 URL</font>
+其代码可能是这样：
+```
+window.location.href = authUrl;
+```
+
+
+<font color="#92d050">6. 用户在 GitHub 上进行身份认证和授权</font>
+需要注意的是，在开发授权服务器时，并不推荐采用前后端分离的架构，而是 SpringBoot + Thymeleaf
+
+以 GitHub 的授权 API 为例（`/login/oauth/authorize`），它既能判断用户是否已完成身份认证：若未认证，则先返回登录页面，完成登录后再跳转至授权确认页面；若已认证，则直接返回授权确认页面。其代码可能是这样：
+```
+@GetMapping("/login/oauth/authorize")
+public void handleAuthorize(HttpServletRequest request, HttpServletResponse response) {
+    OAuth2Request oauthRequest = parseRequest(request);
+
+    // 1. 判断用户是否已登录
+    User user = getCurrentUser(request);
+    
+    // 2. 未登录：保存授权请求（通常放 HttpSession）并跳转到登录 API（逻辑 + 页面），登录成功后再由登录 API 跳转到授权确认 API（逻辑 + 页面）
+    if (user == null) {
+        request.getSession().setAttribute("OAUTH_REQUEST", oauthRequest);
+        response.sendRedirect("/login");
+        return; // 终止方法，不继续往下进行，由于方法的返回类型是 void，这里的 return; 什么都不返回
+    }
+
+    // 3. 已登录：是否已授权过？
+    if (!hasUserAuthorized(user, oauthRequest)) {
+        // 4. 跳转到授权确认页，授权确认后，发授权码，并跳转到 Gitee 的回调 URL
+        renderConsentPage(user, oauthRequest, response);
+    } else {
+        // 5. 已授权：直接发授权码，并跳转到 Gitee 的回调 URL
+        String code = generateAuthorizationCode(user, oauthRequest);
+        response.sendRedirect(buildRedirectUri(oauthRequest.redirectUri, code, oauthRequest.state));
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 判断用户是否已登录的时候，我们传统的的登录方式，后端生成 JWT，前端手动把 JWT 放到请求头或者请求体发送到后端的方式就不行了，因为你是直接调用的 GitHub 授权服务器的后端 API，根本没有 GitHub 授权服务器的前端把用户的 JWT 发送过来，甚至说的过分一点，GitHUb 授权服务器是前后端不分离的，根本就没有 GitHub 前端
+> 2. 那我们传统的 JWT 其实是解决不了这个问题，我们可以使用 RememberMe Cookie，或者如果你非用 JWT 的话，你可把 JWT 放到 Cookie 中，根据浏览器自动携带 Cookie 的特性进行完成
+
+
+<font color="#92d050">7. GitHub 授权后，携带授权码、state 重定向回 Gitee 指定的回调地址（该地址为后端地址）</font>
+其可能为：
+```
+HTTP/1.1 302 Found
+Location: https://gitee.com/auth/github/callback?
+    code=gho_16C7e42F292c6912E7710c838347Ae178B4a&
+    state=81fda4a8066fb1ea3310d3bf577ece61a8e0286c03f82c91
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<font color="#92d050">1. Gitee 前端页面发起请求，并跳转到 GitHub 授权页</font>
 前端的行为可能如下所示：
 ```
 GET https://github.com/login?
@@ -97,7 +230,7 @@ Gitee 的前端页面通过 `window.location.href` 跳转到 GitHub 提供的登
 > 1. 在授权页面中，一些应用的授权服务器会明确列出授权项，例如：“是否允许 Gitee 访问你的基本信息”、“是否允许 Gitee 访问你的电话号码”、“是否允许 Gitee 访问你的邮箱地址”等。这些授权项通常由客户端申请的 `scope` 决定，并由授权服务器展示给用户确认
 
 
-<span style="background:#9254de">2. GitHub 授权后，携带授权码重定向回 Gitee 后端地址</span>
+<font color="#92d050">2. GitHub 授权后，携带授权码重定向回 Gitee 后端地址</font>
 GitHub 在用户授权后，会将页面重定向到 Gitee 预先注册并指定回调的**后端地址**。
 ![](image-20250707090310873.png)
 
@@ -139,7 +272,7 @@ public class GitHubOAuthController {
 > 1. 实际开发中，不建议在 Controller 中编写过多业务逻辑。你可以简单地理解：Controller 的职责是接收请求、协调流程并返回结果，而真正的业务处理应交由 Service 层完成
 
 
-<span style="background:#9254de">3. Gitee 后端携带 code，调用 GitHub 授权服务器 API，获取 Access Token</span>
+<font color="#92d050">3. Gitee 后端携带 code，调用 GitHub 授权服务器 API，获取 Access Token</font>
 其实我们可以注意到一个问题：在发起授权请求时，`Client Id` 是直接暴露在 URL 中的；授权成功后，GitHub 返回的 `code` 也同样出现在回调的 URL 中。那有没有可能，如果这些 URL 被第三方窃取，攻击者就能利用这些信息伪造客户端、换取 Access Token，甚至获取用户的私密信息？
 
 如果只看表面，的确存在这样的风险。但是，别忘了我们在注册第三方应用时，一般会获得两个核心凭证：`Client Id` 和 `Client Secret`。
@@ -152,13 +285,13 @@ public class GitHubOAuthController {
 > 3. 这是 OAuth2 中授权码模式强调换 token 必须由后端发起的根本原因，也是为什么授权码模式适合前后端分离时使用的根本原因
 
 
-<span style="background:#9254de">4. GitHub 授权服务器返回 Access Token</span>
+<font color="#92d050">4. GitHub 授权服务器返回 Access Token</font>
 
 
-<span style="background:#9254de">5. Gitee 后端携带 Access Token，调用 GitHub 资源服务器 API，获取 schope 指定的信息</span>
+<font color="#92d050">5. Gitee 后端携带 Access Token，调用 GitHub 资源服务器 API，获取 schope 指定的信息</font>
 
 
-<span style="background:#9254de">6. GitHub 资源服务器返回对应信息</span>
+<font color="#92d050">6. GitHub 资源服务器返回对应信息</font>
 
 
 

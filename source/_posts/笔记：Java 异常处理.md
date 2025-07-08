@@ -184,6 +184,8 @@ Java 的异常体系是一个树状结构：
 
 
 当你搞清楚了可能出现的异常，就可以进行异常处理。当然，也不用自己去写一堆 try-catch：只要选中方法，按下 `Ctrl + Alt + T`，IDEA 会自动帮你生成完整的 try-catch 模板：
+
+要一整行都选中才可以
 ![](source/_posts/笔记：Java%20异常处理/image-20250513193033722.png)
 
 
@@ -229,10 +231,36 @@ public Boolean bucketExists(@RequestParam String bucketName) {
 
 
 
+我们可以就是把这些异常都以一个异常跑出来：
+```
+try {  
+    boolean bucketExists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());  
+} catch (ErrorResponseException e) {  
+    throw new RuntimeException(e);  
+} catch (InsufficientDataException e) {  
+    throw new RuntimeException(e);  
+} catch (InternalException e) {  
+    throw new RuntimeException(e);  
+} catch (InvalidKeyException e) {  
+    throw new RuntimeException(e);  
+} catch (InvalidResponseException e) {  
+    throw new RuntimeException(e);  
+} catch (IOException e) {  
+    throw new RuntimeException(e);  
+} catch (NoSuchAlgorithmException e) {  
+    throw new RuntimeException(e);  
+} catch (ServerException e) {  
+    throw new RuntimeException(e);  
+} catch (XmlParserException e) {  
+    throw new RuntimeException(e);  
+}
+```
+然后再去处理这一个异常
+![](image-20250708180126262.png)
 
+或者直接每个都去处理
 
-
-
+![](image-20250708180155666.png)
 
 
 

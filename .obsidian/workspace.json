@@ -4,81 +4,67 @@
     "type": "split",
     "children": [
       {
-        "id": "dd3da5a73c7154a8",
+        "id": "8cab31b1efd5ad03",
         "type": "tabs",
         "children": [
           {
-            "id": "0ed90ca78363e32b",
+            "id": "2e8b0fd000834d68",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：OAuth 协议.md",
+                "file": "source/_posts/笔记：Minio 基础.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：OAuth 协议"
+              "title": "笔记：Minio 基础"
             }
           },
           {
-            "id": "7191cc10a175b5bb",
+            "id": "fae54fc4b83ba8d0",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
+                "file": "source/_posts/笔记：Spring 整合 Minio.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC"
+              "title": "笔记：Spring 整合 Minio"
             }
           },
           {
-            "id": "31565978f25cd828",
+            "id": "cec95ef96f305091",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
+                "file": "minio 临时.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流"
+              "title": "minio 临时"
             }
           },
           {
-            "id": "bb2733a644b10a3e",
+            "id": "524ad802642f4539",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md",
+                "file": "source/_posts/笔记：搭建 Minio 环境.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：跨站请求伪造攻击（CSRF）"
+              "title": "笔记：搭建 Minio 环境"
             }
           },
           {
-            "id": "94eb78479ff3fb7b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "source/_posts/笔记：Spring Security.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "笔记：Spring Security"
-            }
-          },
-          {
-            "id": "df7fc3263aa682b2",
+            "id": "0a1e687391dba1b8",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -159,7 +145,7 @@
       {
         "id": "dd0e7d522924828a",
         "type": "tabs",
-        "dimension": 44.503171247357294,
+        "dimension": 44.54314720812183,
         "children": [
           {
             "id": "75fee5262daf945e",
@@ -249,7 +235,7 @@
       {
         "id": "1977f3e42c5475a4",
         "type": "tabs",
-        "dimension": 55.4968287526427,
+        "dimension": 55.45685279187817,
         "children": [
           {
             "id": "fbdd42d532677ed8",
@@ -311,54 +297,53 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "7191cc10a175b5bb",
+  "active": "fae54fc4b83ba8d0",
   "lastOpenFiles": [
-    "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
-    "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
-    "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md",
-    "source/_posts/笔记：Spring Security.md",
     "source/_posts/笔记：Spring Boot.md",
-    "source/_posts/笔记：OAuth 协议.md",
-    "未确认 883852.crdownload",
-    "Todo 看板.md",
-    "source/_posts/笔记：Spring Authorization Server.md",
-    "source/_posts/笔记：OAuth 协议/Map：OAuth 协议.xmind",
-    "source/_posts/笔记：Spring Boot/image-20250707155119821.png",
-    "source/_posts/笔记：Spring IOC.md",
-    "source/_posts/笔记：OAuth 协议/image-20250707153632809.png",
-    "templates/临时：mybatis.md",
-    "maps/Map：OAuth 协议.xmind",
-    "Edraw/OAuth协议---授权码模式.eddx.fbdISl",
-    "source/_posts/笔记：Spring IOC/image-20250707124724752.png",
-    "source/_posts/笔记：OAuth 协议/image-20250707122604264.png",
-    "source/_posts/笔记：OAuth 协议/image-20250707122541696.png",
-    "source/_posts/笔记：OAuth 协议/image-20250707120251369.png",
-    "source/_posts/笔记：奶块攻略.md",
-    "source/_posts/笔记：OAuth 协议/image-20250707104557256.png",
-    "source/_posts/笔记：OAuth 协议/image-20250707090310873.png",
-    "source/_posts/笔记：OAuth 协议/image-20250707085938292.png",
-    "source/_posts/笔记：OAuth 协议/image-20250707085858048.png",
-    "Edraw/OAuth协议---授权码模式.eddx",
-    "Edraw/OAuth协议---OAuth2概述.eddx",
-    "Edraw/Oauth协议---授权码模式.eddx",
-    "Edraw/Oauth协议---授权码模式.eddx.xFFlIo",
-    "source/_posts/笔记：本地图库小工具.md",
-    "source/_posts/笔记：一键启动小工具.md",
-    "source/_posts/笔记：一键启动 WLAN 小工具.md",
-    "source/_posts/笔记：Java 项目创建和结构.md",
-    "source/_posts/笔记：OAuth 协议",
-    "source/_posts/笔记：Windows.md",
-    "source/_posts/笔记：OAuth 规范",
-    "source/_posts/笔记：Java 文档.md",
-    "question.md",
-    "source/_posts/笔记：RBAC 规范.md",
-    "Categories.md",
-    "README.md",
-    "Excalidraw/firstTest.md",
-    "source/_posts/笔记：Apifox.md",
-    "templates/default-template.md",
+    "source/_posts/笔记：Spring 整合 Minio.md",
+    "minio 临时.md",
+    "source/_posts/笔记：Spring Boot/image-20250708185639252.png",
+    "source/_posts/笔记：Minio 基础.md",
+    "source/_posts/笔记：Spring Boot/image-20250708182201629.png",
     "source/_posts/笔记：阿里云代码规约.md",
-    "templates/临时：security.md",
+    "Todo 看板.md",
+    "source/_posts/笔记：Spring Boot/image-20250708180840473.png",
+    "source/_posts/笔记：Java 异常处理.md",
+    "source/_posts/笔记：Java 异常处理/image-20250708180155666.png",
+    "source/_posts/笔记：Java 异常处理/image-20250708180126262.png",
+    "source/_posts/笔记：Spring IOC.md",
+    "source/_posts/笔记：搭建 Minio 环境.md",
+    "source/_posts/笔记：HttpClient.md",
+    "source/_posts/笔记：Java 文档.md",
+    "source/_posts/笔记：Spring Security.md",
+    "source/_posts/笔记：URL、URI、API.md",
+    "source/_posts/笔记：JUC.md",
+    "source/_posts/笔记：JVM.md",
+    "question.md",
+    "source/_posts/笔记：奶块攻略.md",
+    "templates/临时：es.md",
+    "templates/mysql 临时.md",
+    "source/_posts/笔记：ElasticSearch 基础.md",
+    "source/_posts/笔记：MySQL 基础.md",
+    "source/_posts/笔记：一键启动 WLAN 小工具.md",
+    "source/_posts/笔记：本地图库小工具.md",
+    "source/_posts/笔记：Docker 基础.md",
+    "source/_posts/笔记：Linux.md",
+    "public/categories/Java/Spring-生态/Spring-AOP/index.html",
+    "public/2025/03/11/笔记：Spring AOP/index.html",
+    "public/2025/05/16/笔记：mall 商城/index.html",
+    "public/2025/03/10/hello-world/thorization Server/Map：SpringAuthorizationServer.xmind",
+    "public/2025/03/10/hello-world/thorization Server",
+    "public/2025/03/10/hello-world/CSRF）/image-20250708092121275.png",
+    "public/2025/03/10/hello-world/CSRF）/image-20250708092110246.png",
+    "public/2025/03/10/hello-world/CSRF）",
+    "public/categories/自研小工具/一键启动-WLAN-小工具/index.html",
+    "public/categories/自研小工具/一键启动-WLAN-小工具",
+    "public/categories/Java/安全框架/OAuth-规范/index.html",
+    "public/categories/Java/安全框架/RBAC-规范/index.html",
+    "source/_posts/笔记：跨站请求伪造攻击（CSRF）/image-20250708092121275.png",
+    "source/_posts/笔记：跨站请求伪造攻击（CSRF）/image-20250708092110246.png",
+    "source/_posts/笔记：Spring Boot/image-20250707155119821.png",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]

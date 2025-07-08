@@ -19,13 +19,14 @@
   <meta name="author" content="霸天">
   <meta name="keywords" content="">
   
-    <meta name="description" content="不能这样做，会报错，要想在本方法用，只能 csrfTokenRepository()  两种注册方式啊   [!NOTE] 注意事项  如果我们是使用 AuthenticationManager 进行认证，它会自动将用户发送来的用户名和密码，与我们的 CustomerUserDetailsImpl 中返回的用户名和密码进行比对，这是我们已知的逻辑。那你可能会有疑问：它在比对前，肯定需要先用密码加">
+    <meta name="description" content="你的需求很典型，想自己写一个配置类，让 application.yml 里的配置能绑定到它，同时 IDEA 能智能提示，体验更好。这个是 Spring Boot 里配置绑定的标准做法。 我帮你梳理完整步骤和关键点，确保你写的配置类和 application.yml 配置能完美对应，还能被 IDEA 智能识别和提示。  一、如何写一个自己的配置类，实现 application.yml 绑定和 ID">
 <meta property="og:type" content="article">
 <meta property="og:title" content="笔记：Spring IOC">
 <meta property="og:url" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/index.html">
 <meta property="og:site_name" content="夜阑卧听风吹雨,一枝梨花压心头">
-<meta property="og:description" content="不能这样做，会报错，要想在本方法用，只能 csrfTokenRepository()  两种注册方式啊   [!NOTE] 注意事项  如果我们是使用 AuthenticationManager 进行认证，它会自动将用户发送来的用户名和密码，与我们的 CustomerUserDetailsImpl 中返回的用户名和密码进行比对，这是我们已知的逻辑。那你可能会有疑问：它在比对前，肯定需要先用密码加">
+<meta property="og:description" content="你的需求很典型，想自己写一个配置类，让 application.yml 里的配置能绑定到它，同时 IDEA 能智能提示，体验更好。这个是 Spring Boot 里配置绑定的标准做法。 我帮你梳理完整步骤和关键点，确保你写的配置类和 application.yml 配置能完美对应，还能被 IDEA 智能识别和提示。  一、如何写一个自己的配置类，实现 application.yml 绑定和 ID">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250707124724752.png">
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250704122212717.png">
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250703215302874.png">
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250703103102608.png">
@@ -38,10 +39,10 @@
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250518162951182.png">
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250518163131432.png">
 <meta property="article:published_time" content="2025-03-09T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-07-04T04:24:16.875Z">
+<meta property="article:modified_time" content="2025-07-07T07:08:10.974Z">
 <meta property="article:author" content="Ba Tian">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250704122212717.png">
+<meta name="twitter:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250707124724752.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -235,7 +236,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.1k words
+          10k words
         
       </span>
     
@@ -246,7 +247,7 @@
         
         
         
-          76 mins
+          87 mins
         
       </span>
     
@@ -301,7 +302,7 @@
               <p id="updated-time" class="note note-info" style="display: none">
                 
                   
-                    Last updated on 2025-07-04T12:24:16+08:00
+                    Last updated on 2025-07-07T15:08:10+08:00
                   
                   
 
@@ -311,7 +312,159 @@
             
               <div class="markdown-body">
                 
-                <p><img src="/2025/03/10/hello-world/C/image-20250704122212717.png" srcset="/img/loading.gif" lazyload></p>
+                <p><img src="/2025/03/10/hello-world/C/image-20250707124724752.png" srcset="/img/loading.gif" lazyload></p>
+<p>你的需求很典型，想自己写一个配置类，让 <code>application.yml</code> 里的配置能绑定到它，同时 IDEA 能智能提示，体验更好。这个是 Spring Boot 里配置绑定的标准做法。</p>
+<p>我帮你梳理<strong>完整步骤和关键点</strong>，确保你写的配置类和 <code>application.yml</code> 配置能完美对应，还能被 IDEA 智能识别和提示。</p>
+<hr>
+<h2 id="一、如何写一个自己的配置类，实现-application-yml-绑定和-IDEA-提示？"><a href="#一、如何写一个自己的配置类，实现-application-yml-绑定和-IDEA-提示？" class="headerlink" title="一、如何写一个自己的配置类，实现 application.yml 绑定和 IDEA 提示？"></a>一、如何写一个自己的配置类，实现 <code>application.yml</code> 绑定和 IDEA 提示？</h2><h3 id="1-添加依赖（如果没加）"><a href="#1-添加依赖（如果没加）" class="headerlink" title="1. 添加依赖（如果没加）"></a>1. 添加依赖（如果没加）</h3><p>为了支持配置类元信息生成和 IDEA 提示，pom.xml 里加上：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-configuration-processor<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">optional</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">optional</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这是官方配置元信息处理器，IDEA 会读取它生成的提示。</p>
+</blockquote>
+<hr>
+<h3 id="2-编写配置类"><a href="#2-编写配置类" class="headerlink" title="2. 编写配置类"></a>2. 编写配置类</h3><ul>
+<li><p>用 <code>@ConfigurationProperties</code> 注解，定义你自己的前缀</p>
+</li>
+<li><p>推荐加上 <code>@Component</code> 或在配置类中 <code>@EnableConfigurationProperties</code> 注入</p>
+</li>
+<li><p>每个属性写成标准的 Java Bean 风格（get&#x2F;set）</p>
+</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.example.config;<br><br><span class="hljs-keyword">import</span> org.springframework.boot.context.properties.ConfigurationProperties;<br><span class="hljs-keyword">import</span> org.springframework.stereotype.Component;<br><br><span class="hljs-meta">@Component</span><br><span class="hljs-meta">@ConfigurationProperties(prefix = &quot;myapp.oauth&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyOAuthProperties</span> &#123;<br><br>    <span class="hljs-keyword">private</span> String clientId;<br>    <span class="hljs-keyword">private</span> String clientSecret;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getClientId</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> clientId;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setClientId</span><span class="hljs-params">(String clientId)</span> &#123;<br>        <span class="hljs-built_in">this</span>.clientId = clientId;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getClientSecret</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> clientSecret;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setClientSecret</span><span class="hljs-params">(String clientSecret)</span> &#123;<br>        <span class="hljs-built_in">this</span>.clientSecret = clientSecret;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-在-application-yml-中写配置"><a href="#3-在-application-yml-中写配置" class="headerlink" title="3. 在 application.yml 中写配置"></a>3. 在 <code>application.yml</code> 中写配置</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">myapp:</span><br>  <span class="hljs-attr">oauth:</span><br>    <span class="hljs-attr">clientId:</span> <span class="hljs-string">abc123</span><br>    <span class="hljs-attr">clientSecret:</span> <span class="hljs-string">secret456</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-IDEA-中智能提示生效关键点"><a href="#4-IDEA-中智能提示生效关键点" class="headerlink" title="4. IDEA 中智能提示生效关键点"></a>4. IDEA 中智能提示生效关键点</h3><ul>
+<li><p><strong>确保已引入 spring-boot-configuration-processor 依赖</strong>，并且已经构建过项目，IDEA 会根据生成的 <code>META-INF/spring-configuration-metadata.json</code> 识别配置。</p>
+</li>
+<li><p>IDEA 一般会在你写配置文件时根据该 JSON 给出提示，包括自动补全和校验。</p>
+</li>
+</ul>
+<hr>
+<h3 id="5-如果没有自动提示，可以尝试："><a href="#5-如果没有自动提示，可以尝试：" class="headerlink" title="5. 如果没有自动提示，可以尝试："></a>5. 如果没有自动提示，可以尝试：</h3><ul>
+<li><p>重新构建项目（Build -&gt; Rebuild Project）</p>
+</li>
+<li><p>关闭再打开 <code>application.yml</code> 文件</p>
+</li>
+<li><p>清理并重启 IDEA 缓存（File -&gt; Invalidate Caches &#x2F; Restart）</p>
+</li>
+</ul>
+<hr>
+<h2 id="二、总结"><a href="#二、总结" class="headerlink" title="二、总结"></a>二、总结</h2><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>关键点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>依赖</td>
+<td>添加 <code>spring-boot-configuration-processor</code></td>
+</tr>
+<tr>
+<td>配置类</td>
+<td>用 <code>@ConfigurationProperties(prefix = &quot;...&quot;)</code> 标注，且写标准 Java Bean 结构</td>
+</tr>
+<tr>
+<td>Bean 注册</td>
+<td>用 <code>@Component</code> 或在配置类&#x2F;启动类用 <code>@EnableConfigurationProperties</code> 启用</td>
+</tr>
+<tr>
+<td>配置文件</td>
+<td>写符合前缀规范的 YAML&#x2F;Properties 配置项</td>
+</tr>
+<tr>
+<td>IDEA 支持</td>
+<td>正确依赖引入和项目构建后，IDEA 自动提示配置项</td>
+</tr>
+</tbody></table>
+<hr>
+<p>如果你需要，我也可以帮你写一个示例的完整项目结构，或者帮你检查你写的配置类哪里没对上导致不提示。你想要吗？</p>
+<p>想要学一下这个 OAuth2 Client 的配置就很合适，不是直接注入到最后的，而是有个中介</p>
+<h2 id="🧭-整个流程是这样的："><a href="#🧭-整个流程是这样的：" class="headerlink" title="🧭 整个流程是这样的："></a>🧭 整个流程是这样的：</h2><ol>
+<li><p>✅ Spring Boot 启动时，读取 <code>application.yml</code></p>
+</li>
+<li><p>✅ 把 <code>spring.security.oauth2.client.*</code> 配置绑定到 <code>OAuth2ClientProperties</code></p>
+</li>
+<li><p>✅ Spring Boot 的自动配置类（比如 <code>OAuth2ClientRegistrationRepositoryConfiguration</code>）调用 <code>OAuth2ClientProperties#getRegistration()</code></p>
+</li>
+<li><p>✅ 遍历你配置的每个客户端（如 gitee）</p>
+</li>
+<li><p>✅ 为每一个客户端调用 <code>ClientRegistration.Builder</code> 构建 <code>ClientRegistration</code> 实例</p>
+</li>
+</ol>
+<p>最终 Spring Security 就拿着这个 <code>ClientRegistration</code> 对象，去做 OAuth2 的发起、重定向、Token 获取、用户信息请求等。</p>
+<p>这是个非常核心又容易忽略的问题。Spring Boot 的“配置”其实不是直接配置到某个类上，而是<strong>通过自动装配机制，把配置值绑定到相关的 Bean 或配置类中去</strong>。你可以从这几个方面理解：</p>
+<hr>
+<h3 id="一、配置的来源"><a href="#一、配置的来源" class="headerlink" title="一、配置的来源"></a>一、配置的来源</h3><p>Spring Boot 支持多种配置来源，最常见的是：</p>
+<ul>
+<li><p><code>application.properties</code> 或 <code>application.yml</code></p>
+</li>
+<li><p>命令行参数、环境变量、<code>@Value</code> 注解</p>
+</li>
+<li><p>外部配置服务（如 Nacos、Consul）</p>
+</li>
+</ul>
+<p>这些配置本身只是<strong>键值对</strong>，但它们最终都会通过 <strong>绑定</strong> 或 <strong>条件装配</strong> 的方式作用于 Spring 容器中的某些 Bean。</p>
+<hr>
+<h3 id="二、配置去到了哪里？"><a href="#二、配置去到了哪里？" class="headerlink" title="二、配置去到了哪里？"></a>二、配置去到了哪里？</h3><ol>
+<li><strong>绑定到配置类（<code>@ConfigurationProperties</code>）</strong></li>
+</ol>
+<p>Spring Boot 内置了大量的配置类，比如：</p>
+<ul>
+<li><p><code>org.springframework.boot.autoconfigure.web.ServerProperties</code><br>  → 用来读取 <code>server.port</code>、<code>server.servlet.context-path</code> 等</p>
+</li>
+<li><p><code>org.springframework.boot.autoconfigure.jdbc.DataSourceProperties</code><br>  → 读取 <code>spring.datasource.url</code>、<code>spring.datasource.username</code></p>
+</li>
+</ul>
+<p>Spring Boot 启动时，会自动扫描这些带有 <code>@ConfigurationProperties</code> 的类，把配置文件中的值注入进去。</p>
+<ol start="2">
+<li><strong>作用于自动配置类（<code>@EnableAutoConfiguration</code>）</strong></li>
+</ol>
+<p>Spring Boot 的核心机制是“自动配置”，即：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DemoApplication</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(DemoApplication.class, args);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个注解背后其实是 <code>@EnableAutoConfiguration</code>，它会加载 <code>META-INF/spring.factories</code>（或 Boot 3.x 用 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code>）中声明的自动配置类。</p>
+<p>比如你配置了：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring.mvc.view.prefix:</span> <span class="hljs-string">/WEB-INF/views/</span><br></code></pre></td></tr></table></figure>
+
+<p>这个值会绑定到 <code>WebMvcProperties</code> 中，再被 <code>WebMvcAutoConfiguration</code> 使用，来设置视图解析器。</p>
+<ol start="3">
+<li><strong>配置注入到 Bean 中（<code>@Value</code>）</strong></li>
+</ol>
+<p>如果你写了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Value(&quot;$&#123;my.custom.name&#125;&quot;)</span><br><span class="hljs-keyword">private</span> String name;<br></code></pre></td></tr></table></figure>
+
+<p>这个是最直接的，Spring 会在容器初始化时，自动把配置文件里的值注入进去。</p>
+<hr>
+<h3 id="三、总结性一句话"><a href="#三、总结性一句话" class="headerlink" title="三、总结性一句话"></a>三、总结性一句话</h3><blockquote>
+<p>Spring Boot 配置文件中的值，<strong>不是配置到某一个类上</strong>，而是：</p>
+<ul>
+<li><p><strong>绑定到配置类（<code>@ConfigurationProperties</code>）</strong>；</p>
+</li>
+<li><p><strong>影响自动配置类的装配行为</strong>；</p>
+</li>
+<li><p><strong>可通过 <code>@Value</code> 注入到 Bean 中</strong>；</p>
+</li>
+<li><p><strong>最终决定 Bean 的属性值、是否加载某个 Bean 等行为</strong>。</p>
+</li>
+</ul>
+</blockquote>
+<hr>
+<h3 id="如果你想“看见”这些配置是去哪了？"><a href="#如果你想“看见”这些配置是去哪了？" class="headerlink" title="如果你想“看见”这些配置是去哪了？"></a>如果你想“看见”这些配置是去哪了？</h3><p>你可以：</p>
+<h4 id="✅-开启配置元信息元数据支持"><a href="#✅-开启配置元信息元数据支持" class="headerlink" title="✅ 开启配置元信息元数据支持"></a>✅ 开启配置元信息元数据支持</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-configuration-processor<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">optional</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">optional</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>然后去看 IDE 中提示出来的 <code>@ConfigurationProperties</code> 类都有哪些字段支持配置。</p>
+<h4 id="✅-打开调试日志"><a href="#✅-打开调试日志" class="headerlink" title="✅ 打开调试日志"></a>✅ 打开调试日志</h4><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">logging.level.org.springframework.boot.autoconfigure</span>=<span class="hljs-string">DEBUG</span><br></code></pre></td></tr></table></figure>
+
+<p>你会看到哪些自动配置类被加载了、哪些条件没满足没加载。</p>
+<hr>
+<p>如你需要，我也可以帮你找几个典型配置，看它们是怎么绑定到 Spring Bean 的。要不要？</p>
+<p><img src="/2025/03/10/hello-world/C/image-20250704122212717.png" srcset="/img/loading.gif" lazyload></p>
 <p>不能这样做，会报错，要想在本方法用，只能 csrfTokenRepository()</p>
 <p><img src="/2025/03/10/hello-world/C/image-20250703215302874.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="两种注册方式啊"><a href="#两种注册方式啊" class="headerlink" title="两种注册方式啊"></a>两种注册方式啊</h2><p><img src="/2025/03/10/hello-world/C/image-20250703103102608.png" srcset="/img/loading.gif" lazyload></p>
