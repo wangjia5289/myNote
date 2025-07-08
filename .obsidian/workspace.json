@@ -314,9 +314,9 @@
   "active": "7191cc10a175b5bb",
   "lastOpenFiles": [
     "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
+    "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
     "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md",
     "source/_posts/笔记：Spring Security.md",
-    "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
     "source/_posts/笔记：Spring Boot.md",
     "source/_posts/笔记：OAuth 协议.md",
     "未确认 883852.crdownload",
