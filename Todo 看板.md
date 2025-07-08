@@ -17,6 +17,7 @@ kanban-plugin: board
 - [ ] Http 连接池、MySQL 连接池、线程池
 - [ ] Builder 是什么返回类型，GetObjectArgs.builder().bucket().object().build()
 - [ ] @Deprecated 标签是什么标签
+- [ ] minio 用户管理
 
 
 ## Done

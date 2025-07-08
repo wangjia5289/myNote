@@ -13,6 +13,8 @@ layout: post
 ---
 # 一、理论
 
+
+
 ## Bucket
 
 ### Bucket 概述
@@ -81,6 +83,56 @@ public String setBucketPolicy(@RequestParam String bucketName, @RequestBody Stri
 > 1. AWS 是指用户
 
 
+<font color="#92d050">4. Action</font>
+指定动作，常见有：
+1. Bucket 级操作：
+	1. s3:ListBucket
+		1. 列出桶内的对象列表
+	2. s3:GetBucketLocation
+		1. 获取桶所在区域（Region）信息
+	3. s3:ListBucketMultipartUploads
+		1. 查看这个桶中进行中的多部分上传任务（分片上传）
+	4. s3:GetBucketPolicy
+		1. 查看桶策略
+	5. s3:PutBucketPolicy
+		1. 设置桶策略
+	6. s3:DeleteBucketPolicy
+		1. 删除桶策略
+2. Object 级操作：
+	1. s3:GetObject
+		1. 下载 Object
+	2. s3:PutObject
+		1. 上传对象
+	3. s3:DeleteObject
+		1. 删除对象
+	4. s3:AbortMultipartUpload
+		1. 取消一个正在进行的分片上传任务
+	5. s3:ListMultipartUploadParts
+		1. 查看某个分片上传任务的已上传部分
+	6. s3:GetObjectVersion
+		1. 获取某个版本对象（MinIO默认不开启版本控制）
+3. s3:ListBucket
+	1. 列出桶中的对象列表
+4. s3:GetBucketLocation
+	1. 获取桶的区域信息
+5. s3:*
+	1. 所有操作
+
+> [!NOTE] 注意事项
+> 1. 获取桶的区域信息，也就是这个桶属于哪个区域（Region），在 MinIO 社区版中区域的概念有时是“虚拟”的（比如默认都叫 `us-east-1`），**但权限上仍然要考虑是否开放 `s3:GetBucketLocation`**，否则 SDK/CLI 工具可能报 403。
+
+
+<font color="#92d050">5. Resource</font>
+操作哪些资源，常见有：
+1. arn:aws:s3:::my-bucket
+	1. 桶本身
+2. arn:aws:s3:::my-bucket/*
+	1. 桶内所有 Object
+3. arn:aws:s3:::my-bucket/public/*
+	1. 某些 Object
+
+----
+
 
 
 
@@ -141,7 +193,7 @@ public class MinioConfiguration {
 ```
 
 > [!NOTE] 注意事项
-> 1. 由于目前未提供 `**-minio-starter` 的起步依赖，官方推荐的方式是直接添加 Minio 官方提供的依赖  
+> 1. 由于目前未提供 `**-minio-starter` 的起步依赖，官方推荐的方式是直接添加 Minio 官方提供的 Minio Java SDK
 
 ----
 
