@@ -8,6 +8,12 @@ tags:
 author: 霸天
 layout: post
 ---
+> [!NOTE] 注意事项
+> 1. 当设置 `configuration.setAllowCredentials(true);` 时，就不能再允许所有来源访问，即不能使用 `configuration.setAllowedOrigins(List.of("*"));`，需要明确指定允许的域名（Spring Security 为了我们的安全真是煞费苦心了）
+> 2. 如果不涉及到 Cookie，其实不用去做这样一系列操作
+> 3. 跨域请求不携带 Cookie，指的是通过 AJAX 发起的请求；但如果是通过 HTML 元素导航发起的请求，比如 `<img src="https://bank.com/transfer?to=attacker&amount=10000" />`，无论是否跨域，浏览器都会自动携带对应 Cookie。这也是为什么我们需要 CSRF 防护的原因。
+
+
 只要你使用 Cookie存储认证，就会存csrf攻击，例如remember-me cookie 和 jwt，remember-me cookie 还会对remember-me cookie 做一下检验，可你的jwt......
 ![](image-20250405170229690.png)
 

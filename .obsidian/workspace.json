@@ -8,49 +8,63 @@
         "type": "tabs",
         "children": [
           {
-            "id": "2e6f22de6619ecf2",
+            "id": "0ed90ca78363e32b",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：一键启动 WLAN 小工具.md",
+                "file": "source/_posts/笔记：OAuth 协议.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：一键启动 WLAN 小工具"
+              "title": "笔记：OAuth 协议"
             }
           },
           {
-            "id": "7ed82e99c0f93c08",
+            "id": "7191cc10a175b5bb",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：一键启动小工具.md",
+                "file": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：一键启动小工具"
+              "title": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC"
             }
           },
           {
-            "id": "d069547cbc52af68",
+            "id": "31565978f25cd828",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：本地图库小工具.md",
+                "file": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：本地图库小工具"
+              "title": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流"
             }
           },
           {
             "id": "bb2733a644b10a3e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "笔记：跨站请求伪造攻击（CSRF）"
+            }
+          },
+          {
+            "id": "94eb78479ff3fb7b",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -64,17 +78,17 @@
             }
           },
           {
-            "id": "052ba227ff06ee2a",
+            "id": "df7fc3263aa682b2",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：Spring Authorization Server.md",
+                "file": "source/_posts/笔记：Spring Boot.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：Spring Authorization Server"
+              "title": "笔记：Spring Boot"
             }
           }
         ],
@@ -230,8 +244,7 @@
               "title": "笔记：Spring Security 的出链列表"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       },
       {
         "id": "1977f3e42c5475a4",
@@ -298,54 +311,54 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "7ed82e99c0f93c08",
+  "active": "7191cc10a175b5bb",
   "lastOpenFiles": [
-    "source/_posts/笔记：一键启动 WLAN 小工具.md",
-    "source/_posts/笔记：一键启动小工具.md",
-    "source/_posts/笔记：OAuth 协议.md",
-    "source/_posts/笔记：本地图库小工具.md",
-    "source/_posts/笔记：OAuth 协议/image-20250706220734441.png",
+    "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
+    "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md",
     "source/_posts/笔记：Spring Security.md",
+    "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
+    "source/_posts/笔记：Spring Boot.md",
+    "source/_posts/笔记：OAuth 协议.md",
+    "未确认 883852.crdownload",
+    "Todo 看板.md",
     "source/_posts/笔记：Spring Authorization Server.md",
+    "source/_posts/笔记：OAuth 协议/Map：OAuth 协议.xmind",
+    "source/_posts/笔记：Spring Boot/image-20250707155119821.png",
+    "source/_posts/笔记：Spring IOC.md",
+    "source/_posts/笔记：OAuth 协议/image-20250707153632809.png",
+    "templates/临时：mybatis.md",
+    "maps/Map：OAuth 协议.xmind",
+    "Edraw/OAuth协议---授权码模式.eddx.fbdISl",
+    "source/_posts/笔记：Spring IOC/image-20250707124724752.png",
+    "source/_posts/笔记：OAuth 协议/image-20250707122604264.png",
+    "source/_posts/笔记：OAuth 协议/image-20250707122541696.png",
+    "source/_posts/笔记：OAuth 协议/image-20250707120251369.png",
+    "source/_posts/笔记：奶块攻略.md",
+    "source/_posts/笔记：OAuth 协议/image-20250707104557256.png",
+    "source/_posts/笔记：OAuth 协议/image-20250707090310873.png",
+    "source/_posts/笔记：OAuth 协议/image-20250707085938292.png",
+    "source/_posts/笔记：OAuth 协议/image-20250707085858048.png",
+    "Edraw/OAuth协议---授权码模式.eddx",
+    "Edraw/OAuth协议---OAuth2概述.eddx",
+    "Edraw/Oauth协议---授权码模式.eddx",
+    "Edraw/Oauth协议---授权码模式.eddx.xFFlIo",
+    "source/_posts/笔记：本地图库小工具.md",
+    "source/_posts/笔记：一键启动小工具.md",
+    "source/_posts/笔记：一键启动 WLAN 小工具.md",
     "source/_posts/笔记：Java 项目创建和结构.md",
-    "source/_posts/笔记：OAuth 协议/PixPin_2025-07-06_17-41-16.png",
     "source/_posts/笔记：OAuth 协议",
     "source/_posts/笔记：Windows.md",
-    "source/_posts/笔记：OAuth 协议/PixPin_2025-07-06_16-38-42.png",
     "source/_posts/笔记：OAuth 规范",
     "source/_posts/笔记：Java 文档.md",
     "question.md",
     "source/_posts/笔记：RBAC 规范.md",
-    "source/_posts/笔记：Java 文档/image-20250706160803198.png",
     "Categories.md",
     "README.md",
-    "Todo 看板.md",
     "Excalidraw/firstTest.md",
-    "Categories",
-    "Categories 总纲",
     "source/_posts/笔记：Apifox.md",
-    "source/_posts/笔记：Apifox/image-20250706124101903.png",
-    "source/_posts/笔记：Apifox/image-20250706124043995.png",
-    "source/_posts/笔记：Apifox",
-    "source/_posts/笔记：Java 文档/image-20250706122621743.png",
-    "source/_posts/笔记：Java 文档/image-20250706121644671.png",
-    "source/_posts/笔记：Java 文档/image-20250706121439190.png",
-    "source/_posts/笔记：Java 文档/image-20250706120148704.png",
-    "source/_posts/笔记：Java 文档/Map：Java 文档.xmind",
-    "maps/Map：Java 文档.xmind",
     "templates/default-template.md",
-    "source/_posts/笔记：Spring Authorization Server/Map：SpringAuthorizationServer.xmind",
-    "source/_posts/笔记：Spring Authorization Server",
-    "maps/Map：SpringAuthorizationServer.xmind",
     "source/_posts/笔记：阿里云代码规约.md",
     "templates/临时：security.md",
-    "source/_posts/笔记：Java 实现加密、解密、编码、解码.md",
-    "source/_posts/笔记：Java 异常处理.md",
-    "templates/临时：mybatis.md",
-    "source/_posts/笔记：Linux.md",
-    "source/_posts/笔记：Spring IOC.md",
-    "source/_posts/笔记：Git 家族.md",
-    "source/_posts/笔记：Md 分级标题 → Xmind 小工具.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]

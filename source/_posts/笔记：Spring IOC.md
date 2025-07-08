@@ -9,6 +9,293 @@ tags:
 author: 霸天
 layout: post
 ---
+![](image-20250707124724752.png)
+
+
+你的需求很典型，想自己写一个配置类，让 `application.yml` 里的配置能绑定到它，同时 IDEA 能智能提示，体验更好。这个是 Spring Boot 里配置绑定的标准做法。
+
+我帮你梳理**完整步骤和关键点**，确保你写的配置类和 `application.yml` 配置能完美对应，还能被 IDEA 智能识别和提示。
+
+---
+
+## 一、如何写一个自己的配置类，实现 `application.yml` 绑定和 IDEA 提示？
+
+### 1. 添加依赖（如果没加）
+
+为了支持配置类元信息生成和 IDEA 提示，pom.xml 里加上：
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-configuration-processor</artifactId>
+  <optional>true</optional>
+</dependency>
+```
+
+> 这是官方配置元信息处理器，IDEA 会读取它生成的提示。
+
+---
+
+### 2. 编写配置类
+
+- 用 `@ConfigurationProperties` 注解，定义你自己的前缀
+    
+- 推荐加上 `@Component` 或在配置类中 `@EnableConfigurationProperties` 注入
+    
+- 每个属性写成标准的 Java Bean 风格（get/set）
+    
+
+示例：
+
+```java
+package com.example.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+@Component
+@ConfigurationProperties(prefix = "myapp.oauth")
+public class MyOAuthProperties {
+
+    private String clientId;
+    private String clientSecret;
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
+    }
+}
+```
+
+---
+
+### 3. 在 `application.yml` 中写配置
+
+```yaml
+myapp:
+  oauth:
+    clientId: abc123
+    clientSecret: secret456
+```
+
+---
+
+### 4. IDEA 中智能提示生效关键点
+
+- **确保已引入 spring-boot-configuration-processor 依赖**，并且已经构建过项目，IDEA 会根据生成的 `META-INF/spring-configuration-metadata.json` 识别配置。
+    
+- IDEA 一般会在你写配置文件时根据该 JSON 给出提示，包括自动补全和校验。
+    
+
+---
+
+### 5. 如果没有自动提示，可以尝试：
+
+- 重新构建项目（Build -> Rebuild Project）
+    
+- 关闭再打开 `application.yml` 文件
+    
+- 清理并重启 IDEA 缓存（File -> Invalidate Caches / Restart）
+    
+
+---
+
+## 二、总结
+
+|步骤|关键点|
+|---|---|
+|依赖|添加 `spring-boot-configuration-processor`|
+|配置类|用 `@ConfigurationProperties(prefix = "...")` 标注，且写标准 Java Bean 结构|
+|Bean 注册|用 `@Component` 或在配置类/启动类用 `@EnableConfigurationProperties` 启用|
+|配置文件|写符合前缀规范的 YAML/Properties 配置项|
+|IDEA 支持|正确依赖引入和项目构建后，IDEA 自动提示配置项|
+
+---
+
+如果你需要，我也可以帮你写一个示例的完整项目结构，或者帮你检查你写的配置类哪里没对上导致不提示。你想要吗？
+
+
+
+想要学一下这个 OAuth2 Client 的配置就很合适，不是直接注入到最后的，而是有个中介
+## 🧭 整个流程是这样的：
+
+1. ✅ Spring Boot 启动时，读取 `application.yml`
+    
+2. ✅ 把 `spring.security.oauth2.client.*` 配置绑定到 `OAuth2ClientProperties`
+    
+3. ✅ Spring Boot 的自动配置类（比如 `OAuth2ClientRegistrationRepositoryConfiguration`）调用 `OAuth2ClientProperties#getRegistration()`
+    
+4. ✅ 遍历你配置的每个客户端（如 gitee）
+    
+5. ✅ 为每一个客户端调用 `ClientRegistration.Builder` 构建 `ClientRegistration` 实例
+    
+
+最终 Spring Security 就拿着这个 `ClientRegistration` 对象，去做 OAuth2 的发起、重定向、Token 获取、用户信息请求等。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+这是个非常核心又容易忽略的问题。Spring Boot 的“配置”其实不是直接配置到某个类上，而是**通过自动装配机制，把配置值绑定到相关的 Bean 或配置类中去**。你可以从这几个方面理解：
+
+---
+
+### 一、配置的来源
+
+Spring Boot 支持多种配置来源，最常见的是：
+
+- `application.properties` 或 `application.yml`
+    
+- 命令行参数、环境变量、`@Value` 注解
+    
+- 外部配置服务（如 Nacos、Consul）
+    
+
+这些配置本身只是**键值对**，但它们最终都会通过 **绑定** 或 **条件装配** 的方式作用于 Spring 容器中的某些 Bean。
+
+---
+
+### 二、配置去到了哪里？
+
+1. **绑定到配置类（`@ConfigurationProperties`）**
+    
+
+Spring Boot 内置了大量的配置类，比如：
+
+- `org.springframework.boot.autoconfigure.web.ServerProperties`  
+    → 用来读取 `server.port`、`server.servlet.context-path` 等
+    
+- `org.springframework.boot.autoconfigure.jdbc.DataSourceProperties`  
+    → 读取 `spring.datasource.url`、`spring.datasource.username`
+    
+
+Spring Boot 启动时，会自动扫描这些带有 `@ConfigurationProperties` 的类，把配置文件中的值注入进去。
+
+2. **作用于自动配置类（`@EnableAutoConfiguration`）**
+    
+
+Spring Boot 的核心机制是“自动配置”，即：
+
+```java
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+这个注解背后其实是 `@EnableAutoConfiguration`，它会加载 `META-INF/spring.factories`（或 Boot 3.x 用 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`）中声明的自动配置类。
+
+比如你配置了：
+
+```yaml
+spring.mvc.view.prefix: /WEB-INF/views/
+```
+
+这个值会绑定到 `WebMvcProperties` 中，再被 `WebMvcAutoConfiguration` 使用，来设置视图解析器。
+
+3. **配置注入到 Bean 中（`@Value`）**
+    
+
+如果你写了：
+
+```java
+@Value("${my.custom.name}")
+private String name;
+```
+
+这个是最直接的，Spring 会在容器初始化时，自动把配置文件里的值注入进去。
+
+---
+
+### 三、总结性一句话
+
+> Spring Boot 配置文件中的值，**不是配置到某一个类上**，而是：
+> 
+> - **绑定到配置类（`@ConfigurationProperties`）**；
+>     
+> - **影响自动配置类的装配行为**；
+>     
+> - **可通过 `@Value` 注入到 Bean 中**；
+>     
+> - **最终决定 Bean 的属性值、是否加载某个 Bean 等行为**。
+>     
+
+---
+
+### 如果你想“看见”这些配置是去哪了？
+
+你可以：
+
+#### ✅ 开启配置元信息元数据支持
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-configuration-processor</artifactId>
+    <optional>true</optional>
+</dependency>
+```
+
+然后去看 IDE 中提示出来的 `@ConfigurationProperties` 类都有哪些字段支持配置。
+
+#### ✅ 打开调试日志
+
+```properties
+logging.level.org.springframework.boot.autoconfigure=DEBUG
+```
+
+你会看到哪些自动配置类被加载了、哪些条件没满足没加载。
+
+---
+
+如你需要，我也可以帮你找几个典型配置，看它们是怎么绑定到 Spring Bean 的。要不要？
+
+
 ![](image-20250704122212717.png)
 
 不能这样做，会报错，要想在本方法用，只能 csrfTokenRepository()

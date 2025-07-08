@@ -1,28 +1,56 @@
 {
   "recentFiles": [
     {
-      "basename": "笔记：一键启动小工具",
-      "path": "source/_posts/笔记：一键启动小工具.md"
+      "basename": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC",
+      "path": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md"
     },
     {
-      "basename": "笔记：一键启动 WLAN 小工具",
-      "path": "source/_posts/笔记：一键启动 WLAN 小工具.md"
+      "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
+      "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
     },
     {
-      "basename": "笔记：OAuth 协议",
-      "path": "source/_posts/笔记：OAuth 协议.md"
-    },
-    {
-      "basename": "笔记：本地图库小工具",
-      "path": "source/_posts/笔记：本地图库小工具.md"
+      "basename": "笔记：跨站请求伪造攻击（CSRF）",
+      "path": "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md"
     },
     {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
     },
     {
-      "basename": "笔记：Spring Authorization Server",
-      "path": "source/_posts/笔记：Spring Authorization Server.md"
+      "basename": "笔记：Spring Boot",
+      "path": "source/_posts/笔记：Spring Boot.md"
+    },
+    {
+      "basename": "笔记：OAuth 协议",
+      "path": "source/_posts/笔记：OAuth 协议.md"
+    },
+    {
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
+    },
+    {
+      "basename": "笔记：Spring IOC",
+      "path": "source/_posts/笔记：Spring IOC.md"
+    },
+    {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
+    },
+    {
+      "basename": "笔记：奶块攻略",
+      "path": "source/_posts/笔记：奶块攻略.md"
+    },
+    {
+      "basename": "笔记：本地图库小工具",
+      "path": "source/_posts/笔记：本地图库小工具.md"
+    },
+    {
+      "basename": "笔记：一键启动小工具",
+      "path": "source/_posts/笔记：一键启动小工具.md"
+    },
+    {
+      "basename": "笔记：一键启动 WLAN 小工具",
+      "path": "source/_posts/笔记：一键启动 WLAN 小工具.md"
     },
     {
       "basename": "笔记：Java 项目创建和结构",
@@ -53,10 +81,6 @@
       "path": "README.md"
     },
     {
-      "basename": "Todo 看板",
-      "path": "Todo 看板.md"
-    },
-    {
       "basename": "firstTest",
       "path": "Excalidraw/firstTest.md"
     },
@@ -81,16 +105,8 @@
       "path": "source/_posts/笔记：Java 异常处理.md"
     },
     {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
-    },
-    {
       "basename": "笔记：Linux",
       "path": "source/_posts/笔记：Linux.md"
-    },
-    {
-      "basename": "笔记：Spring IOC",
-      "path": "source/_posts/笔记：Spring IOC.md"
     },
     {
       "basename": "笔记：Git 家族",
@@ -103,10 +119,6 @@
     {
       "basename": "笔记：Java 数据类型",
       "path": "source/_posts/笔记：Java 数据类型.md"
-    },
-    {
-      "basename": "笔记：Spring Boot",
-      "path": "source/_posts/笔记：Spring Boot.md"
     },
     {
       "basename": "笔记：MySQL 基础",
@@ -187,18 +199,6 @@
     {
       "basename": "笔记：Spring 整合 Minio",
       "path": "source/_posts/笔记：Spring 整合 Minio.md"
-    },
-    {
-      "basename": "笔记：Redis 基础",
-      "path": "source/_posts/笔记：Redis 基础.md"
-    },
-    {
-      "basename": "笔记：Raft 协议",
-      "path": "source/_posts/笔记：Raft 协议.md"
-    },
-    {
-      "basename": "笔记：RabbitMQ 基础",
-      "path": "source/_posts/笔记：RabbitMQ 基础.md"
     }
   ],
   "omittedPaths": [],

@@ -81,7 +81,7 @@ layout: post
 
 Spring Security 的配置主要在 Java 配置类中进行，而不是在 `application.yml` 文件中，因为安全配置通常涉及到逻辑和条件判断，这些无法简单地通过属性文件表达，我们可以完成以下配置：
 
-在 `com.example.securitywithhttpsession.configuration` 下创建 `SecurityConfiguration`，然后直接粘贴这份配置模板，再根据下方的详细说明按需进行调整。
+SecurityConfiguration 类在 `com.example.securitywithhttpsession.configuration` 包下，直接粘贴这份配置模板，再根据下方的详细说明按需进行调整。
 ```
 @Configuration
 @EnableMethodSecurity // 1. 启用方法级别的访问控制
@@ -284,6 +284,7 @@ CORS 是指：出于安全考虑，浏览器默认会阻止网页从一个源（
 1. 对公共资源，允许跨域访问，且在 Spring Security 中使用 `permitAll` 放行，无需登录即可访问；
 2. 对私密资源，要求用户先登录，获取 JWT 凭证，前端在跨域请求时携带该 JWT，后端通过 Spring Security 进行权限校验。对于更敏感的操作，还要启用 CSRF 防护，要求前端携带 CSRF Token；
 3. 登录认证基于 JWT，避免使用 HttpSession，因为 HttpSession 依赖单台服务器，难以应对集群环境，JWT 则是通用且无状态的认证方案
+4. 需要注意的是，如果只是我们自己的项目，仅供内部使用，或者是一些功能较简单的小型项目，后端生成令牌给前端，前端携带令牌访问后端接口，这种情况下我们完全可以自定义过滤器、自行处理令牌校验等逻辑，前后端达成一致即可，问题不大。但如果目标是打造一个对外公开、安全、合规的系统，那就必须遵循 OAuth 的标准化流程和规范。详见笔记：OAuth 协议
 ```
 // 启用 CORS 跨域资源共享，并配置其跨域规则
 @Bean
@@ -370,9 +371,7 @@ configuration.setAllowedHeaders(List.of("*"));
 
 
 <span style="background:#9254de">5. configuration.setAllowCredentials  </span>
-在讲解这个之前，我们先补充一个前置知识：当我们是同源访问时，前端访问后端，浏览器会自动携带 Cookie 发送到后端，这点大家都很熟悉。此外，还有 Authorization（JWT）等信息，是通过 AJAX 请求的请求头或请求体发送到后端的。  
-
-但是在跨域访问时，出于安全考虑，浏览器默认不会携带 Cookie。如果想让浏览器携带 Cookie，前端必须在 AJAX 请求中添加 `credentials: 'include'`，这样 Cookie 才会被发送。
+在讲解这个之前，我们先补充一个前置知识：当我们是同源访问时，前端访问后端，一般是使用 AJAX 进行请求的，然后浏览器会自动携带 Cookie 发送到后端，这点大家都很熟悉。但是在跨域访问时，出于安全考虑，浏览器默认不会携带 Cookie。如果想让浏览器携带 Cookie，前端必须在 AJAX 请求中添加 `credentials: 'include'`，这样 Cookie 才会被发送。
 ```
 // 前端请求示例：
 fetch('http://api.example.com/user/info', {
@@ -384,7 +383,7 @@ fetch('http://api.example.com/user/info', {
 });
 ```
 
-但并不是说你前端愿意携带 Cookie，我后端就理所当然地愿意接收。因为后端并不知道你发送过来的 Cookie 是出于正常用途，还是存在安全隐患。也就是说，我们的 `configuration.setAllowCredentials` 默认值是 `false`，即使前端执意携带 Cookie 发起请求，后端也不会允许浏览器将这个 Cookie 一并带上。这样即便接口本身正常返回了响应，浏览器也会因为安全策略自动屏蔽返回结果，导致前端无法正常获取数据。
+但并不是说你前端愿意携带 Cookie，我后端就理所当然地愿意接收。因为后端并不知道你发送过来的 Cookie 是出于正常用途，还是存在安全隐患。也就是说，我们的 `configuration.setAllowCredentials` 默认值是 `false`，即使前端执意携带 Cookie 发起请求，接口本身执行并正常返回了响应，浏览器也会因为安全策略自动屏蔽返回结果，导致前端无法正常获取数据。
 
 如果将其设置为 `true`，意味着前后端达成共识，允许使用 Cookie，这样跨域请求才能正常携带 Cookie 并获得返回结果：
 ```
@@ -392,8 +391,9 @@ configuration.setAllowCredentials(true);
 ```
 
 > [!NOTE] 注意事项
-> 1. 当设置 `configuration.setAllowCredentials(true);` 时，不能再允许所有来源访问，即不能使用 `configuration.setAllowedOrigins(List.of("*"));`，需要明确指定允许的域名
-> 2. 如果不涉及到 `Cookie`，其实不用去做这样一系列操作
+> 1. 当设置 `configuration.setAllowCredentials(true);` 时，就不能再允许所有来源访问，即不能使用 `configuration.setAllowedOrigins(List.of("*"));`，需要明确指定允许的域名（Spring Security 为了我们的安全真是煞费苦心了）
+> 2. 如果不涉及到 Cookie，其实不用去做这样一系列操作
+> 3. 跨域请求不携带 Cookie，指的是通过 AJAX 发起的请求；但如果是通过 HTML 元素导航发起的请求，比如 `<img src="https://bank.com/transfer?to=attacker&amount=10000" />`，无论是否跨域，浏览器都会自动携带对应 Cookie。这也是为什么我们需要 CSRF 防护的原因。
 
 
 <span style="background:#9254de">6. source.setCorsConfigurations</span>
@@ -793,7 +793,8 @@ http.csrf(csrf -> {
 > 1. 同样能支持通配符（`?`、`*`、`**`）
 > 2. CSRF 攻击的本质是：利用浏览器自动携带 Cookie 的特性，攻击者诱导用户在已登录的网站执行非本意的操作
 > 3. 如果我们基于 JWT，通常可以直接禁用 CSRF 防护，因为浏览器是不会自动发送 JWT，必须前端主动将 Token 放到请求头中，因此攻击者无法通过简单的跨站请求强制浏览器带上有效的 JWT
-> 4. 如果想要禁用 CSRF 防护，可以配置为：
+> 4. 开发过程中，可以先禁用 CSRF 防护，到最后再根据 API 隐私进行 CSRF 防护
+> 5. 如果想要禁用 CSRF 防护，可以配置为：
 ```
 http.csrf(csrf -> csrf.disable());
 ```
@@ -892,8 +893,9 @@ UsernamePasswordAuthenticationToken auth =  new UsernamePasswordAuthenticationTo
 
 ### 1.1. 基于 HttpSession 的 Spring Security
 
-#### 1.1.1. 创建 Spring Web 项目，添加 Security 相关依赖
+#### 1.1.1. 创建 Spring Web 项目，添加相关依赖
 
+创建时：
 1. Web：
 	1. Spring Web
 2. Security：
@@ -1343,7 +1345,7 @@ public class CustomerUserDetailsImpl implements UserDetails {
 
 不过需要明确的是，Spring Security 的设计初衷并不是鼓励我们将过多的用户字段直接放进 `Authentication` 对象中。是否将这些字段一并封装，应该根据你的具体业务场景权衡决定，避免过度冗余或信息泄露风险。
 
-最终，我们实现的代码就如下所示：
+CustomerUserDetailsImpl 类在`com.example.securitywithhttpsession.entity` 包下，最终，我们实现的代码就如下所示：
 ```
 public class CustomerUserDetailsImpl implements UserDetails {
 
@@ -1494,7 +1496,7 @@ public class CustomerUserDetailsImpl implements UserDetails {
 
 我们一般创建 `CustomerUserDetailsImplService` 类，用于实现这个接口，并重写它的 `loadUserByUsername` 方法，在这个方法中使用 `UserMapper` 查询出对应的 `User`，然后直接 `return new CustomerUserDetailsImpl(user)` 即可。
 
-`CustomerUserDetailsImplService` 类位于 `com.example.securitywithhttpsession.service` 包下
+CustomerUserDetailsImplService 类位于 `com.example.securitywithhttpsession.service` 包下
 ```
 @Service
 public class CustomerUserDetailsImplService implements UserDetailsService {
@@ -1532,7 +1534,7 @@ public class CustomerUserDetailsImplService implements UserDetailsService {
 
 我们常用的 `BCryptPasswordEncoder` 属于单向加密工具，无法还原原文，只能用于对加密结果进行比对验证，而这个工具，主要是加密那些不是特别敏感，但也比较敏感的信息，我们可以进行还原。
 
-该类位于 `com.example.securitywithhttpsession.util` 包下，关于如何使用 Java 进行密钥生成、加密、解密，详见笔记：Java 生成密钥与加密解密
+EncryptionUtils 类位于 `com.example.securitywithhttpsession.util` 包下，关于如何使用 Java 进行密钥生成、加密、解密，详见笔记：Java 生成密钥与加密解密
 ```
 public class EncryptionUtils {
     
@@ -1613,7 +1615,7 @@ public class EncryptionUtils {
 
 #### 1.1.8. 编写 从线程获取 Authentication、CustomerUserDetailsImpl 工具类
 
-在 `com.example.securitywithhttpsession.util` 下创建 `AuthenticationUtils`
+AuthenticationUtils 类在 `com.example.securitywithhttpsession.util` 包下 
 ```
 public class AuthenticationUtils {
     
@@ -1836,8 +1838,9 @@ Signature = HMACSHA256(
 ---
 
 
-#### 1.2.2. 创建 Spring Web 项目，添加 Security 相关依赖
+#### 1.2.2. 创建 Spring Web 项目，添加相关依赖
 
+创建时：
 1. Web：
 	1. Spring Web
 2. Security：
@@ -1847,12 +1850,7 @@ Signature = HMACSHA256(
 	2. MyBatis Framework
 	3. MySQL Driver
 
-----
-
-
-#### 1.2.3. 添加 JWT 相关依赖
-
-添加 [jjwt-api 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api)、[jjwt-impl 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl)、[jjwt-jackson 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson)
+创建后：添加 [jjwt-api 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api)、[jjwt-impl 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl)、[jjwt-jackson 依赖](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson)
 ``` 
 <dependency>  
     <groupId>io.jsonwebtoken</groupId>  
@@ -1876,17 +1874,17 @@ Signature = HMACSHA256(
 ----
 
 
-#### 1.2.4. 前置步骤
+#### 1.2.3. 前置步骤
 
-和基于 HttpSession 的 Spring Security 的步骤 1.1.2 ~ 1.1.8 一致
+和基于 HttpSession 的 Spring Security 的步骤 1.1.2 ~ 1.1.8 近似一致
 
 ----
 
 
 
-#### 1.2.5. 编写 JwtResponse DTO 类
+#### 1.2.4. 编写 JwtResponse DTO 类
 
-JwtResponse DTO 类位于 `com.example.securitywithjwt.dto` 包下
+JwtResponse 类位于 `com.example.securitywithjwt.dto` 包下
 ```
 public class JwtResponse {
 
@@ -1907,11 +1905,10 @@ public class JwtResponse {
 ----
 
 
-#### 1.2.6. 编写 JWT 生成、提取工具类
+#### 1.2.5. 编写 JWT 生成、提取工具类
 
 JwtUtil 类位于 `com.example.securitywithjwt.util` 包下
 ```
-@Component
 public class JwtUtil {
 
     /**
@@ -1983,7 +1980,7 @@ public class JwtUtil {
 
 ----
 
-#### 1.2.7. 编写 JwtRequestFilter 过滤器类
+#### 1.2.6. 编写 JwtRequestFilter 过滤器类
 
 该自定义过滤器负责：每次请求到达时，首先从请求头中的 `Authorization` 字段提取出 JWT，并校验其签名是否合法以及是否过期，校验通过后，从 JWT 中解析出 `username`。
 
@@ -2042,7 +2039,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 ----
 
 
-#### 1.2.8. 添加 JwtRequestFilter 过滤器到 Security 过滤器链
+#### 1.2.7. 添加 JwtRequestFilter 过滤器到 Security 过滤器链
 
 ```
 @Configuration
@@ -2064,7 +2061,7 @@ public class SecurityConfig {
 ----
 
 
-#### 1.2.9. 实现 注册 API、登录 API、授权 API、测试 API、注销 API
+#### 1.2.8. 实现 注册 API、登录 API、授权 API、测试 API、注销 API
 
 AuthController 类位于 `com.example.securitywithjwt.controller` 包下
 ```
@@ -2166,9 +2163,9 @@ public class AuthController {
 ----
 
 
-## 业务处理
+## 2. 业务处理
 
-### Spring Security 集成 OAuth2
+### 2.1. Spring Security 集成 OAuth2
 
 详见笔记：OAuth 协议
 

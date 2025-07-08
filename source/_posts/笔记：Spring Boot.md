@@ -10,6 +10,143 @@ author: 霸天
 layout: post
 ---
 
+![](image-20250707155119821.png)
+
+这个和reponse，没事就传进去玩呗
+
+
+
+
+
+
+
+
+你在yaml中配置的，究竟去哪里了，spring ioc 也应该有这部分内容：
+这是个非常核心又容易忽略的问题。Spring Boot 的“配置”其实不是直接配置到某个类上，而是**通过自动装配机制，把配置值绑定到相关的 Bean 或配置类中去**。你可以从这几个方面理解：
+
+---
+
+### 一、配置的来源
+
+Spring Boot 支持多种配置来源，最常见的是：
+
+- `application.properties` 或 `application.yml`
+    
+- 命令行参数、环境变量、`@Value` 注解
+    
+- 外部配置服务（如 Nacos、Consul）
+    
+
+这些配置本身只是**键值对**，但它们最终都会通过 **绑定** 或 **条件装配** 的方式作用于 Spring 容器中的某些 Bean。
+
+---
+
+### 二、配置去到了哪里？
+
+1. **绑定到配置类（`@ConfigurationProperties`）**
+    
+
+Spring Boot 内置了大量的配置类，比如：
+
+- `org.springframework.boot.autoconfigure.web.ServerProperties`  
+    → 用来读取 `server.port`、`server.servlet.context-path` 等
+    
+- `org.springframework.boot.autoconfigure.jdbc.DataSourceProperties`  
+    → 读取 `spring.datasource.url`、`spring.datasource.username`
+    
+
+Spring Boot 启动时，会自动扫描这些带有 `@ConfigurationProperties` 的类，把配置文件中的值注入进去。
+
+2. **作用于自动配置类（`@EnableAutoConfiguration`）**
+    
+
+Spring Boot 的核心机制是“自动配置”，即：
+
+```java
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+这个注解背后其实是 `@EnableAutoConfiguration`，它会加载 `META-INF/spring.factories`（或 Boot 3.x 用 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`）中声明的自动配置类。
+
+比如你配置了：
+
+```yaml
+spring.mvc.view.prefix: /WEB-INF/views/
+```
+
+这个值会绑定到 `WebMvcProperties` 中，再被 `WebMvcAutoConfiguration` 使用，来设置视图解析器。
+
+3. **配置注入到 Bean 中（`@Value`）**
+    
+
+如果你写了：
+
+```java
+@Value("${my.custom.name}")
+private String name;
+```
+
+这个是最直接的，Spring 会在容器初始化时，自动把配置文件里的值注入进去。
+
+---
+
+### 三、总结性一句话
+
+> Spring Boot 配置文件中的值，**不是配置到某一个类上**，而是：
+> 
+> - **绑定到配置类（`@ConfigurationProperties`）**；
+>     
+> - **影响自动配置类的装配行为**；
+>     
+> - **可通过 `@Value` 注入到 Bean 中**；
+>     
+> - **最终决定 Bean 的属性值、是否加载某个 Bean 等行为**。
+>     
+
+---
+
+### 如果你想“看见”这些配置是去哪了？
+
+你可以：
+
+#### ✅ 开启配置元信息元数据支持
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-configuration-processor</artifactId>
+    <optional>true</optional>
+</dependency>
+```
+
+然后去看 IDE 中提示出来的 `@ConfigurationProperties` 类都有哪些字段支持配置。
+
+#### ✅ 打开调试日志
+
+```properties
+logging.level.org.springframework.boot.autoconfigure=DEBUG
+```
+
+你会看到哪些自动配置类被加载了、哪些条件没满足没加载。
+
+---
+
+如你需要，我也可以帮你找几个典型配置，看它们是怎么绑定到 Spring Bean 的。要不要？
+
+
+
+
+
+
+
+
+
+
 ### @Scheduled(fixedRate = 5000)
 
 定时任务，可以用来定时发邮件、定期清理数据库、晚上跑报表等
