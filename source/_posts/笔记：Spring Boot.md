@@ -9,6 +9,38 @@ tags:
 author: 霸天
 layout: post
 ---
+![](image-20250709172129814.png)
+
+
+```
+@Root(name = "LifecycleConfiguration")  
+@Namespace(reference = "http://s3.amazonaws.com/doc/2006-03-01/")  
+public class LifecycleConfiguration {  
+  @ElementList(name = "Rule", inline = true)  
+  private List<LifecycleRule> rules;  
+  
+  /** Constructs new lifecycle configuration. */  
+  public LifecycleConfiguration(  
+      @Nonnull @ElementList(name = "Rule", inline = true) List<LifecycleRule> rules) {  
+    this.rules =  
+        Collections.unmodifiableList(Objects.requireNonNull(rules, "Rules must not be null"));  
+    if (rules.isEmpty()) {  
+      throw new IllegalArgumentException("Rules must not be empty");  
+    }  
+  }  
+  
+  public List<LifecycleRule> rules() {  
+    return rules;  
+  }  
+}
+```
+
+![](image-20250709074128434.png)
+
+
+
+
+
 ![](image-20250708185639252.png)
 
 
@@ -243,7 +275,7 @@ public String hello() {
 
 ##### 1.1.4. @RequestBody
 
-`@RequestBody` 是用于将请求体中的 JSON 数据反序列化为 Java 对象的注解。
+`@RequestBody` 是用于将请求体中的 JSON 数据反序列化为 Java 对象的注解。（是默认集成的 Jackson 依赖）
 
 注意：也能将请求体中的 XML 数据反序列化为 Java 对象，但需要添加 `Jackson XML` 依赖
 ```

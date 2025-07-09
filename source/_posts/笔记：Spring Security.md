@@ -189,8 +189,11 @@ public class SecurityConfiguration {
                 .securityContext(security -> {
                     security.requireExplicitSave(false);
                 })
+                
+	            // 12. 配置 AnonymousAuthenticationFilter 过滤器
+                .anonymous(anonymous -> anonymous.disable())
 
-                // 12. 配置 CSRF 攻击防护（配置 CsrfFilter 过滤器）
+                // 13. 配置 CSRF 攻击防护（配置 CsrfFilter 过滤器）
                 .csrf(csrf -> {
                     csrf
                         .ignoringRequestMatchers("/login") // 忽略对这些路径的 CSRF 保护（默认全部保护）
@@ -258,10 +261,7 @@ public String test() {
 
 ### 3.3. 启用 Spring Security 安全机制
 
-在配置类中加上 `@EnableWebSecurity` 后，Spring 会自动注册一个叫做 `FilterChainProxy` 的安全过滤器链，包含十几个内置的安全过滤器，这些过滤器，就是我们熟知的那些过滤器。
-
-> [!NOTE] 注意事项
-> 1. 即使你不显式添加这个注解，只要引入了 `spring-boot-starter-security`，Spring Boot 就会自动注册默认的安全过滤器链。但如果你需要自定义安全配置类（例如我们自己的 `SecurityConfiguration`），就必须显式启用它，以确保你的配置生效
+在配置类中加上 `@EnableWebSecurity` 后，就会启动 Spring Security
 
 ---
 
@@ -802,7 +802,17 @@ http.csrf(csrf -> csrf.disable());
 ----
 
 
-### 3.11. 添加自定义过滤器
+### 3.11. 配置 AnonymousAuthenticationFilter 过滤器
+
+AnonymousAuthenticationFilter 默认启用，我们可以给他禁用：
+```
+.anonymous(anonymous -> anonymous.disable())
+```
+
+
+
+
+### 3.12. 添加自定义过滤器
 
 ```
 // 1. 直接添加过滤器，添加的过滤器必须是 Spring Security 提供的过滤器或其子类的实例
@@ -1056,7 +1066,7 @@ INSERT INTO role_authority (role_id, authority_id) VALUES
 
 #### 1.1.3. 使用 Spring Data MyBatis 实现查询用户的基本信息和权限
 
-##### 1.1.3.1. 前置步骤
+##### 1.1.3.1. 进行 MyBatis 相关配置
 
 详见笔记：Spring Data MyBatis
 
@@ -1883,7 +1893,7 @@ Signature = HMACSHA256(
 
 #### 1.2.3. 前置步骤
 
-和基于 HttpSession 的 Spring Security 的步骤 1.1.2 ~ 1.1.8 近似一致
+和基于 HttpSession 的 Spring Security 的步骤 1.1.2 ~ 1.1.8 近似一致，只需要在 Spring Security 配置时稍有不同
 
 ----
 

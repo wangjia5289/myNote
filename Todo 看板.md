@@ -11,6 +11,8 @@ kanban-plugin: board
 - [ ] Spring Security 集成 Oauth2，要看视频：尚硅谷 Spring Security + OAuth2、Spring AuthorizationServer 极简入门
 - [ ] 关于记住我，你不选择记住我，就可以在浏览器打开期间一致能进行登录，但是关闭浏览器再次打开就不能了，这个是不是要深究一下他是怎么做到的呢？
 - [ ] Spring Security 中的 RememberMe Cookie
+- [ ] list、stream、map等数据类型
+- [ ] Jackson 是什么
 - [ ] 虚拟化的意义
 - [ ] docker run 的参数
 - [ ] HttpClient
@@ -18,6 +20,8 @@ kanban-plugin: board
 - [ ] Builder 是什么返回类型，GetObjectArgs.builder().bucket().object().build()
 - [ ] @Deprecated 标签是什么标签
 - [ ] minio 用户管理
+- [ ] JSON 序列化、反序列化为对象
+- [ ] Spring Security 可以有多个过滤器链，按路径进行匹配
 
 
 ## Done
