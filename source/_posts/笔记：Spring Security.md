@@ -32,6 +32,17 @@ layout: post
 即使我们不打算通过 `HttpSession` 实现 “记住我” 功能（如使用 JWT），甚至完全不使用 `HttpSession`，我们仍然建议保留这个过滤器，因为它自动为本线程初始化 `SecurityContextHolder`、并自动创建 `SecurityContext`，这个能力实在太香了。
 ![](image-20250628224744251.png)
 
+<font color="#92d050">2. RememberMeAuthenticationFilter 介入</font>
+- 当用户访问时，如果当前 `SecurityContext` 里没有认证信息（没登录），
+    
+- 它会检查请求中的 RememberMe Cookie，
+    
+- 如果 Cookie 有效且合法，它会自动创建一个认证信息（`Authentication`），
+    
+- 把这个认证信息放入 `SecurityContext`，
+    
+- 从而让用户“自动登录”，不必重新输入用户名密码。
+
 
 <font color="#92d050">3. CsrfFilter 介入</font>
 该过滤器会尝试从我们配置的 CSRF Token 存储位置（配置的 `HttpSessionCsrfTokenRepository`）中加载 CSRF Token，且所有请求都会经过这一尝试。若成功加载，Token 会被放入 `HttpServletRequest` 中；如果未加载到，则会创建一个新的 CSRF Token，并同样放入请求中。
@@ -48,8 +59,29 @@ layout: post
 在前后端分离的架构中无需深入关注其具体逻辑，只需了解其在过滤器链中的位置，以便在插入自定义过滤器时能准确定位。
 
 
+
+
+<font color="#92d050">LogoutFilter 介入</font>
+- 清空 `SecurityContext` 中的认证信息（相当于“登出”）
+    
+- 使当前 HTTP Session 失效（`HttpSession.invalidate()`）
+    
+- 清理相关的 RememberMe Cookie（如果配置了 RememberMe）
+    
+- 重定向到退出后的默认页面，默认是重定向到登录页 `/login?logout`
+
+
+
+
 <font color="#92d050">5. AnonymousAuthenticationFilter 介入</font>
 如果当前没有任何 `Authentication`，系统会自动创建一个匿名身份，以避免后续流程中出现空指针异常。
+
+
+
+<font color="#92d050">6. ExceptionTranslationFilter 介入</font>
+
+
+
 
 
 <font color="#92d050">6. FilterSecurityInterceptor 介入</font>
@@ -135,24 +167,55 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                // 6. 禁用默认表单登录，同时禁用 UsernamePasswordAuthenticationFilter 过滤器
+                // 6. 配置 HttpSession
+                .sessionManagement(session -> {
+                    session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true);
+                })
+
+                // 7. 添加自定义过滤器
+                .addFilterAt(xxxx)
+				
+                // 8. 配置 SecurityContextPersistenceFilter 过滤器
+                .securityContext(security -> {
+                    security.requireExplicitSave(false);
+                })
+				
+				// 9. 配置 RememberMeAuthenticationFilter 过滤器
+				.rememberMe(rememberMe -> {
+					rememberMe.key("yourSecretKey")
+				})
+				
+                // 10. 配置 CSRF 攻击防护（配置 CsrfFilter 过滤器）
+                .csrf(csrf -> {
+                    csrf
+                        .ignoringRequestMatchers("/login") // 忽略对这些路径的 CSRF 保护（默认全部保护）
+                        .csrfTokenRepository(csrfTokenRepository()); // 使用我们自定义的 Token 存储库
+                })
+				
+                // 11. 配置默认表单登录（配置 UsernamePasswordAuthenticationFilter 过滤器）
                 .formLogin(form -> {
                     form.disable();
                 })
 
-                // 7. 禁用默认注销功能
+                // 12. 配置默认注销功能（配置 LogoutFilter 过滤器）
                 .logout(logout -> {
                     logout.disable();
                 })
-
-                // 8. 配置资源级别的访问控制
+				
+	            // 13. 配置 AnonymousAuthenticationFilter 过滤器
+                .anonymous(anonymous -> anonymous.disable())
+				
+                // 14. 配置资源级别的访问控制（配置 FilterSecurityInterceptor 过滤器）
                 .authorizeHttpRequests(auth -> {
                     auth
                         .requestMatchers("/public/**").permitAll()
                         .anyRequest().authenticated(); // 其他所有路径均需通过认证
                 })
 
-                // 9. 配置用户 未认证、权限不足 的处理
+                // 15. 配置用户 未认证、权限不足 的处理（配置 ExceptionTranslationFilter 过滤器）
                 .exceptionHandling(handler -> {
                     handler
                         // 未认证时的响应（处理 AuthenticationException 异常）
@@ -175,32 +238,8 @@ public class SecurityConfiguration {
                                 response.getWriter().write("{\"error\":\"权限不足，无法访问此资源\"}");
                             }
                         });
-                })
+                });
 
-                // 10. 配置 HttpSession
-                .sessionManagement(session -> {
-                    session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(true);
-                })
-
-                // 11. 配置 SecurityContextPersistenceFilter 过滤器
-                .securityContext(security -> {
-                    security.requireExplicitSave(false);
-                })
-                
-	            // 12. 配置 AnonymousAuthenticationFilter 过滤器
-                .anonymous(anonymous -> anonymous.disable())
-
-                // 13. 配置 CSRF 攻击防护（配置 CsrfFilter 过滤器）
-                .csrf(csrf -> {
-                    csrf
-                        .ignoringRequestMatchers("/login") // 忽略对这些路径的 CSRF 保护（默认全部保护）
-                        .csrfTokenRepository(csrfTokenRepository()); // 使用我们自定义的 Token 存储库
-                })
-                // 13. 添加自定义过滤器
-                .addFilterAt(xxxx);
         return httpSecurity.build(); // 构建 SecurityFilterChain 对象
     }
 }
@@ -611,68 +650,26 @@ public UserDetailsService userDetailsService() {
 ---
 
 
-### 3.7. 配置资源级别的访问控制
+### 3.7. 添加自定义过滤器
 
 ```
-.authorizeHttpRequests(auth -> {
-	auth
-		.requestMatchers("/public/**").permitAll()
-		.anyRequest().authenticated(); // 其他所有路径均需通过认证
-})
-```
-
-> [!NOTE] 注意事项
-> 1. 同样能支持通配符（`?`、`*`、`**`）
-> 2. 如需放行所有请求，可配置为：
-```
-// 允许匿名 Authentication 身份即可访问所有请求（非 Authentication 用户仍然不能访问）
-http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-```
-
-<font color="#92d050">1. auth.requestMatchers()</font>
-设置**指定资源路径**的访问控制规则，例如：
-```
-/**
- * ============================================
- * 指定资源路径的访问控制规则
- * --------------------------------------------
- * 常用规则：
- * - permitAll()
- *      - 允许所有用户访问该资源（说是所有用户，其实你至少要有匿名的 Authentication）
- * - denyAll()
- *      - 禁止所有用户访问该资源。
- * - hasRole()
- *      - 要求用户必须具备指定角色才能访问
- *      - 需要注意的是，该方法会自动在角色名前添加 "ROLE_" 前缀，即：hasRole("ADMIN") 代表 ROLE_ADMIN
- * - hasAuthority()
- *      - 要求用户必须具备指定权限才能访问，我们用这个就好
- *      - 需要注意的是，不会自动添加前缀，提供完整权限名称即可
- * - authenticated()
- *      - 要求用户已通过身份验证（即非匿名 Authenticated 而是认证 Authenticated）后才能访问。
- * - access()
- *      - 支持使用 SpEL 表达式，实现更复杂的访问控制逻辑。
- *      - 例如：access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") ，是说此路径仅允许拥有 ADMIN 角色且 IP 地址位于 192.168.1.0/24 网段的用户访问
- * ============================================
- */
-.authorizeHttpRequests(auth -> {
-	auth
-		.requestMatchers("/public/**").permitAll()
-		.anyRequest().authenticated(); // 其他所有路径均需通过认证
-})
-```
+// 1. 直接添加过滤器，添加的过滤器必须是 Spring Security 提供的过滤器或其子类的实例
+http.addFilter(new CustomFilter());
 
 
-<font color="#92d050">2. auth.anyRequest()</font>
-除已配置的资源路径外，其余所有资源路径的访问控制规则
-```
-.authorizeHttpRequests(auth -> {
-	auth
-		.requestMatchers("/public/**").permitAll()
-		.anyRequest().authenticated(); // 其他所有路径均需通过认证
-})
+// 2. 在指定的过滤器位置添加过滤器，新添加的过滤器会替换指定位置的原有过滤器
+http.addFilterAt(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
+
+
+// 3. 在指定过滤器之前添加过滤器，自定义过滤器会在指定过滤器之前执行。
+http.addFilterBefore(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
+
+
+// 4. 在指定过滤器之后添加过滤器，自定义过滤器会在指定过滤器之后执行。
+http.addFilterAfter(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
 ```
 
-----
+-----
 
 
 ### 3.8. 配置 HttpSession
@@ -762,7 +759,14 @@ http.securityContext(securityContext -> securityContext.requireExplicitSave(fals
 ----
 
 
-### 3.10. 配置 CSRF 攻击防护（配置 CsrfFilter 过滤器）
+### 3.10. 配置 RememberMeAuthenticationFilter 过滤器
+
+
+
+
+
+
+### 3.11. 配置 CSRF 攻击防护（配置 CsrfFilter 过滤器）
 
 Spring Security 默认启用跨站请求伪造（CSRF）防护机制，基于 **CSRF Token** 实现安全校验。其工作原理如下：
 1. 用户发出请求时，CsrfFilter 过滤器会尝试从我们配置的 CSRF Token 存储位置（配置的 `HttpSessionCsrfTokenRepository`）中加载 CSRF Token，且所有请求都会经过这一尝试。若成功加载，Token 会被放入 `HttpServletRequest` 中；如果未加载到，则会创建一个新的 CSRF Token，并同样放入请求中。
@@ -802,7 +806,17 @@ http.csrf(csrf -> csrf.disable());
 ----
 
 
-### 3.11. 配置 AnonymousAuthenticationFilter 过滤器
+### 3.12. 配置默认表单登录（配置 UsernamePasswordAuthenticationFilter 过滤器）
+
+
+### 3.13. 配置默认注销功能（配置 LogoutFilter 过滤器）
+
+
+
+
+
+
+### 3.14. 配置 AnonymousAuthenticationFilter 过滤器
 
 AnonymousAuthenticationFilter 默认启用，我们可以给他禁用：
 ```
@@ -812,26 +826,73 @@ AnonymousAuthenticationFilter 默认启用，我们可以给他禁用：
 
 
 
-### 3.12. 添加自定义过滤器
+### 3.15. 配置资源级别的访问控制（配置 FilterSecurityInterceptor 过滤器）
 
 ```
-// 1. 直接添加过滤器，添加的过滤器必须是 Spring Security 提供的过滤器或其子类的实例
-http.addFilter(new CustomFilter());
-
-
-// 2. 在指定的过滤器位置添加过滤器，新添加的过滤器会替换指定位置的原有过滤器
-http.addFilterAt(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
-
-
-// 3. 在指定过滤器之前添加过滤器，自定义过滤器会在指定过滤器之前执行。
-http.addFilterBefore(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
-
-
-// 4. 在指定过滤器之后添加过滤器，自定义过滤器会在指定过滤器之后执行。
-http.addFilterAfter(new CustomFilter(),UsernamePasswordAuthenticationFilter.class);
+.authorizeHttpRequests(auth -> {
+	auth
+		.requestMatchers("/public/**").permitAll()
+		.anyRequest().authenticated(); // 其他所有路径均需通过认证
+})
 ```
 
------
+> [!NOTE] 注意事项
+> 1. 同样能支持通配符（`?`、`*`、`**`）
+> 2. 如需放行所有请求，可配置为：
+```
+// 允许匿名 Authentication 身份即可访问所有请求（非 Authentication 用户仍然不能访问）
+http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+```
+
+<font color="#92d050">1. auth.requestMatchers()</font>
+设置**指定资源路径**的访问控制规则，例如：
+```
+/**
+ * ============================================
+ * 指定资源路径的访问控制规则
+ * --------------------------------------------
+ * 常用规则：
+ * - permitAll()
+ *      - 允许所有用户访问该资源（说是所有用户，其实你至少要有匿名的 Authentication）
+ * - denyAll()
+ *      - 禁止所有用户访问该资源。
+ * - hasRole()
+ *      - 要求用户必须具备指定角色才能访问
+ *      - 需要注意的是，该方法会自动在角色名前添加 "ROLE_" 前缀，即：hasRole("ADMIN") 代表 ROLE_ADMIN
+ * - hasAuthority()
+ *      - 要求用户必须具备指定权限才能访问，我们用这个就好
+ *      - 需要注意的是，不会自动添加前缀，提供完整权限名称即可
+ * - authenticated()
+ *      - 要求用户已通过身份验证（即非匿名 Authenticated 而是认证 Authenticated）后才能访问。
+ * - access()
+ *      - 支持使用 SpEL 表达式，实现更复杂的访问控制逻辑。
+ *      - 例如：access("hasRole('ADMIN') and hasIpAddress('192.168.1.0/24')") ，是说此路径仅允许拥有 ADMIN 角色且 IP 地址位于 192.168.1.0/24 网段的用户访问
+ * ============================================
+ */
+.authorizeHttpRequests(auth -> {
+	auth
+		.requestMatchers("/public/**").permitAll()
+		.anyRequest().authenticated(); // 其他所有路径均需通过认证
+})
+```
+
+
+<font color="#92d050">2. auth.anyRequest()</font>
+除已配置的资源路径外，其余所有资源路径的访问控制规则
+```
+.authorizeHttpRequests(auth -> {
+	auth
+		.requestMatchers("/public/**").permitAll()
+		.anyRequest().authenticated(); // 其他所有路径均需通过认证
+})
+```
+
+----
+
+
+### 3.16. 配置用户 未认证、权限不足 的处理（配置 ExceptionTranslationFilter 过滤器）
+
+
 
 
 ## 4. Spring Security 核心 API

@@ -1,5 +1,837 @@
 # 一、理论
 
+
+## Spring Authorization Server 执行流程
+
+
+<font color="#92d050">4. UsernamePasswordAuthenticationFilter 介入</font>
+该过滤器用于拦截我们处理登陆表单的提交请求的端点，也就是我们在表单登录中配置的 `form.loginProcessingUrl("/login")` ，他会读取请求参数中的用户名和密码（默认名是 `username` 和 `password`），自动将其封装为UsernamePasswordAuthenticationToken调用 `AuthenticationManager.authenticate(...)` 进行认证如果认证成功会自动将 AuthenticationManager 返回的 Authentication 存入到本线程的 `SecurityContext`（我们自定义的登录操作，使用authenticationmanager，就少了这一步而已）。保存用户信息并执行我们在表单登录 中配置的form.defaultSuccessUrl、form.successHandler
+
+
+
+### OAuth2AuthorizationEndpointFilter 介入
+
+
+
+
+
+
+| 参数名                   | 是否必须 | Spring 默认处理情况                               | 后端需配置点                       | 备注                                             |
+| --------------------- | ---- | ------------------------------------------- | ---------------------------- | ---------------------------------------------- |
+| response_type         | 是    | 必须是 `code`，否则报错 `unsupported_response_type` | 默认只支持授权码模式，默认即可，无需额外配置       | 目前只支持授权码模式                                     |
+| client_id             | 是    | 必须且要能在 RegisteredClientRepository 找到对应客户端   | 注册客户端时必须配置 `clientId`        | 否则报 `unauthorized_client`                      |
+| redirect_uri          | 有条件  | 如果客户端注册多个 redirect_uri，必须传且完全匹配             | 注册客户端时配置 `redirectUri`（支持多个） | 只允许注册的 URI，防止重定向攻击                             |
+| scope                 | 否    | 如果传，校验是否为注册客户端支持的 scope；没传用注册全部             | 注册客户端时配置支持的 `scope`          | 传了非法 scope 报错 `invalid_scope`                  |
+| state                 | 否    | 直接原样返回，无需校验                                 | 无需配置                         | 防止 CSRF，建议前端传                                  |
+| code_challenge        | 条件   | PKCE 开启时必须传，否则报错                            | 注册客户端时配置支持 PKCE              | PKCE 相关参数，增强安全                                 |
+| code_challenge_method | 条件   | PKCE 开启时校验支持的算法，默认 `plain`、`S256`           | 注册客户端时配置支持 PKCE              | 与 code_challenge 配合使用                          |
+| 自定义参数（如 `foo`）        | 否    | 默认忽略，不做处理                                   | 需自定义实现校验逻辑                   | 需扩展 `OAuth2AuthorizationRequestValidator` 或解析器 |
+
+
+
+
+
+下面是一份对**OAuth 2.0 授权请求**可携带参数，以及在开启 OIDC 后新增参数的**全面汇总**。表格分为两部分：第一部分是标准 OAuth 2.0 参数，第二部分是 OpenID Connect 在授权请求层面引入的扩展参数。对每个参数都说明了其作用，以及 Spring Authorization Server 默认如何处理或可在哪些环节自定义。
+
+---
+
+## 一、标准 OAuth 2.0 授权请求参数
+
+|参数|必选/可选|含义 & 作用|Spring 默认处理|
+|---|---|---|---|
+|`response_type`|必选|指定授权类型，如 `code`（授权码模式）或 `token`（隐式）|由 `OAuth2AuthorizationEndpointFilter` 校验，生成对应 `Authentication`|
+|`client_id`|必选|客户端注册时分配的 ID|校验是否已在 `RegisteredClientRepository` 中注册|
+|`redirect_uri`|如果注册时未预先声明则必选否则可选|授权完成后回调地址|校验与注册信息一致；可自定义 `RedirectUriValidator`|
+|`scope`|可选（推荐）|请求的权限范围，如 `read write`|校验在 `RegisteredClient` 所允许的范围内，并注入到 `OAuth2AuthorizationConsent`|
+|`state`|可选（强烈推荐）|防 CSRF、维护前后端状态一致|原样透传，之后在回调时由 Spring Security 自动校验|
+|PKCE（授权码模式推荐）：||||
+|– `code_challenge`|可选（强烈推荐）|PKCE Code Challenge|被 `OAuth2AuthorizationEndpointFilter` 收集并保存到授权请求上下文|
+|– `code_challenge_method`|可选|摘要算法，如 `S256`|同上|
+|扩展参数（RFC 8628、RFC 9068 等）||||
+|`request`|可选|JWT 格式的整个授权请求|Spring 暂不默认支持，需要自定义 `OAuth2AuthorizationEndpointConfigurer`|
+|`request_uri`|可选|指向已托管请求对象的 URI|同上|
+
+> **自定义能力**
+> 
+> - 可以通过 `AuthorizationServerSettings` 定制端点 URL；
+>     
+> - 通过 `OAuth2AuthorizationEndpointConfigurer` 注册自定义参数校验器或解析器；
+>     
+> - 支持为客户端精细配置是否必须开启 PKCE、是否允许 `request` 等扩展。
+>     
+
+---
+
+## 二、OpenID Connect 扩展参数
+
+|参数|必选/可选|含义 & 作用|Spring 默认处理|
+|---|---|---|---|
+|`scope=openid`|必选（OIDC）|声明这是一次身份认证请求，会返回 ID Token|与标准 `scope` 一并校验；触发 `OidcAuthorizationEndpointFilter`|
+|`nonce`|必选（OIDC）|防重放攻击：客户端自定义字符串，原样写入 ID Token 并在客户端校验|自动注入到授权请求上下文；最终写入 `IdToken` payload|
+|`prompt`|可选|控制用户交互方式，如 `none`、`login`、`consent`、`select_account`|由 Spring 解析并映射到 `Prompt` 枚举，可用于自定义登录/同意逻辑|
+|`max_age`|可选|指定用户认证的最大有效时长（秒），超过则强制重新登录|解析为 `max_age` 属性，和当前会话时间比对，触发再认证流程|
+|`display`|可选|指定 UI 展示模式，如 `page`、`popup`、`touch`、`wap`|仅解析参数；前端可据此调整渲染方式|
+|`login_hint`|可选|向认证服务器提示首选登录用户名或 ID|自动填充到登录页面输入框（需前端支持）|
+|`id_token_hint`|可选|向授权服务器传入先前的 ID Token，用于单点登出或会话管理|Spring 可验证其有效性并据此实现 RP-Initiated Logout|
+|`acr_values`|可选|指定认证上下文类参考值，如多因子认证等级|解析成列表，开发者可据此在自定义认证管理器中选择不同认证策略|
+|`ui_locales`|可选|指定用户界面语言和区域，格式如 `en-US fr-CA`|解析并注入到 `OidcAuthorizationRequest`，前端据此渲染本地化内容|
+|`claims`|可选|声明请求的用户信息字段（细粒度控制）|解析 JSON，对应 `RequestedClaim`，后续可在 `UserInfo` 或 ID Token 中返回|
+
+> **OIDC 配置要点**
+> 
+> - 在 `AuthorizationServerSettings` 中可定制 `/userinfo`、`/jwks` 等路径；
+>     
+> - Spring Authorization Server 会自动注册 `OidcAuthorizationEndpointFilter`、`OidcUserInfoEndpointFilter` 等，完成参数校验与处理；
+>     
+> - 如需支持更多自定义声明、策略或 UI 格式，可继承相关 Filter/Configurer 并替换默认实现。
+>     
+
+---
+
+### 小结
+
+1. **OAuth 2.0 阶段**：只需关注 `response_type`、`client_id`、`redirect_uri`、`scope`、`state` 以及 PKCE 相关参数；
+    
+2. **开启 OIDC 后**：在上述基础上必须带上 `scope=openid` 和 `nonce`，并可根据需求添加 `prompt`、`max_age`、`claims` 等扩展；
+    
+3. **Spring 处理**：核心由 `OAuth2AuthorizationEndpointFilter` 和 `OidcAuthorizationEndpointFilter` 负责解析、校验并将参数注入到内部的授权请求对象里，后续由授权决策与令牌服务统一处理。
+    
+
+这份汇总既展示了协议层面的可选项，也标注了 Spring Authorization Server 的默认支持和可扩展点。希望能助你快速掌握授权请求的全貌！
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Spring Authorization Server 配置
+
+### Spring Authorization Server 配置模板
+
+AuthServerConfiguration 类在 `com.example.oauthserverwithmyproject.configuration` 包下，直接粘贴这份配置模板，再根据下方的详细说明按需进行调整。
+
+
+
+
+### 配置端点路径
+
+```
+@Bean  
+public AuthorizationServerSettings authorizationServerSettings() {  
+    return AuthorizationServerSettings.builder()  
+            .authorizationEndpoint("/custom/authorize")  
+            .tokenEndpoint("/custom/token")  
+            .clientRegistrationEndpoint("/custom/register")  
+            .tokenRevocationEndpoint("/custom/revoke")  
+            .tokenIntrospectionEndpoint("/custom/introspect")  
+            .jwkSetEndpoint("/custom/jwks")  
+            .build();  
+}
+```
+
+<font color="#92d050">1. authorizationEndpoint</font>
+指定授权端点，用于颁发授权令牌，默认是 /oauth2/authorize
+
+
+<font color="#92d050">2. tokenEndponit</font>
+指定令牌端点，用于颁发访问令牌，默认是/oauth2/token
+
+
+<font color="#92d050">3. clientRegistrationEndpoint</font>
+指定客户端注册端点，需要如果启用动态客户端注册，默认是/oauth2/register
+
+
+<font color="#92d050">4. tokenRevocationEndpoint</font>
+授权撤销端点允许客户端撤销访问令牌或刷新令牌，默认是/oauth2/revoke
+
+
+<font color="#92d050">5. tokenIntrospectionEndpoint</font>
+令牌校验缎带你，允许资源服务器校验访问令牌的有效性和状态，默认为：/oauth2/introspect
+
+
+<font color="#92d050">6. jwkSetEndpoint</font>
+JWK Set 端点，公开服务器的公钥，用于 JWT 验签，默认为/oauth2/jwks
+
+
+<font color="#92d050">7. oidcUserInfoEndpoint</font>
+默认为/userinfo
+
+> [!NOTE] 注意事项
+> 1. 这些路径建议保持默认，方便达成一致和统一
+
+
+
+
+### 配置表单登录
+
+<font color="#92d050">1. form.loginPage</font>
+指定自定义登录页面的 URI，默认是 /login，但是如果我们写了这个 form.loginPage，他就用我们自己的页面了，即便还是 /login，我们也需要书写自定义的 login 页面
+```
+form.loginPage("/login")
+```
+
+在 OAuth 中，一般是配置成，当抛出 AuthenticationException 异常时，证明用户还未进行登录（不能使用permitall，要使用authenticated，因为用户必须进行登录）的时候，我们在配置 ExceptionTranslationFilter 的时候，需要将页面重定向到我们这里指定的登录页面，例如这样做：
+```
+.exceptionHandling(handler -> {  
+    handler  
+		.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"));  
+})
+```
+
+> [!NOTE] 注意事项
+> 1. 如果我们没有配置 `ExceptionTranslationFilter` 的行为，即没有配置 `.exceptionHandling` ，它默认就是跳转到我们配置的这 `form.loginPage("/login")`，但是如果你配置了，他就不能默认了，你需要手动进行配置
+
+
+<font color="#92d050">2. form.loginProcessingUrl</font>
+指定处理登录提交的请求 URI，默认也是 `/login`，如果你自定义登录页面，那你发送表单的时候，就应该指向这个地址，Spring Security 会自动拦截这个地址并进行登录，例如：
+```
+.loginProcessingUrl(“"/process-login")”)
+
+
+<form method="post" action="/login">  
+    <input type="text" name="username" placeholder="用户名" required autofocus />  
+    <input type="password" name="password" placeholder="密码" required />  
+    <input type="submit" value="登录" />  
+</form>
+```
+
+> [!NOTE] 注意事项
+> 1. 你可能会问，默认的登陆页面也是 /login，默认的处理登录请求的，也是 /login，那他们没有冲突吗？其实他们是根据 HTTP 请求的方法类型判断的，GET 请求就是返回页面，POST 请求就是用来处理登录请求的
+
+虽然我们没有将authenticationmanager 声明为Bean，但是他会在内部内部自动构造一个 `ProviderManager` 作为 `AuthenticationManager`
+
+
+<font color="#92d050">3. form.defaultSuccessUrl</font>
+设置登录成功后重定向的默认 URI，传入 true 标识总是重定向到该 URI，传入 false 会重定向到用户之前访问的那个页面，但是被我们重定向到登录页面的那个页面
+```
+.defaultSuccessUrl("/dashboard", true)
+```
+
+
+<font color="#92d050">4. form.successHandler</font>
+自定义登录成功的处理逻辑。
+```
+.successHandler((request, response, authentication) -> {
+	// response.sendRedirect("/home");
+	response.getWriter().write("登录成功！");
+})
+```
+
+
+<font color="#92d050">4. form.failureUrl</font>
+登录失败后跳转的页面，这里是 跳转到 /login 页面，error 是我们携带的参数，只不过这个参数没有赋值（有的参数不需要赋值，只要存在就够了）
+```
+.failureUrl("/login?error")
+```
+
+
+<font color="#92d050">5. form.failureHandler</font>
+自定义登录失败的处理逻辑
+```
+.failureHandler((request, response, exception) -> {
+	// response.sendRedirect("/login?error=" + exception.getMessage());
+	response.getWriter().write("登录失败：" + exception.getMessage());
+})
+```
+
+
+<font color="#92d050">6. form.usernameParameter</font>
+指定用户名表单参数名，默认是 `username`，我们配置的 `form.loginProcessingUrl` 显示要根据我们配置的表单参数名拿到参数才行呢
+```
+.usernameParameter("myUsername")
+```
+
+
+<font color="#92d050">7. form.passwordParameter</font>
+指定密码表单参数名，默认是 `password`。
+```
+.passwordParameter("myPassword")
+```
+
+
+<font color="#92d050">8. form.permitAll</font>
+允许所有用户访问登录页和登录处理接口，通常必加，否则未登录用户无法访问登录页，你的确可以配合 `.authorizeHttpRequests()` 明确放行，但 `.formLogin().permitAll()` 是专门针对表单登录机制设计的快捷方式，写上更稳妥。
+
+`.formLogin().permitAll()` 既保证了 URL 放行，也保证了登录流程相关过滤器链的正常执行，这个放行权限不是单纯 URL 授权能替代的。
+
+> [!NOTE] 注意事项
+> 1. 禁用表单登录：
+```
+.formLogin(form -> {form.disable();})
+```
+
+
+
+
+
+# 二、实操
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+`OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)` 是 Spring Security OAuth2 授权服务器配置中的一个关键方法，它为授权服务器设置了一套默认的安全过滤器链。这些过滤器用于保护授权服务器的端点（如授权端点、令牌端点等），并确保 OAuth2 和 OIDC 协议的正确执行。下面我将详细梳理它启用了哪些过滤器，以及每个过滤器的作用，用通俗易懂的语言讲解。
+
+---
+
+## 一、整体作用
+`OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)` 方法的作用是为授权服务器配置一个默认的 `SecurityFilterChain`，专门处理与 OAuth2 授权服务器相关的请求（比如 `/oauth2/authorize`、`/oauth2/token` 等端点）。它通过 Spring Security 的过滤器机制，确保这些端点安全、可靠，并符合 OAuth2/OIDC 协议的标准。
+
+这个方法会启用一组过滤器，共同完成以下任务：
+1. 保护授权服务器的端点（比如要求用户登录）。
+2. 处理 OAuth2 授权流程（比如授权码、令牌发放）。
+3. 支持 OIDC 协议（比如生成 ID Token）。
+4. 提供安全防护（防止 CSRF、验证请求等）。
+
+---
+
+## 二、启用的过滤器
+`OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)` 并不是直接列出所有过滤器，而是通过 Spring Security 的默认配置和 OAuth2 模块，间接应用了一组过滤器。这些过滤器主要来自 Spring Security 的核心过滤器链和 OAuth2 授权服务器的专用过滤器。以下是可能启用的主要过滤器，以及它们的作用：
+
+### 1. **SecurityContextPersistenceFilter**
+- **作用**：管理 `SecurityContext`（安全上下文）的存储和加载。
+- **通俗讲解**：这个过滤器就像一个“门卫记事本”，记录当前请求是谁发来的（比如用户身份）。它会把用户的登录信息（比如用户名、权限）从 session 加载到请求中，处理完后再存回去。这样，后续过滤器和端点就能知道“这个请求是哪个用户发起的”。
+- **在 OAuth2 中的作用**：确保授权端点（`/oauth2/authorize`）知道用户是否已登录，因为 OAuth2 授权码流通常需要用户登录同意。
+
+### 2. **CsrfFilter**
+- **作用**：防止跨站请求伪造（CSRF）攻击。
+- **通俗讲解**：CSRF 攻击就像有人假冒你提交表单（比如偷偷让你转账）。这个过滤器检查请求是否带了正确的 CSRF 令牌（一个随机码），确保请求是用户自己发的，不是坏人伪造的。
+- **在 OAuth2 中的作用**：保护 `/oauth2/authorize` 端点的表单提交（比如用户点击“同意授权”时）。不过，对于 `/oauth2/token` 等 API 端点，CSRF 防护可能会被禁用（因为它们通常是机器调用，不是浏览器表单）。
+	 
+### 3. **UsernamePasswordAuthenticationFilter**（或类似表单登录过滤器）
+- **作用**：处理表单登录请求（用户名和密码）。
+- **通俗讲解**：这是“登录窗口”，当用户访问 `/oauth2/authorize` 但没登录时，会跳转到登录页面。用户输入用户名密码后，这个过滤器验证身份，成功就放行。
+- **在 OAuth2 中的作用**：确保用户在授权之前必须登录（因为 OAuth2 授权码流需要用户同意）。你的代码里用了 `http.formLogin(Customizer.withDefaults())`，所以这里会启用默认的表单登录机制。
+
+### 4. **OAuth2AuthorizationServerConfigurerFilter**（自定义过滤器集合）
+- **作用**：这是 Spring Security OAuth2 的核心过滤器集合，包含多个子过滤器，专门处理 OAuth2 协议的逻辑。
+- **通俗讲解**：这就像一个“OAuth2 专属门卫团队”，负责处理授权服务器的各种请求，比如生成授权码、颁发令牌、验证客户端等。它不是单个过滤器，而是一个包含多个子过滤器的配置。
+- **子过滤器包括**：
+  - **OAuth2AuthorizationEndpointFilter**：
+    - **作用**：处理 `/oauth2/authorize` 端点，生成授权码。
+    - **通俗讲解**：这是“授权窗口”，用户在这里同意或拒绝给客户端授权。比如，用户登录后，页面会显示“某某应用想访问你的信息，同意吗？”。这个过滤器检查请求参数（`client_id`、`scope` 等），验证客户端合法性，然后生成授权码。
+  - **OAuth2TokenEndpointFilter**：
+    - **作用**：处理 `/oauth2/token` 端点，颁发访问令牌（access token）和刷新令牌（refresh token）。
+    - **通俗讲解**：这是“令牌发放处”，客户端拿着授权码（或刷新令牌）来这里换真正的通行证（access token）。它会验证授权码、客户端身份、PKCE 参数（如果启用了），然后生成 JWT 或其他令牌。
+  - **OAuth2TokenIntrospectionEndpointFilter**：
+    - **作用**：处理 `/oauth2/introspect` 端点，验证令牌是否有效。
+    - **通俗讲解**：这是“令牌检查站”，客户端或资源服务器可以拿令牌来问“这个令牌还好使吗？”。过滤器会检查令牌是否过期、是否被撤销。
+  - **OAuth2TokenRevocationEndpointFilter**：
+    - **作用**：处理 `/oauth2/revoke` 端点，撤销令牌。
+    - **通俗讲解**：这是“令牌销毁处”，如果令牌泄露或不需要了，可以来这里作废它。
+  - **OidcProviderConfigurationEndpointFilter**：
+    - **作用**：处理 `/.well-known/openid-configuration` 端点，提供 OIDC 配置信息。
+    - **通俗讲解**：这是“服务说明书”，告诉客户端授权服务器支持哪些功能（比如支持的 scope、端点地址等）。客户端访问这个端点就能知道怎么跟服务器互动。
+  - **OidcUserInfoEndpointFilter**：
+    - **作用**：处理 `/userinfo` 端点，返回用户信息。
+    - **通俗讲解**：这是“用户信息窗口”，客户端用 access token 来这里查用户的身份信息（比如姓名、邮箱）。你的代码里自己实现了 `/userinfo` 端点，但这个过滤器是默认支持的。
+
+### 5. **JwkSetEndpointFilter**
+- **作用**：处理 `/oauth2/jwks` 端点，公开 JWK（JSON Web Key）信息。
+- **通俗讲解**：这是“公钥发布处”，服务器把公钥放这里，客户端或资源服务器可以用它验证 JWT 签名。你的代码里配置了 `JWKSource`，这个过滤器会用它来提供公钥。
+- **在 OAuth2 中的作用**：支持 JWT 令牌的验证，确保客户端能信任服务器发的令牌。
+
+### 6. **ExceptionTranslationFilter**
+- **作用**：处理认证和授权失败的异常，转换为合适的 HTTP 响应。
+- **通俗讲解**：这是“错误处理员”，如果用户没登录、权限不够，或请求有问题，它会返回标准的错误信息（比如 401 未授权、403 禁止访问）。
+- **在 OAuth2 中的作用**：确保 OAuth2 端点返回符合协议的错误响应（比如 `invalid_grant`、`invalid_client`）。
+
+### 7. **FilterSecurityInterceptor**
+- **作用**：执行访问控制，检查请求是否满足权限要求。
+- **通俗讲解**：这是“权限检查员”，确保只有合法用户和客户端能访问特定端点。比如，`/oauth2/authorize` 要求用户登录，`/oauth2/token` 要求客户端提供正确参数。
+- **在 OAuth2 中的作用**：保护授权服务器的端点，防止未授权访问。
+
+---
+
+## 三、过滤器执行顺序
+Spring Security 的过滤器链按固定顺序执行，`applyDefaultSecurity` 确保这些过滤器以正确的优先级排列。你的代码里设置了 `@Order(Ordered.HIGHEST_PRECEDENCE)`，意味着这个过滤器链优先级最高，会先处理 OAuth2 相关的请求（比如 `/oauth2/*`）。大致顺序如下：
+1. `SecurityContextPersistenceFilter`：加载安全上下文。
+2. `CsrfFilter`：检查 CSRF 令牌。
+3. `UsernamePasswordAuthenticationFilter`：处理登录（如果需要）。
+4. OAuth2 专属过滤器（`OAuth2AuthorizationEndpointFilter`、`OAuth2TokenEndpointFilter` 等）：处理 OAuth2 逻辑。
+5. `JwkSetEndpointFilter`、`OidcProviderConfigurationEndpointFilter` 等：处理辅助端点。
+6. `ExceptionTranslationFilter`：处理错误。
+7. `FilterSecurityInterceptor`：最后检查权限。
+
+---
+
+## 四、为什么需要这些过滤器？
+这些过滤器共同实现了 OAuth2 和 OIDC 的核心功能，同时保证了安全性：
+- **安全性**：`CsrfFilter`、`FilterSecurityInterceptor` 防止攻击和未授权访问。
+- **协议支持**：`OAuth2AuthorizationEndpointFilter`、`OAuth2TokenEndpointFilter` 实现授权码流和令牌发放。
+- **OIDC 功能**：`OidcProviderConfigurationEndpointFilter`、`OidcUserInfoEndpointFilter` 支持身份认证。
+- **JWT 支持**：`JwkSetEndpointFilter` 提供公钥验证。
+
+---
+
+## 五、总结
+`OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)` 启用了一组过滤器，覆盖了 OAuth2 授权服务器的核心功能，包括用户登录、授权码生成、令牌发放、用户信息查询、令牌验证和撤销等。每个过滤器就像门卫系统的一个岗位，各自负责一块任务，共同确保服务器安全、高效地运行。
+
+如果你想深入了解某个过滤器的实现细节，或者想知道如何自定义它们，随时告诉我！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 客户端注册放到数据库中
+
+抱歉，刚才讲得太散了，让你觉得乱。我这次给你条理清晰、重点突出的版本，帮你一步步搞定用 MyBatis 把 RegisteredClient 存到数据库的事儿。
+
+---
+
+### 目标
+
+把你现在在 `registeredClientRepository()` 里写死的客户端，改成存到数据库里，支持：
+
+- 新增客户端（保存）
+    
+- 查询客户端（按 `clientId` 或 `id`）
+    
+- 更新客户端信息
+    
+
+---
+
+### 核心步骤
+
+1. **设计数据库表**，存 RegisteredClient 相关字段
+    
+2. **写实体类**映射表结构
+    
+3. **写 MyBatis Mapper 接口和 XML**，实现增删改查
+    
+4. **写 RegisteredClientRepository 实现类**，做数据库和 RegisteredClient 对象互转
+    
+5. **配置 Spring，把自定义 RegisteredClientRepository 注入**
+    
+6. **调用你的 repo 来操作数据库里的客户端**
+    
+
+---
+
+### 1. 数据库表设计（MySQL）
+
+```sql
+CREATE TABLE oauth2_registered_client (
+  id VARCHAR(100) PRIMARY KEY,
+  client_id VARCHAR(100) UNIQUE NOT NULL,
+  client_secret VARCHAR(200),
+  client_authentication_methods TEXT,
+  authorization_grant_types TEXT,
+  redirect_uris TEXT,
+  scopes TEXT,
+  client_settings TEXT,
+  token_settings TEXT
+);
+```
+
+---
+
+### 2. 实体类 RegisteredClientEntity
+
+```java
+public class RegisteredClientEntity {
+    private String id;
+    private String clientId;
+    private String clientSecret;
+    private String clientAuthenticationMethods;  // JSON字符串
+    private String authorizationGrantTypes;      // JSON字符串
+    private String redirectUris;                  // JSON字符串
+    private String scopes;                        // JSON字符串
+    private String clientSettings;                // JSON字符串
+    private String tokenSettings;                 // JSON字符串
+
+    // getters 和 setters
+}
+```
+
+---
+
+### 3. MyBatis Mapper 接口和 XML
+
+接口 `RegisteredClientMapper.java`：
+
+```java
+@Mapper
+public interface RegisteredClientMapper {
+    void insert(RegisteredClientEntity client);
+    RegisteredClientEntity selectById(String id);
+    RegisteredClientEntity selectByClientId(String clientId);
+    void update(RegisteredClientEntity client);
+}
+```
+
+XML 映射 `RegisteredClientMapper.xml` 就是对表的增删改查语句，跟之前给你的类似。
+
+---
+
+### 4. RegisteredClientRepository 实现类
+
+```java
+@Component
+public class MyBatisRegisteredClientRepository implements RegisteredClientRepository {
+
+    private final RegisteredClientMapper mapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public MyBatisRegisteredClientRepository(RegisteredClientMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    @Override
+    public void save(RegisteredClient client) {
+        RegisteredClientEntity entity = toEntity(client);
+        if (mapper.selectById(client.getId()) == null) {
+            mapper.insert(entity);
+        } else {
+            mapper.update(entity);
+        }
+    }
+
+    @Override
+    public RegisteredClient findById(String id) {
+        RegisteredClientEntity entity = mapper.selectById(id);
+        return entity == null ? null : toRegisteredClient(entity);
+    }
+
+    @Override
+    public RegisteredClient findByClientId(String clientId) {
+        RegisteredClientEntity entity = mapper.selectByClientId(clientId);
+        return entity == null ? null : toRegisteredClient(entity);
+    }
+
+    private RegisteredClientEntity toEntity(RegisteredClient client) {
+        RegisteredClientEntity entity = new RegisteredClientEntity();
+        entity.setId(client.getId());
+        entity.setClientId(client.getClientId());
+        entity.setClientSecret(client.getClientSecret());
+        try {
+            entity.setClientAuthenticationMethods(objectMapper.writeValueAsString(
+                    client.getClientAuthenticationMethods().stream()
+                            .map(ClientAuthenticationMethod::getValue)
+                            .collect(Collectors.toSet())));
+            entity.setAuthorizationGrantTypes(objectMapper.writeValueAsString(
+                    client.getAuthorizationGrantTypes().stream()
+                            .map(AuthorizationGrantType::getValue)
+                            .collect(Collectors.toSet())));
+            entity.setRedirectUris(objectMapper.writeValueAsString(client.getRedirectUris()));
+            entity.setScopes(objectMapper.writeValueAsString(client.getScopes()));
+            entity.setClientSettings(objectMapper.writeValueAsString(client.getClientSettings().getSettings()));
+            entity.setTokenSettings(objectMapper.writeValueAsString(client.getTokenSettings().getSettings()));
+        } catch (Exception e) {
+            throw new RuntimeException("序列化 RegisteredClient 失败", e);
+        }
+        return entity;
+    }
+
+    private RegisteredClient toRegisteredClient(RegisteredClientEntity entity) {
+        try {
+            RegisteredClient.Builder builder = RegisteredClient.withId(entity.getId())
+                    .clientId(entity.getClientId())
+                    .clientSecret(entity.getClientSecret());
+
+            Set<String> authMethods = objectMapper.readValue(
+                    entity.getClientAuthenticationMethods(), new TypeReference<Set<String>>() {});
+            authMethods.forEach(m -> builder.clientAuthenticationMethod(new ClientAuthenticationMethod(m)));
+
+            Set<String> grantTypes = objectMapper.readValue(
+                    entity.getAuthorizationGrantTypes(), new TypeReference<Set<String>>() {});
+            grantTypes.forEach(g -> builder.authorizationGrantType(new AuthorizationGrantType(g)));
+
+            List<String> redirectUris = objectMapper.readValue(
+                    entity.getRedirectUris(), new TypeReference<List<String>>() {});
+            redirectUris.forEach(builder::redirectUri);
+
+            Set<String> scopes = objectMapper.readValue(
+                    entity.getScopes(), new TypeReference<Set<String>>() {});
+            scopes.forEach(builder::scope);
+
+            Map<String, Object> clientSettings = objectMapper.readValue(
+                    entity.getClientSettings(), new TypeReference<Map<String, Object>>() {});
+            builder.clientSettings(ClientSettings.withSettings(clientSettings).build());
+
+            Map<String, Object> tokenSettings = objectMapper.readValue(
+                    entity.getTokenSettings(), new TypeReference<Map<String, Object>>() {});
+            builder.tokenSettings(TokenSettings.withSettings(tokenSettings).build());
+
+            return builder.build();
+        } catch (Exception e) {
+            throw new RuntimeException("反序列化 RegisteredClientEntity 失败", e);
+        }
+    }
+}
+```
+
+---
+
+### 5. 在 Spring 配置类里注入这个实现
+
+```java
+@Configuration
+@MapperScan("com.example.auth.mapper") // 你的 Mapper 包路径
+public class AuthorizationServerConfig {
+
+    @Bean
+    public RegisteredClientRepository registeredClientRepository(MyBatisRegisteredClientRepository repo) {
+        return repo;
+    }
+
+    // 其他授权服务器安全配置...
+}
+```
+
+---
+
+### 6. 用法示例
+
+- **保存新客户端**
+    
+
+```java
+RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+    .clientId("my-client")
+    .clientSecret("{noop}secret")
+    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+    .redirectUri("http://localhost:8080/callback")
+    .scope("read")
+    .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+    .build();
+
+registeredClientRepository.save(client);
+```
+
+- **查询客户端**
+    
+
+```java
+RegisteredClient c = registeredClientRepository.findByClientId("my-client");
+```
+
+- **更新客户端**
+    
+
+```java
+RegisteredClient oldClient = registeredClientRepository.findByClientId("my-client");
+RegisteredClient updated = RegisteredClient.from(oldClient)
+    .clientSecret("{noop}newSecret")
+    .build();
+registeredClientRepository.save(updated);
+```
+
+---
+
+这就是核心流程，想明白了，实际代码写起来并不复杂。如果你想，我也可以帮你写一个完整可运行的项目 demo，你看怎么样？
+
+----
+
+
+
+## OIDC 到底规范了什么
+
+OIDC（OpenID Connect）是在 OAuth 2.0 的基础上进行扩展和规范的一种协议，主要为了解决身份认证问题。它在 OAuth 2.0 的授权框架之上，增加了一系列标准化的功能和规范，以下是大总结：
+
+### 1. **引入身份认证功能**
+- OIDC 在 OAuth 2.0 的授权基础上增加了身份认证的能力，允许客户端在用户授权后获取用户的身份信息。
+- **核心创新**：定义了 `id_token`，这是一个基于 JWT（JSON Web Token）的令牌，包含用户的身份信息（如唯一标识符 subject identifier）。
+
+### 2. **标准化 Token 格式**
+- OAuth 2.0 未定义 access token 的具体格式，而 OIDC 明确规定 `id_token` 必须采用 JWT 格式，确保其结构化和可验证性。
+- access token 和 refresh token 的格式未强制要求，但与 `id_token` 配合使用。
+
+### 3. **新增 UserInfo Endpoint**
+- OIDC 引入了 UserInfo Endpoint，客户端可通过 access token 从该端点获取用户的详细信息（如姓名、邮箱等），增强了用户信息获取的标准化途径。
+
+### 4. **定义标准 Scope**
+- OIDC 规范了标准的 scope 参数，例如：
+  - `openid`：表示这是一个 OIDC 请求，必须包含。
+  - `profile`、`email` 等：用于请求用户的具体信息。
+- 这些 scope 使权限请求更加清晰和一致。
+
+### 5. **增强授权请求**
+- 引入 `response_type` 参数，指定返回的令牌类型（如 `code`、`id_token`、`token`），支持不同的认证流程。
+- 增加 `nonce` 参数，防止重放攻击，提升安全性。
+
+### 6. **提供发现机制**
+- OIDC 定义了发现机制，客户端可以通过标准化的方式动态获取 OIDC 提供者的配置信息和端点（如授权端点、令牌端点等）。
+
+### 7. **支持动态客户端注册**
+- 允许客户端在运行时向 OIDC 提供者注册，增加了灵活性。
+
+### 8. **会话管理**
+- 提供会话管理功能，例如检查用户登录状态、结束会话等，使认证过程更完整。
+
+### 9. **安全性提升**
+- 使用 JWT 和数字签名确保 `id_token` 的完整性和真实性。
+- 引入 `state` 参数防止 CSRF（跨站请求伪造）攻击。
+
+### 10. **标准化错误响应**
+- OIDC 规范了错误响应的格式和内容，使错误处理更加统一和可预测。
+
+### 11. **支持多种认证流程**
+- 包括授权码流程、隐式流程和混合流程，适应不同应用场景的需求。
+
+### 12. **用户同意机制**
+- 在授权过程中，用户可以查看并同意客户端请求的权限，提升用户控制权。
+
+### 13. **其他扩展功能**
+- 支持多租户环境，适用于同一提供者服务多个租户的场景。
+- 支持国际化，允许 token 和用户信息使用多语言。
+- 提供扩展性，可通过自定义 claims 或额外令牌类型满足特定需求。
+
+### 总结
+OIDC 在 OAuth 2.0 的基础上，通过引入身份认证流程（`id_token`）、标准化令牌格式（JWT）、新增 UserInfo Endpoint、定义标准 scope、增强安全性、支持多种流程等方式，构建了一个更加规范、完整和安全的身份认证框架。它不仅保留了 OAuth 2.0 的授权能力，还为现代应用程序提供了一种标准化的用户身份验证解决方案。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Spring Security OAuth 授权服务器配置
+
+### Spring Security OAuth 授权服务器配置模板
+
+
+#### 配置表单登录
+
+
+
+
+
+
+
+
+
+
+# 二、实操
+
+## 使用 Spring Security 开发授权码模式 + PKCE + OIDC + Refresh Token 一条龙系统
+
+### 开发授权服务器
+
+#### 创建 Spring Web 项目，添加相关依赖
+
+创建时：
+1. Web
+2. Spring Web
+3. Template Engines
+	1. Thymeleaf
+4. Security
+	1. Spring Security
+	2. OAuth2 Authorization Server
+5. SQL
+	1. JDBC API
+	2. MyBatis Framework
+	3. MySQL Driver
+
+创建后：添加 [spring-security-oauth2-jose 依赖](https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-jose)
+```
+<dependency>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-oauth2-jose</artifactId>
+</dependency>
+```
+
+> [!NOTE] 注意事项
+> 1. `spring-security-oauth2-jose` 是 Spring 官方为 OAuth2 提供的 JWT 支持模块，而 `jjwt-*` 是 Okta 社区维护的第三方库 JJWT。
+> 2. 虽然 JJWT 也能生成 JWT，但它与 Spring Security 的集成度较低，许多功能（如 token 签发、校验、JWK 支持等）都需要我们手动实现。它与我们原先采用的 JJWT 库存在不少差异，不能直接沿用过去的写法，需要根据新库的方式进行修改。
+> 3. Thymeleaf 是个模板引擎，负责把模板（html文件）渲染成最终的HTML页面返回给浏览器，只有在 `@Controller` 返回字符串为视图名时，Thymeleaf 才会介入渲染页面。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 一、理论
+
 ## 1. 导图
 
 ![](source/_posts/笔记：OAuth%20协议/Map：OAuth%20协议.xmind)

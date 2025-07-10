@@ -9,6 +9,101 @@ tags:
 author: 霸天
 layout: post
 ---
+
+
+
+```
+public class Cookie {  
+    private String name;  
+    private String domain;  
+    private String path;  
+    private Boolean httpOnly;  
+    private Boolean secure;  
+    @DurationUnit(ChronoUnit.SECONDS)  
+    private Duration maxAge;  
+    private SameSite sameSite;  
+  
+    public Cookie() {  
+    }  
+  
+    public String getName() {  
+        return this.name;  
+    }  
+  
+    public void setName(String name) {  
+        this.name = name;  
+    }  
+  
+    public String getDomain() {  
+        return this.domain;  
+    }  
+  
+    public void setDomain(String domain) {  
+        this.domain = domain;  
+    }  
+  
+    public String getPath() {  
+        return this.path;  
+    }  
+  
+    public void setPath(String path) {  
+        this.path = path;  
+    }  
+  
+    public Boolean getHttpOnly() {  
+        return this.httpOnly;  
+    }  
+  
+    public void setHttpOnly(Boolean httpOnly) {  
+        this.httpOnly = httpOnly;  
+    }  
+  
+    public Boolean getSecure() {  
+        return this.secure;  
+    }  
+  
+    public void setSecure(Boolean secure) {  
+        this.secure = secure;  
+    }  
+  
+    public Duration getMaxAge() {  
+        return this.maxAge;  
+    }  
+  
+    public void setMaxAge(Duration maxAge) {  
+        this.maxAge = maxAge;  
+    }  
+  
+    public SameSite getSameSite() {  
+        return this.sameSite;  
+    }  
+  
+    public void setSameSite(SameSite sameSite) {  
+        this.sameSite = sameSite;  
+    }  
+  
+    public static enum SameSite {  
+        NONE("None"),  
+        LAX("Lax"),  
+        STRICT("Strict");  
+  
+        private final String attributeValue;  
+  
+        private SameSite(String attributeValue) {  
+            this.attributeValue = attributeValue;  
+        }  
+  
+        public String attributeValue() {  
+            return this.attributeValue;  
+        }  
+    }  
+}
+```
+
+
+
+
+
 ![](image-20250709172129814.png)
 
 

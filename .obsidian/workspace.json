@@ -154,8 +154,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 313.5041847229004,
-    "collapsed": true
+    "width": 313.5041847229004
   },
   "right": {
     "id": "0803248b5c8c75de",
@@ -300,13 +299,15 @@
   "active": "59f0b58b185621f9",
   "lastOpenFiles": [
     "templates/临时：OAUth.md",
-    "source/_posts/笔记：Spring Security.md",
     "source/_posts/笔记：Spring Authorization Server.md",
     "source/_posts/笔记：OAuth 协议.md",
     "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
+    "maps/Map：SpringAuthorizationServer.xmind",
+    "source/_posts/笔记：Spring Security.md",
+    "source/_posts/笔记：Spring Boot.md",
+    "source/_posts/笔记：奶块攻略.md",
     "Todo 看板.md",
     "templates/临时：mybatis.md",
-    "source/_posts/笔记：Spring Boot.md",
     "templates/临时：es/image-20250616164438024.png",
     "templates/临时：es/image-20250616163426285.png",
     "templates/临时：es/image-20250616103159416.png",
@@ -324,10 +325,8 @@
     "Edraw/OAuth协议---理想状态下的授权码模式 + PKCE + OIDC + Refresh Token.eddx.edabPR",
     "Edraw/OAuth协议---理想状态下的授权码模式 + PKCE + OIDC + Refresh Token.eddx.xnLChb",
     "Edraw/OAuth协议---理想状态下的授权码模式 + PKCE + OIDC + Refresh Token.eddx.yAvokR",
-    "Edraw/OAuth协议---理想状态下的授权码模式 + PKCE + OIDC + Refresh Token.eddx.kSpwGF",
     "source/_posts/笔记：Spring Boot/image-20250709172129814.png",
     "source/_posts/笔记：Java 项目创建和结构.md",
-    "source/_posts/笔记：奶块攻略.md",
     "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
     "minio 临时.md",
     "source/_posts/笔记：Spring 整合 Minio.md",
@@ -344,7 +343,6 @@
     "source/_posts/笔记：JUC.md",
     "source/_posts/笔记：JVM.md",
     "question.md",
-    "templates/临时：es.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]
