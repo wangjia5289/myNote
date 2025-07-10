@@ -1,16 +1,20 @@
 {
   "recentFiles": [
     {
+      "basename": "笔记：Spring Authorization Server",
+      "path": "source/_posts/笔记：Spring Authorization Server.md"
+    },
+    {
       "basename": "临时：OAUth",
       "path": "templates/临时：OAUth.md"
     },
     {
-      "basename": "笔记：OAuth 协议",
-      "path": "source/_posts/笔记：OAuth 协议.md"
-    },
-    {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
+    },
+    {
+      "basename": "笔记：OAuth 协议",
+      "path": "source/_posts/笔记：OAuth 协议.md"
     },
     {
       "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：Git 家族",
       "path": "source/_posts/笔记：Git 家族.md"
-    },
-    {
-      "basename": "笔记：Md 分级标题 → Xmind 小工具",
-      "path": "source/_posts/笔记：Md 分级标题 → Xmind 小工具.md"
     }
   ],
   "omittedPaths": [],
