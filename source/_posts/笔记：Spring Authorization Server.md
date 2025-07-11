@@ -13,9 +13,7 @@ layout: post
 
 ## 导图
 
-
-
-
+![](Map：SpringAuthorizationServer%201.xmind)
 
 ## Spring Authorization Server 配置
 
