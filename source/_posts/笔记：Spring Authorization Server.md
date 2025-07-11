@@ -15,6 +15,25 @@ layout: post
 
 ![](Map：SpringAuthorizationServer%201.xmind)
 
+---
+
+
+## Spring Authorization Server 执行流程
+
+### OAuth2AuthorizationEndpointFilter 介入
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Spring Authorization Server 配置
 
 ### Spring Authorization Server 配置模板
@@ -32,6 +51,17 @@ AuthServerConfiguration 类在 `com.example.oauthserverwithmyproject.configurati
 
 
 
+
+# 二、实操
+
+## 注册客户端应用
+
+### 创建 客户端应用 数据库表
+
+RegisteredClient
+```
+
+```
 
 
 

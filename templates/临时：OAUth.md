@@ -5,7 +5,7 @@
 
 
 <font color="#92d050">4. UsernamePasswordAuthenticationFilter 介入</font>
-该过滤器用于拦截我们处理登陆表单的提交请求的端点，也就是我们在表单登录中配置的 `form.loginProcessingUrl("/login")` ，他会读取请求参数中的用户名和密码（默认名是 `username` 和 `password`），自动将其封装为UsernamePasswordAuthenticationToken调用 `AuthenticationManager.authenticate(...)` 进行认证如果认证成功会自动将 AuthenticationManager 返回的 Authentication 存入到本线程的 `SecurityContext`（我们自定义的登录操作，使用authenticationmanager，就少了这一步而已）。保存用户信息并执行我们在表单登录 中配置的form.defaultSuccessUrl、form.successHandler
+
 
 
 

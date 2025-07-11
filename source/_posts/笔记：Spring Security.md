@@ -32,7 +32,7 @@ layout: post
 即使我们不打算通过 `HttpSession` 实现 “记住我” 功能（如使用 JWT），甚至完全不使用 `HttpSession`，我们仍然建议保留这个过滤器，因为它自动为本线程初始化 `SecurityContextHolder`、并自动创建 `SecurityContext`，这个能力实在太香了。
 ![](image-20250628224744251.png)
 
-<font color="#92d050">2. RememberMeAuthenticationFilter 介入</font>
+<font color="#92d050">2. RememberMeAuthenticationFilter 介入（需开启）</font>
 - 当用户访问时，如果当前 `SecurityContext` 里没有认证信息（没登录），
     
 - 它会检查请求中的 RememberMe Cookie，
@@ -42,6 +42,9 @@ layout: post
 - 把这个认证信息放入 `SecurityContext`，
     
 - 从而让用户“自动登录”，不必重新输入用户名密码。
+
+
+sessionManagementFilter 过滤器介入
 
 
 <font color="#92d050">3. CsrfFilter 介入</font>
@@ -58,7 +61,7 @@ layout: post
 
 在前后端分离的架构中无需深入关注其具体逻辑，只需了解其在过滤器链中的位置，以便在插入自定义过滤器时能准确定位。
 
-
+该过滤器用于拦截我们处理登陆表单的提交请求的端点，也就是我们在表单登录中配置的 `form.loginProcessingUrl("/login")` ，他会读取请求参数中的用户名和密码（默认名是 `username` 和 `password`），自动将其封装为UsernamePasswordAuthenticationToken调用 `AuthenticationManager.authenticate(...)` 进行认证如果认证成功会自动将 AuthenticationManager 返回的 Authentication 存入到本线程的 `SecurityContext`（我们自定义的登录操作，使用authenticationmanager，就少了这一步而已）。保存用户信息并执行我们在表单登录 中配置的form.defaultSuccessUrl、form.successHandler
 
 
 <font color="#92d050">LogoutFilter 介入</font>
@@ -979,7 +982,7 @@ UsernamePasswordAuthenticationToken auth =  new UsernamePasswordAuthenticationTo
 ---
 
 
-#### 1.1.2. 创建用户-角色-权限表
+#### 1.1.2. 创建 用户-角色-权限 数据库表
 
 我们一般会创建五个表：`users` 表（用户表）存储所有注册用户的信息，`roles` 表（角色表）定义了系统中存在的各种角色，`user_role` 表（用户-角色关联表）用于建立用户和角色之间的多对多关系，`authorities` 表（权限表）定义了系统中的各种操作权限，`role_authoritie` 表（角色-权限表）用于建立角色和权限之间的多对多关系
 
