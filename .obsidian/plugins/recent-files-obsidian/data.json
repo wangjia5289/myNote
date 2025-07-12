@@ -5,16 +5,16 @@
       "path": "source/_posts/笔记：Spring Authorization Server.md"
     },
     {
+      "basename": "临时：OAUth",
+      "path": "templates/临时：OAUth.md"
+    },
+    {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
     },
     {
       "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
       "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
-    },
-    {
-      "basename": "临时：OAUth",
-      "path": "templates/临时：OAUth.md"
     },
     {
       "basename": "笔记：OAuth 协议",
