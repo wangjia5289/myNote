@@ -19,30 +19,30 @@
   <meta name="author" content="霸天">
   <meta name="keywords" content="">
   
-    <meta name="description" content="你的需求很典型，想自己写一个配置类，让 application.yml 里的配置能绑定到它，同时 IDEA 能智能提示，体验更好。这个是 Spring Boot 里配置绑定的标准做法。 我帮你梳理完整步骤和关键点，确保你写的配置类和 application.yml 配置能完美对应，还能被 IDEA 智能识别和提示。  一、如何写一个自己的配置类，实现 application.yml 绑定和 ID">
+    <meta name="description" content="你写的这个 MinioClient 的创建方式，整体思路是对的，而且是主流的 Spring Boot 配置方式。不过这里有几个细节可以帮你确认和优化，保证代码更健壮和规范：  endpoint 格式   MinioClient 的 endpoint 一般要求带协议，比如 http:&#x2F;&#x2F;192.168.136.8:9000，否则默认可能会有问题或者抛异常。  你写的 &quot;192.168.13">
 <meta property="og:type" content="article">
 <meta property="og:title" content="笔记：Spring IOC">
 <meta property="og:url" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/index.html">
 <meta property="og:site_name" content="夜阑卧听风吹雨,一枝梨花压心头">
-<meta property="og:description" content="你的需求很典型，想自己写一个配置类，让 application.yml 里的配置能绑定到它，同时 IDEA 能智能提示，体验更好。这个是 Spring Boot 里配置绑定的标准做法。 我帮你梳理完整步骤和关键点，确保你写的配置类和 application.yml 配置能完美对应，还能被 IDEA 智能识别和提示。  一、如何写一个自己的配置类，实现 application.yml 绑定和 ID">
+<meta property="og:description" content="你写的这个 MinioClient 的创建方式，整体思路是对的，而且是主流的 Spring Boot 配置方式。不过这里有几个细节可以帮你确认和优化，保证代码更健壮和规范：  endpoint 格式   MinioClient 的 endpoint 一般要求带协议，比如 http:&#x2F;&#x2F;192.168.136.8:9000，否则默认可能会有问题或者抛异常。  你写的 &quot;192.168.13">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250707124724752.png">
-<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250704122212717.png">
-<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250703215302874.png">
-<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250703103102608.png">
-<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250703103116668.png">
-<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250701205019198.png">
-<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250701205226473.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250707124724752.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250704122212717.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250703215302874.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250703103102608.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250703103116668.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250701205019198.png">
+<meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250701205226473.png">
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250519160241335.png">
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250519160340948.png">
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250519160346033.png">
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250518162951182.png">
 <meta property="og:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250518163131432.png">
 <meta property="article:published_time" content="2025-03-09T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-07-07T07:08:10.974Z">
+<meta property="article:modified_time" content="2025-07-08T09:33:29.685Z">
 <meta property="article:author" content="Ba Tian">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://wangjia5289.github.io/2025/03/10/hello-world/C/image-20250707124724752.png">
+<meta name="twitter:image" content="https://wangjia5289.github.io/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250707124724752.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -236,7 +236,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          10k words
+          11k words
         
       </span>
     
@@ -247,7 +247,7 @@
         
         
         
-          87 mins
+          91 mins
         
       </span>
     
@@ -302,7 +302,7 @@
               <p id="updated-time" class="note note-info" style="display: none">
                 
                   
-                    Last updated on 2025-07-07T15:08:10+08:00
+                    Last updated on 2025-07-08T17:33:29+08:00
                   
                   
 
@@ -312,7 +312,45 @@
             
               <div class="markdown-body">
                 
-                <p><img src="/2025/03/10/hello-world/C/image-20250707124724752.png" srcset="/img/loading.gif" lazyload></p>
+                <p>你写的这个 MinioClient 的创建方式，整体思路是对的，而且是主流的 Spring Boot 配置方式。不过这里有几个细节可以帮你确认和优化，保证代码更健壮和规范：</p>
+<ol>
+<li><strong>endpoint 格式</strong></li>
+</ol>
+<ul>
+<li><p>MinioClient 的 <code>endpoint</code> 一般要求带协议，比如 <code>http://192.168.136.8:9000</code>，否则默认可能会有问题或者抛异常。</p>
+</li>
+<li><p>你写的 <code>&quot;192.168.136.8:9000&quot;</code> 可能在某些版本的 MinioClient 会报错或无法连接，建议加上协议。</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>证书和安全性</strong></li>
+</ol>
+<ul>
+<li><p>如果你的 Minio 是 HTTP 直连，当前写法是可以的。</p>
+</li>
+<li><p>如果启用了 HTTPS，证书校验、信任管理就要额外配置。</p>
+</li>
+</ul>
+<ol start="3">
+<li><strong>异常处理</strong></li>
+</ol>
+<ul>
+<li>虽然 Spring 容器会管理这个 Bean，但构建过程中可能抛异常，建议在创建时注意捕获或确认版本的行为。</li>
+</ul>
+<ol start="4">
+<li><strong>可配置化</strong></li>
+</ol>
+<ul>
+<li>通常这些配置信息（endpoint、用户名、密码）会放在 <code>application.properties</code> 或 <code>application.yml</code> 中，用 <code>@Value</code> 或 <code>@ConfigurationProperties</code> 注入，方便不同环境切换。</li>
+</ul>
+<p>你参考下优化版示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MinioConfig</span> &#123;<br><br>    <span class="hljs-meta">@Value(&quot;$&#123;minio.endpoint&#125;&quot;)</span><br>    <span class="hljs-keyword">private</span> String endpoint;<br><br>    <span class="hljs-meta">@Value(&quot;$&#123;minio.access-key&#125;&quot;)</span><br>    <span class="hljs-keyword">private</span> String accessKey;<br><br>    <span class="hljs-meta">@Value(&quot;$&#123;minio.secret-key&#125;&quot;)</span><br>    <span class="hljs-keyword">private</span> String secretKey;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> MinioClient <span class="hljs-title function_">minioClient</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> MinioClient.builder()<br>                .endpoint(endpoint)          <span class="hljs-comment">// 如 http://192.168.136.8:9000</span><br>                .credentials(accessKey, secretKey)<br>                .build();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后在 <code>application.properties</code> 里配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">minio.endpoint</span>=http://<span class="hljs-number">192.168</span>.<span class="hljs-number">136.8</span>:<span class="hljs-number">9000</span><br><span class="hljs-attr">minio.access-key</span>=admin<br><span class="hljs-attr">minio.secret-key</span>=admin123<br></code></pre></td></tr></table></figure>
+
+<p>这样更灵活，也方便后续维护和环境切换。你觉得呢？如果你想，我还可以帮你写个带配置文件读取的完整示范。</p>
+<p><img src="/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250707124724752.png" srcset="/img/loading.gif" lazyload></p>
 <p>你的需求很典型，想自己写一个配置类，让 <code>application.yml</code> 里的配置能绑定到它，同时 IDEA 能智能提示，体验更好。这个是 Spring Boot 里配置绑定的标准做法。</p>
 <p>我帮你梳理<strong>完整步骤和关键点</strong>，确保你写的配置类和 <code>application.yml</code> 配置能完美对应，还能被 IDEA 智能识别和提示。</p>
 <hr>
@@ -464,11 +502,11 @@
 <p>你会看到哪些自动配置类被加载了、哪些条件没满足没加载。</p>
 <hr>
 <p>如你需要，我也可以帮你找几个典型配置，看它们是怎么绑定到 Spring Bean 的。要不要？</p>
-<p><img src="/2025/03/10/hello-world/C/image-20250704122212717.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250704122212717.png" srcset="/img/loading.gif" lazyload></p>
 <p>不能这样做，会报错，要想在本方法用，只能 csrfTokenRepository()</p>
-<p><img src="/2025/03/10/hello-world/C/image-20250703215302874.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="两种注册方式啊"><a href="#两种注册方式啊" class="headerlink" title="两种注册方式啊"></a>两种注册方式啊</h2><p><img src="/2025/03/10/hello-world/C/image-20250703103102608.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="/2025/03/10/hello-world/C/image-20250703103116668.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250703215302874.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="两种注册方式啊"><a href="#两种注册方式啊" class="headerlink" title="两种注册方式啊"></a>两种注册方式啊</h2><p><img src="/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250703103102608.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250703103116668.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
 <p>[!NOTE] 注意事项</p>
 <ol>
@@ -482,8 +520,8 @@
 
 
 <hr>
-<p><img src="/2025/03/10/hello-world/C/image-20250701205019198.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="/2025/03/10/hello-world/C/image-20250701205226473.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250701205019198.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/2025/03/10/%E7%AC%94%E8%AE%B0%EF%BC%9ASpring%20IOC/image-20250701205226473.png" srcset="/img/loading.gif" lazyload></p>
 <p>其实这就是 Spring IOC 的核心思想了，对吧，你的接口这些方法都已经制定好了</p>
 <figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-keyword">public</span> interface PasswordEncoder &#123;  <br>    <span class="hljs-function"><span class="hljs-type">String</span> <span class="hljs-title">encode</span><span class="hljs-params">(CharSequence rawPassword)</span></span>;  <br>  <br>    <span class="hljs-function"><span class="hljs-type">boolean</span> <span class="hljs-title">matches</span><span class="hljs-params">(CharSequence rawPassword, <span class="hljs-type">String</span> encodedPassword)</span></span>;  <br>  <br>    <span class="hljs-function"><span class="hljs-keyword">default</span> <span class="hljs-type">boolean</span> <span class="hljs-title">upgradeEncoding</span><span class="hljs-params">(<span class="hljs-type">String</span> encodedPassword)</span> </span>&#123;  <br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;  <br>    &#125;  <br>&#125;<br></code></pre></td></tr></table></figure>
 <p>然后这些实现，都会去实现你这些方法，我们将接口直接声明为 Bean，然后选择一个合适的实现类进行返回，其实这个接口呢，就可以使用这个实现类实现的方法，以后如果我们要修改实现类，只需要修改以下这个return new BCY 到其他的，然后呢，其他的代码都不用变了，如果你是直接 Bean BCY，那你如果以后像用一个其他的，那你还得把所有的BCY 找出来，一一替换</p>

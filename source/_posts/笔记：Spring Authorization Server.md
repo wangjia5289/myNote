@@ -203,17 +203,38 @@ OAuth 的 Scope 本质上是高度自定义的，但 OpenID Connect（OIDC）规
 
 
 <font color="#92d050">12. tokenSettings</font>
-设置各种令牌的配置，可配置的项包括：
+各种令牌的配置，可配置的项包括：
 1. accessTokenTimeToLive(Duration)
+	1. 访问令牌（Access Token）的有效期，以分钟为单位
+	2. 例如：`accessTokenTimeToLive(5)` 是 5 分钟
+2. accessTokenFormat(AccessTokenFormat)
+	1. 访问令牌（Access Token）的格式
+	2. AccessTokenFormat.REFERENCE
+		1. 访问令牌格式为引用类型
+3. refreshTokenTimeToLive(Duration)
+	1. 刷新令牌（Refresh Token）的有效期，以天为单位
+	2. 例如：`refreshTokenTimeToLive(30)` 是 30 天
+4. reuseRefreshTokens(boolean)
+	1. 刷新令牌是否可重复使用
+	2. true：
+		1. 可重复使用
+	3. false：
+		1. 每次刷新都会生成新的刷新令牌
+5. idTokenTimeToLive(Duration)
+	1. ID 令牌（ID Token）的有效期，以分钟为单位
+	2. 例如：`idTokenTimeToLive(10)` 是 10 分钟
+6. authorizationCodeTimeToLive(Duration)
+	1. 授权码（Authorization Code）的有效期，以分钟为单位
+	2. 例如：`authorizationCodeTimeToLive(5)` 是 5 分钟
 
-| 配置方法                                    | 类型         | 默认值              | 说明                                              |
-| --------------------------------------- | ---------- | ---------------- | ----------------------------------------------- |
-| `accessTokenTimeToLive(Duration)`       | `Duration` | 5 分钟             | 访问令牌的有效期                                        |
-| `refreshTokenTimeToLive(Duration)`      | `Duration` | 30 天             | 刷新令牌的有效期                                        |
-| `reuseRefreshTokens(boolean)`           | `boolean`  | `true`           | 刷新令牌是否可重复使用（`true`：可反复用；`false`：每次刷新都会生成新的刷新令牌） |
-| `idTokenTimeToLive(Duration)`           | `Duration` | 5 分钟             | ID Token 的有效期（OIDC 场景）                          |
-| `authorizationCodeTimeToLive(Duration)` | `Duration` | 5 分钟             | 授权码的有效期                                         |
-| `accessTokenFormat(AccessTokenFormat)`  | 枚举         | `SELF_CONTAINED` | 访问令牌格式（自包含 JWT 或引用型 Token）                      |
+| 配置方法                              | 类型         | 默认值              | 说明                                              |
+| --------------------------------- | ---------- | ---------------- | ----------------------------------------------- |
+| `accessTokenTimeToLive(Duration)` | `Duration` | 5 分钟             |                                                 |
+| `                                 | `Duration` | 30 天             |                                                 |
+| ``                                | `boolean`  | `true`           | 刷新令牌是否可重复使用（`true`：可反复用；`false`：每次刷新都会生成新的刷新令牌） |
+| ``                                | `Duration` | 5 分钟             | ID Token 的有效期（OIDC 场景）                          |
+| ``                                | `Duration` | 5 分钟             | 授权码的有效期                                         |
+| ``                                | 枚举         | `SELF_CONTAINED` | 访问令牌格式（自包含 JWT 或引用型 Token）                      |
 - **accessTokenTimeToLive**：控制客户端拿到的访问令牌在多长时间后失效，影响资源服务器的访问权限有效期。
     
 - **refreshTokenTimeToLive**：刷新令牌的有效期，决定客户端在多长时间内可以用刷新令牌换取新的访问令牌。

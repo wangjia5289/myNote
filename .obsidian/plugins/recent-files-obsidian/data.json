@@ -13,16 +13,20 @@
       "path": "source/_posts/笔记：Spring Security.md"
     },
     {
+      "basename": "笔记：Windows",
+      "path": "source/_posts/笔记：Windows.md"
+    },
+    {
+      "basename": "笔记：分布式 ID",
+      "path": "source/_posts/笔记：分布式 ID.md"
+    },
+    {
       "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
       "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
     },
     {
       "basename": "笔记：OAuth 协议",
       "path": "source/_posts/笔记：OAuth 协议.md"
-    },
-    {
-      "basename": "笔记：Windows",
-      "path": "source/_posts/笔记：Windows.md"
     },
     {
       "basename": "笔记：Spring Boot",
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：Java 实现加密、解密、编码、解码",
       "path": "source/_posts/笔记：Java 实现加密、解密、编码、解码.md"
-    },
-    {
-      "basename": "笔记：Git 家族",
-      "path": "source/_posts/笔记：Git 家族.md"
     }
   ],
   "omittedPaths": [],
