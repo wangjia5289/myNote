@@ -1,3 +1,115 @@
+好问题，咱们继续接着锤：
+
+---
+
+## ✅ 你在数据库中存的是秒（`token_settings` 字段里的 JSON 中是秒），**Spring 拿出来的时候，会自动还原成 `Duration` 类型**，不需要你自己换单位。
+
+---
+
+### 🔧 举个完整流程：
+
+你代码里配置的是：
+
+```java
+
+TokenSettings.builder()
+
+.accessTokenTimeToLive(Duration.ofMinutes(5)) // Duration 类型
+
+.build();
+
+```
+
+Spring 存进数据库的是 JSON：
+
+```json
+
+{
+
+"access_token_time_to_live": 300 // 秒
+
+}
+
+```
+
+当 Spring Authorization Server 启动或从数据库加载这个 `RegisteredClient` 的时候，它会自动做：
+
+```java
+
+Duration duration = Duration.ofSeconds(300);
+
+```
+
+然后再还原成 `TokenSettings` 对象：
+
+```java
+
+TokenSettings tokenSettings = RegisteredClient.getTokenSettings();
+
+Duration ttl = tokenSettings.getAccessTokenTimeToLive(); // Duration.ofSeconds(300)
+
+System.out.println(ttl.toMinutes()); // 打印：5
+
+```
+
+---
+
+### ✅ 换句话说：
+
+| 阶段 | 数据类型 | 示例值 |
+
+| ---------- | ----------- | ---------------------------------- |
+
+| Java 写入 | `Duration` | `Duration.ofMinutes(5)` |
+
+| 存入数据库 JSON | `Number`（秒） | `300` |
+
+| Java 读出 | `Duration` | `Duration.ofSeconds(300)` ← 自动转换回来 |
+
+---
+
+### ✅ 你不需要自己转换单位
+
+你在业务代码中拿到的永远是 `Duration` 类型的，Spring 帮你完成了：
+
+> JSON 中的秒值 → Duration 实例（即使你写的是分钟、小时、天，都会自动还原）
+
+---
+
+### 🧠 顺便一嘴：
+
+这个过程由 Spring 的 `OAuth2AuthorizationServerJackson2Module` + `RegisteredClientDeserializer` 处理，里面专门有：
+
+```java
+
+Duration.ofSeconds(jsonNode.get("access_token_time_to_live").asLong());
+
+```
+
+---
+
+所以你只管安心用 `tokenSettings.getXXXTimeToLive()` 拿，**永远是标准 Java 的 `Duration` 类型，单位自动搞定，不用你手动除以 60 了。**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 一、理论
 
 
@@ -756,35 +868,7 @@ OIDC 在 OAuth 2.0 的基础上，通过引入身份认证流程（`id_token`）
 
 ### 开发授权服务器
 
-#### 创建 Spring Web 项目，添加相关依赖
-
-创建时：
-1. Web
-2. Spring Web
-3. Template Engines
-	1. Thymeleaf
-4. Security
-	1. Spring Security
-	2. OAuth2 Authorization Server
-5. SQL
-	1. JDBC API
-	2. MyBatis Framework
-	3. MySQL Driver
-
-创建后：添加 [spring-security-oauth2-jose 依赖](https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-jose)
-```
-<dependency>
-	<groupId>org.springframework.security</groupId>
-	<artifactId>spring-security-oauth2-jose</artifactId>
-</dependency>
-```
-
-> [!NOTE] 注意事项
-> 1. `spring-security-oauth2-jose` 是 Spring 官方为 OAuth2 提供的 JWT 支持模块，而 `jjwt-*` 是 Okta 社区维护的第三方库 JJWT。
-> 2. 虽然 JJWT 也能生成 JWT，但它与 Spring Security 的集成度较低，许多功能（如 token 签发、校验、JWK 支持等）都需要我们手动实现。它与我们原先采用的 JJWT 库存在不少差异，不能直接沿用过去的写法，需要根据新库的方式进行修改。
-> 3. Thymeleaf 是个模板引擎，负责把模板（html文件）渲染成最终的HTML页面返回给浏览器，只有在 `@Controller` 返回字符串为视图名时，Thymeleaf 才会介入渲染页面。
-
-
+#### 
 
 
 

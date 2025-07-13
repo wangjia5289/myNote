@@ -22,6 +22,7 @@ kanban-plugin: board
 - [ ] minio 用户管理
 - [ ] JSON 序列化、反序列化为对象
 - [ ] Spring Security 可以有多个过滤器链，按路径进行匹配
+- [ ] JAVA 数据类型
 
 
 ## Done

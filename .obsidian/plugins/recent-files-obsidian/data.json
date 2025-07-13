@@ -5,12 +5,24 @@
       "path": "source/_posts/笔记：Spring Authorization Server.md"
     },
     {
-      "basename": "临时：OAUth",
-      "path": "templates/临时：OAUth.md"
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
+    },
+    {
+      "basename": "笔记：Java 数据类型",
+      "path": "source/_posts/笔记：Java 数据类型.md"
     },
     {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
+    },
+    {
+      "basename": "临时：OAUth",
+      "path": "templates/临时：OAUth.md"
+    },
+    {
+      "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
+      "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
     },
     {
       "basename": "笔记：Windows",
@@ -19,10 +31,6 @@
     {
       "basename": "笔记：分布式 ID",
       "path": "source/_posts/笔记：分布式 ID.md"
-    },
-    {
-      "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
-      "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
     },
     {
       "basename": "笔记：OAuth 协议",
@@ -35,10 +43,6 @@
     {
       "basename": "笔记：奶块攻略",
       "path": "source/_posts/笔记：奶块攻略.md"
-    },
-    {
-      "basename": "Todo 看板",
-      "path": "Todo 看板.md"
     },
     {
       "basename": "临时：mybatis",
@@ -195,10 +199,6 @@
     {
       "basename": "default-template",
       "path": "templates/default-template.md"
-    },
-    {
-      "basename": "笔记：Java 实现加密、解密、编码、解码",
-      "path": "source/_posts/笔记：Java 实现加密、解密、编码、解码.md"
     }
   ],
   "omittedPaths": [],

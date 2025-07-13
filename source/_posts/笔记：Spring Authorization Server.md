@@ -54,6 +54,29 @@ AuthServerConfiguration 类在 `com.example.oauthserverwithmyproject.configurati
 
 # 二、实操
 
+## 创建 Spring Web 项目，添加相关依赖
+
+1. Web
+	1. Spring Web
+2. Template Engines
+	1. Thymeleaf
+3. Security
+	1. Spring Security
+	2. OAuth2 Authorization Server
+4. SQL
+	1. JDBC API
+	2. MyBatis Framework
+	3. MySQL Driver
+
+
+> [!NOTE] 注意事项
+> 1. `spring-security-oauth2-jose` 是 Spring 官方为 OAuth2 提供的 JWT 支持模块，而 `jjwt-*` 是 Okta 社区维护的第三方库 JJWT。
+> 2. 虽然 JJWT 也能生成 JWT，但它与 Spring Security 的集成度较低，许多功能（如 token 签发、校验、JWK 支持等）都需要我们手动实现。它与我们原先采用的 JJWT 库存在不少差异，不能直接沿用过去的写法，需要根据新库的方式进行修改。
+> 3. Thymeleaf 是个模板引擎，负责把模板（html文件）渲染成最终的HTML页面返回给浏览器，只有在 `@Controller` 返回字符串为视图名时，Thymeleaf 才会介入渲染页面。
+
+-----
+
+
 ## 注册客户端应用
 
 ### 客户端应用能注册哪些信息
@@ -91,9 +114,20 @@ clientId 是 OAuth2 协议中用于标识客户端的重要凭证之一，当客
 <font color="#92d050">3. clientIdIssuedAt</font>
 这是 `clientId` 的发放时间，**同样由我们生成**，通常在生成 `clientId` 时一并创建，该时间用于便于后续跟踪和判断 `clientId` 的有效性。
 
-要求以时间戳的形式，建议在数据库中使用 `TIMESTAMP` 类型存储，格式示例为：`2025-07-11 12:34:56.789 +00:00`。
+Spring Authorization Server 要求 clientIdIssuedAt 以 Instant 类型传入，Instant 的格式为：`YYYY-MM-DDTHH:mm:ssZ`，如`2025-07-13T01:23:45Z`，表示 UTC 上的一个时间点。
 
-需要注意的是，Spring Authorization Server 并不会对该时间戳进行任何处理，这主要是为了便于我们开发人员对 `clientId` 的生命周期进行跟踪和管理。
+建议在数据库中使用带时区的 `timestamp` 类型存储，格式为：`YYYY-MM-DD HH:mm:ss`，如 `2025-07-13 01:23:45`
+
+> [!NOTE] 注意事项
+> 1. Spring Authorization Server 并不会对该时间戳进行任何处理，这主要是为了便于我们开发人员对 `clientId` 的生命周期进行跟踪和管理。
+> 2. 推荐使用 `timestamp` 类型进行存储，而不是 `VARCHAR`，因为前者可以与 `Instant` 类型无缝映射，避免手动解析字符串
+> 3. 建议使用带时区的 `timestamp` 类型，是因为它表示的是 UTC 上的一个绝对时间点。而不带时区的时间类型仅代表本地时间，可能导致语义不明确或出现误差
+> 4. MySQL 虽然不支持真正意义上的带时区 `timestamp`，但其 `timestamp` 类型在内部始终以 UTC 存储。在插入数据时，如果未显式指定时区，MySQL 会按当前系统时区进行转换，为了确保行为一致，建议在插入前显式设置为 UTC，例如：
+```
+SET time_zone = '+00:00';
+INSERT INTO registered_client (client_id, client_id_issued_at)
+VALUES ('my-client', '2025-07-13 01:23:45');
+```
 
 
 <font color="#92d050">4. clientSecret</font>
@@ -105,10 +139,7 @@ clientSecret 同样是 OAuth2 协议中用于标识客户端的重要凭证之�
 <font color="#92d050">5. clientSecretExpiresAt</font>
 这是 `clientSecret` 的过期时间，主要用于支持密钥轮换场景，可设置为 `NULL` 表示永不过期（实际应用中通常为不过期）。
 
-要求以时间戳的形式，建议在数据库中使用 `TIMESTAMP` 类型存储，格式示例为：`2025-07-11 12:34:56.789 +00:00`。
-
-
-需要注意的是，Spring Authorization Server 同样并不会对该时间戳进行任何处理，这主要是为了便于我们开发人员对 `clientSecret` 进行轮换处理等。
+格式要求与 `clientIdIssuedAt` 一致，Spring Authorization Server 同样不会对该时间戳进行任何处理
 
 
 <font color="#92d050">6. clientName</font>
@@ -125,7 +156,9 @@ clientSecret 同样是 OAuth2 协议中用于标识客户端的重要凭证之�
 3. none：
 	1. 仅传 `client_id`，不传 `client_secret`，常用于 SPA 单页应用或移动端应用（这也是引入 PKCE 的原因）
 
-需要注意的是，客户端可以在注册时，可以注册多个身份认证方式，Spring Authorization Server 会按顺序依次尝试这些方式，直到认证成功为止。
+> [!NOTE] 注意事项
+> 1. 客户端在注册时，可以注册多个身份认证方式，Spring Authorization Server 会按顺序依次尝试这些方式，直到认证成功为止。
+> 2. 在数据库中存储，就用小写格式存储即可，Spring Authorization Server 会自动进行处理，不要用大写格式存储
 
 
 <font color="#92d050">8. authorizationGrantTypes</font>
@@ -139,12 +172,13 @@ clientSecret 同样是 OAuth2 协议中用于标识客户端的重要凭证之�
 4. password：
 	1. 密码式，已被弃用，不推荐使用
 
-需要注意的是：
-1. Spring Authorization Server 从未支持过隐藏式（implicit）。
-2. 客户端在注册时可以注册多个授权方式，但 Spring Authorization Server 并不会按顺序依次尝试这些方式。而是在授权请求时，客户端必须明确指定使用其中的一种授权方式。
-	1. 简单来说，注册时支持注册多个授权方式，表示未来可能会用到这些授权方式
-	2. 但授权时，只能选择其中一种进行使用
-	3. 如果授权请求中指定的授权模式未在注册时指定，服务器将拒绝处理该请求。
+> [!NOTE] 注意事项
+> 1. Spring Authorization Server 从未支持过隐藏式（implicit）。
+> 2. 客户端在注册时可以注册多个授权方式，但 Spring Authorization Server 并不会按顺序依次尝试这些方式。而是在授权请求时，客户端必须明确指定使用其中的一种授权方式。
+> 	1. 简单来说，注册时支持注册多个授权方式，表示未来可能会用到这些授权方式
+> 	2. 但授权时，只能选择其中一种进行使用
+> 	3. 如果授权请求中指定的授权模式未在注册时指定，服务器将拒绝处理该请求。
+> 3. 这些在数据库中也以小写格式存储
 
 
 <font color="#92d050">9. redirectUris</font>
@@ -203,7 +237,7 @@ OAuth 的 Scope 本质上是高度自定义的，但 OpenID Connect（OIDC）规
 
 
 <font color="#92d050">12. tokenSettings</font>
-各种令牌的配置，可配置的项包括：
+各种令牌的配置，需要客户端应用在注册时指定，格式为 JSON，通常在数据库中以 `TEXT` 类型进行存储。可配置的项包括：
 1. accessTokenTimeToLive(Duration)
 	1. 访问令牌（Access Token）的有效期，以分钟为单位
 	2. 例如：`accessTokenTimeToLive(5)` 是 5 分钟
@@ -211,8 +245,11 @@ OAuth 的 Scope 本质上是高度自定义的，但 OpenID Connect（OIDC）规
 	1. 访问令牌（Access Token）的格式
 	2. AccessTokenFormat.REFERENCE
 		1. 访问令牌格式为引用类型
-		2. 意思是 Access Token 是个随机 ID，不含任何业务信息，例如 `bdf89d81-8c41-47ad-a3cf-3cb257c13b7c`
-		3. 
+		2. 即 Access Token 是一个随机 ID，不包含任何业务信息，例如：`bdf89d81-8c41-47ad-a3cf-3cb257c13b7c`
+		3. 授权服务器需自行维护 Access Token 与用户及权限信息的映射关系，能根据 Access Token 查出对应的用户
+	3. AccessTokenFormat.SELF_CONTAINED
+		1. 访问令牌格式为自包含类型
+		2. 即 Access Token 中包含用户的基本信息，不用授权服务器自己维护，常以 JWT 格式
 3. refreshTokenTimeToLive(Duration)
 	1. 刷新令牌（Refresh Token）的有效期，以天为单位
 	2. 例如：`refreshTokenTimeToLive(30)` 是 30 天
@@ -228,36 +265,24 @@ OAuth 的 Scope 本质上是高度自定义的，但 OpenID Connect（OIDC）规
 6. authorizationCodeTimeToLive(Duration)
 	1. 授权码（Authorization Code）的有效期，以分钟为单位
 	2. 例如：`authorizationCodeTimeToLive(5)` 是 5 分钟
-
-| 配置方法                              | 类型         | 默认值              | 说明                                              |
-| --------------------------------- | ---------- | ---------------- | ----------------------------------------------- |
-| `accessTokenTimeToLive(Duration)` | `Duration` | 5 分钟             |                                                 |
-| `                                 | `Duration` | 30 天             |                                                 |
-| ``                                | `boolean`  | `true`           | 刷新令牌是否可重复使用（`true`：可反复用；`false`：每次刷新都会生成新的刷新令牌） |
-| ``                                | `Duration` | 5 分钟             | ID Token 的有效期（OIDC 场景）                          |
-| ``                                | `Duration` | 5 分钟             | 授权码的有效期                                         |
-| ``                                | 枚举         | `SELF_CONTAINED` | 访问令牌格式（自包含 JWT 或引用型 Token）                      |
-- **accessTokenTimeToLive**：控制客户端拿到的访问令牌在多长时间后失效，影响资源服务器的访问权限有效期。
-    
-- **refreshTokenTimeToLive**：刷新令牌的有效期，决定客户端在多长时间内可以用刷新令牌换取新的访问令牌。
-    
-- **reuseRefreshTokens**：是否允许刷新令牌重复使用。设置为 `false` 能提高安全性，防止刷新令牌被重放利用。
-    
-- **authorizationCodeTimeToLive**：授权码有效期，过期后用户必须重新授权获取新的授权码。
-    
-- **accessTokenFormat**：通常选择 `SELF_CONTAINED`（JWT），也可以选引用型（opaque token），但需要额外支持 Token 存储和校验。
-
 ```
-TokenSettings tokenSettings = TokenSettings.builder()
-    .accessTokenTimeToLive(Duration.ofMinutes(60))         // 访问令牌有效期 60 分钟
-    .refreshTokenTimeToLive(Duration.ofDays(14))           // 刷新令牌有效期 14 天
-    .reuseRefreshTokens(false)                              // 刷新令牌使用一次后失效，强制发新令牌
-    .authorizationCodeTimeToLive(Duration.ofMinutes(10))   // 授权码有效期 10 分钟
-    .build();
+{
+  "access_token_time_to_live": 300,
+  "access_token_format": "REFERENCE",
+  "reuse_refresh_tokens": false,
+  "refresh_token_time_to_live": 2592000,
+  "id_token_time_to_live": 600,
+  "authorization_code_time_to_live": 300
+}
 ```
 
+> [!NOTE] 注意事项
+> 1. 在数据库中一般采用秒为单位存储，这是一种行业规范，Spring Authorization Server 不会自动进行单位转换，需由开发者自行处理。
 
-### 创建 客户端应用 数据库表
+----
+
+
+### 创建 客户端应用 相关数据库表
 
 
 
