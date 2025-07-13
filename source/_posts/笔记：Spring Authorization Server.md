@@ -211,6 +211,8 @@ OAuth 的 Scope 本质上是高度自定义的，但 OpenID Connect（OIDC）规
 	1. 访问令牌（Access Token）的格式
 	2. AccessTokenFormat.REFERENCE
 		1. 访问令牌格式为引用类型
+		2. 意思是 Access Token 是个随机 ID，不含任何业务信息，例如 `bdf89d81-8c41-47ad-a3cf-3cb257c13b7c`
+		3. 
 3. refreshTokenTimeToLive(Duration)
 	1. 刷新令牌（Refresh Token）的有效期，以天为单位
 	2. 例如：`refreshTokenTimeToLive(30)` 是 30 天
