@@ -1,12 +1,12 @@
 {
   "frames": [
     {
-      "url": "https://ricocc.com/todo/",
-      "displayName": "ToDo List",
-      "icon": "alarm-clock-check",
+      "url": "https://www.google.com",
+      "displayName": "Chrome",
+      "icon": "earth",
       "hideOnMobile": true,
       "addRibbonIcon": false,
-      "openInCenter": true,
+      "openInCenter": false,
       "zoomLevel": 1,
       "forceIframe": false,
       "customCss": "",

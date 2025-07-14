@@ -11,18 +11,16 @@ layout: post
 ---
 # 一、理论
 
-## 导图
+## 1. 导图
 
 ![](Map：SpringAuthorizationServer%201.xmind)
 
 ---
 
 
-## Spring Authorization Server 执行流程
+## 2. Spring Authorization Server 执行流程
 
-### OAuth2AuthorizationEndpointFilter 介入
-
-
+### 2.1. OAuth2AuthorizationEndpointFilter 介入
 
 
 
@@ -34,9 +32,11 @@ layout: post
 
 
 
-## Spring Authorization Server 配置
 
-### Spring Authorization Server 配置模板
+
+## 3. Spring Authorization Server 配置
+
+### 3.1. Spring Authorization Server 配置模板
 
 AuthServerConfiguration 类在 `com.example.oauthserverwithmyproject.configuration` 包下，直接粘贴这份配置模板，再根据下方的详细说明按需进行调整。
 
@@ -54,7 +54,7 @@ AuthServerConfiguration 类在 `com.example.oauthserverwithmyproject.configurati
 
 # 二、实操
 
-## 创建 Spring Web 项目，添加相关依赖
+## 1. 创建 Spring Web 项目，添加相关依赖
 
 1. Web
 	1. Spring Web
@@ -77,9 +77,9 @@ AuthServerConfiguration 类在 `com.example.oauthserverwithmyproject.configurati
 -----
 
 
-## 注册客户端应用
+## 2. 实现 注册客户端应用 功能
 
-### 客户端应用能注册哪些信息
+### 2.1. 客户端应用能注册哪些信息
 
 客户端应用必须在我们的授权服务器完成注册，才能获得 Access Token 的颁发资格。那么，客户端在注册时需要提交哪些信息呢？在 Spring Authorization Server 中，类 `RegisteredClient` 定义了客户端应用可注册的具体属性，源码中的属性包括：
 ```
@@ -103,12 +103,15 @@ public class RegisteredClient implements Serializable {
 这里只列举我们常用的一些属性，其他次要或无关的属性暂不展开：
 
 <font color="#92d050">1. id</font>
-这个字段不是客户端应用提交的注册信息，而是我们入库时生成的自增主键（或者是 UUID 等格式），Spring 会使用该 ID 作为数据结构中的键，例如 `Map<String, RegisteredClient>`。
+这个字段不是客户端应用提交的注册信息，而是我们入库时生成的主键（常用 UUID），Spring 会使用该 ID 作为数据结构中的键，例如 `Map<String, RegisteredClient>`。
 
 Spring Authorization Server 所需的 id 类型为 String，我们可以在数据库中使用 int 类型进行存储，使用时进行数据类型转换
 
 > [!NOTE] 注意事项
-> 1. 为什么不直接用 `clientId` 作为数据库主键？
+> 1. 为什么不用自增主键而是 UUID
+> 	1. Spring Authorization Server 要求 id 类型为 String，但自增主键为 Int，两者类型不匹配，需额外编写 TypeHandler 进行转换，太麻烦
+> 	2. 直接采用 UUID 作为主键，避免类型转换，而且更简洁、符合分布式设计理念
+> 2. 为什么不直接用 `clientId` 作为数据库主键？
 > 	1. 原因在于客户端应用可能会重置 `clientId`，而数据库主键要求必须保持唯一且不可变。
 
 
@@ -326,34 +329,34 @@ OAuth 的 Scope 本质上是高度自定义的，但 OpenID Connect（OIDC）规
 ----
 
 
-### 创建 客户端应用 相关 MySQL 表
+### 2.2. 创建 客户端应用 相关 MySQL 表
 
-#### ER 图
+#### 2.2.1. ER 图
 
 ![](image-20250713165050243.png)
 
 ----
 
 
-#### clients 表（客户端应用表）
+#### 2.2.2. oauth_clients 表（客户端应用表）
 
-| 列名                           | 数据类型         | 约束        | 索引   | 默认值          | 示例值                                                                                                                                                                                                                                                   | 说明        |
-| ---------------------------- | ------------ | --------- | ---- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| **id**                       | int          | 主键约束、自增属性 | 主键索引 | 自增           | 1                                                                                                                                                                                                                                                     | ......... |
-| **client_id**                | varchar(100) | 唯一约束      | 唯一索引 |              | web-client                                                                                                                                                                                                                                            | ......... |
-| **client_id_issued_at**      | timestamp    |           |      | 当前 timestamp | 2025-07-13 12:00:00                                                                                                                                                                                                                                   | ......... |
-| **client_secret**            | varchar(100) |           |      |              | {bcrypt}$2a$10$...                                                                                                                                                                                                                                    | ......... |
-| **client_secret_expires_at** | timestamp    |           |      | NULL         | 2025-07-13 12:00:00                                                                                                                                                                                                                                   | ......... |
-| **client_name**              | varchar(100) |           |      |              | 吧唧                                                                                                                                                                                                                                                    | ......... |
-| **redirect_uris**            | varchar(100) |           |      |              | `https://example.com/oauth2/callback`                                                                                                                                                                                                                 | ......... |
-| **client_settings**          | text         |           |      | {}           | {<br>  "requireAuthorizationConsent": true,<br>  "requireProofKey": false<br>}                                                                                                                                                                        | ......... |
-| **token_settings**           | text         |           |      | {}           | {<br>  "access_token_time_to_live": 300,<br>  "access_token_format": "REFERENCE",<br>  "reuse_refresh_tokens": false,<br>  "refresh_token_time_to_live": 2592000,<br>  "id_token_time_to_live": 600,<br>  "authorization_code_time_to_live": 300<br>} | ......... |
+| 列名                           | 数据类型         | 约束   | 索引   | 默认值          | 示例值                                                                                                                                                                                                                                                   | 说明        |
+| ---------------------------- | ------------ | ---- | ---- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| **id**                       | varchar(100) | 唯一约束 | 唯一约束 |              | 550e8400-e29b-41d4-a716-446655440000                                                                                                                                                                                                                  | ......... |
+| **client_id**                | varchar(100) | 唯一约束 | 唯一索引 |              | web-client                                                                                                                                                                                                                                            | ......... |
+| **client_id_issued_at**      | timestamp    |      |      | 当前 timestamp | 2025-07-13 12:00:00                                                                                                                                                                                                                                   | ......... |
+| **client_secret**            | varchar(100) |      |      |              | {bcrypt}$2a$10$...                                                                                                                                                                                                                                    | ......... |
+| **client_secret_expires_at** | timestamp    |      |      | NULL         | 2025-07-13 12:00:00                                                                                                                                                                                                                                   | ......... |
+| **client_name**              | varchar(100) |      |      |              | 吧唧                                                                                                                                                                                                                                                    | ......... |
+| **redirect_uris**            | varchar(100) |      |      |              | `https://example.com/oauth2/callback`                                                                                                                                                                                                                 | ......... |
+| **client_settings**          | text         |      |      | {}           | {<br>  "requireAuthorizationConsent": true,<br>  "requireProofKey": false<br>}                                                                                                                                                                        | ......... |
+| **token_settings**           | text         |      |      | {}           | {<br>  "access_token_time_to_live": 300,<br>  "access_token_format": "REFERENCE",<br>  "reuse_refresh_tokens": false,<br>  "refresh_token_time_to_live": 2592000,<br>  "id_token_time_to_live": 600,<br>  "authorization_code_time_to_live": 300<br>} | ......... |
 ```
-CREATE TABLE IF NOT EXISTS clients (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    client_id VARCHAR(100) NOT NULL,
+CREATE TABLE IF NOT EXISTS oauth_clients (
+    id VARCHAR(100),
+    client_id VARCHAR(100),
     client_id_issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    client_secret VARCHAR(100) NOT NULL,
+    client_secret VARCHAR(100),
     client_secret_expires_at TIMESTAMP DEFAULT NULL,
     client_name VARCHAR(100),
     redirect_uris VARCHAR(100),
@@ -362,76 +365,80 @@ CREATE TABLE IF NOT EXISTS clients (
 );
 
 
-ALTER TABLE clients ADD CONSTRAINT uk_clients_client_id UNIQUE (client_id);
+ALTER TABLE oauth_clients ADD CONSTRAINT uk_oauth_clients_id UNIQUE (id);
+
+
+ALTER TABLE oauth_clients ADD CONSTRAINT uk_oauth_clients_client_id UNIQUE (client_id);
 ```
 
 ----
 
 
-#### client_authentication_methods 表（身份认证方式表）
+#### 2.2.3. oauth_client_authentication_methods 表（身份认证方式表）
 
-| 列名            | 数据类型         | 约束                 | 索引   | 默认值 | 示例值  | 说明                                                        |
-| ------------- | ------------ | ------------------ | ---- | --- | ---- | --------------------------------------------------------- |
-| **id**        | int          | 主键约束、自增属性          | 主键索引 | 自增  | 1    | .........                                                 |
-| **client_id** | int          | 外键约束（→ clients.id） |      |     | 1    | 是 `clients` 表中的 `id` 字段，而不是 `clients` 表中的 `client_id` 字段。 |
-| **method**    | varchar(100) |                    |      |     | none | .........                                                 |
+| 列名            | 数据类型         | 约束                 | 索引   | 默认值 | 示例值                                  | 说明                                                                    |
+| ------------- | ------------ | ------------------ | ---- | --- | ------------------------------------ | --------------------------------------------------------------------- |
+| **id**        | int          | 主键约束、自增属性          | 主键索引 | 自增  | 1                                    | .........                                                             |
+| **client_id** | varchar(100) | 外键约束（→ clients.id） |      |     | 550e8400-e29b-41d4-a716-446655440000 | 是 `oauth_clients` 表中的 `id` 字段，而不是 `oauth_clients` 表中的 `client_id` 字段。 |
+| **method**    | varchar(100) |                    |      |     | none                                 | .........                                                             |
 ```
-CREATE TABLE IF NOT EXISTS client_authentication_methods (
+CREATE TABLE IF NOT EXISTS oauth_client_authentication_methods (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    client_id INT,
+    client_id VARCHAR(100),
     method VARCHAR(100)
 );
 
 
-ALTER TABLE client_authentication_methods ADD CONSTRAINT fk_cam_client_id_to_clients_id FOREIGN KEY (client_id) REFERENCES clients(id);
+ALTER TABLE oauth_client_authentication_methods ADD CONSTRAINT fk_ocam_client_id_to_oc_id FOREIGN KEY (client_id) REFERENCES oauth_clients(id);
 ```
 
 ----
 
 
-#### client_authorization_grant_types 表（授权方式表）
+#### 2.2.4. oauth_client_authorization_grant_types 表（授权方式表）
 
-| 列名             | 数据类型         | 约束                 | 索引   | 默认值 | 示例值                | 说明                                                        |
-| -------------- | ------------ | ------------------ | ---- | --- | ------------------ | --------------------------------------------------------- |
-| **id**         | int          | 主键约束、自增属性          | 主键索引 | 自增  | 1                  | .........                                                 |
-| **client_id**  | int          | 外键约束（→ clients.id） |      |     | 1                  | 是 `clients` 表中的 `id` 字段，而不是 `clients` 表中的 `client_id` 字段。 |
-| **grant_type** | varchar(100) |                    |      |     | authorization_code | .........                                                 |
+| 列名             | 数据类型         | 约束                 | 索引   | 默认值 | 示例值                                  | 说明                                                        |
+| -------------- | ------------ | ------------------ | ---- | --- | ------------------------------------ | --------------------------------------------------------- |
+| **id**         | int          | 主键约束、自增属性          | 主键索引 | 自增  | 1                                    | .........                                                 |
+| **client_id**  | varchar(100) | 外键约束（→ clients.id） |      |     | 550e8400-e29b-41d4-a716-446655440000 | 是 `clients` 表中的 `id` 字段，而不是 `clients` 表中的 `client_id` 字段。 |
+| **grant_type** | varchar(100) |                    |      |     | authorization_code                   | .........                                                 |
 ```
-CREATE TABLE client_authorization_grant_types (
+CREATE TABLE oauth_client_authorization_grant_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    client_id INT,
+    client_id VARCHAR(100),
     grant_type VARCHAR(100)
 );
 
 
-ALTER TABLE client_authorization_grant_types ADD CONSTRAINT fk_cagt_client_id_to_clients_id FOREIGN KEY (client_id) REFERENCES clients(id);
+ALTER TABLE oauth_client_authorization_grant_types ADD CONSTRAINT fk_ocagt_client_id_to_oc_id FOREIGN KEY (client_id) REFERENCES oauth_clients(id);
 ```
 
 ----
 
 
-#### client_scopes 表（权限表）
+#### 2.2.5. oauth_client_scopes 表（权限表）
 
-| 列名            | 数据类型         | 约束                 | 索引   | 默认值 | 示例值    | 说明                                                        |
-| ------------- | ------------ | ------------------ | ---- | --- | ------ | --------------------------------------------------------- |
-| **id**        | int          | 主键约束、自增属性          | 主键索引 | 自增  | 1      | .........                                                 |
-| **client_id** | int          | 外键约束（→ clients.id） |      |     | 1      | 是 `clients` 表中的 `id` 字段，而不是 `clients` 表中的 `client_id` 字段。 |
-| **scope**     | varchar(100) |                    |      |     | openid | .........                                                 |
+| 列名            | 数据类型         | 约束                 | 索引   | 默认值 | 示例值                                  | 说明                                                        |
+| ------------- | ------------ | ------------------ | ---- | --- | ------------------------------------ | --------------------------------------------------------- |
+| **id**        | int          | 主键约束、自增属性          | 主键索引 | 自增  | 1                                    | .........                                                 |
+| **client_id** | varchar(100) | 外键约束（→ clients.id） |      |     | 550e8400-e29b-41d4-a716-446655440000 | 是 `clients` 表中的 `id` 字段，而不是 `clients` 表中的 `client_id` 字段。 |
+| **scope**     | varchar(100) |                    |      |     | openid                               | .........                                                 |
+
 ```
-CREATE TABLE IF NOT EXISTS client_scopes (
+CREATE TABLE IF NOT EXISTS oauth_client_scopes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    client_id INT,
+    client_id VARCHAR(100),
     scope VARCHAR(100)
 );
 
 
-ALTER TABLE client_scopes ADD CONSTRAINT fk_cs_client_id_to_clients_id FOREIGN KEY (client_id) REFERENCES clients(id);
+ALTER TABLE oauth_client_scopes ADD CONSTRAINT fk_ocs_client_id_to_os_id FOREIGN KEY (client_id) REFERENCES oauth_clients(id);
 ```
 
 ----
 
 
-#### system_scopes 表（系统权限表）
+#### 2.2.6. oauth_system_scopes 表（系统权限表）
 
 | 列名                    | 数据类型         | 约束        | 索引   | 默认值 | 示例值         | 说明        |
 | --------------------- | ------------ | --------- | ---- | --- | ----------- | --------- |
@@ -440,14 +447,243 @@ ALTER TABLE client_scopes ADD CONSTRAINT fk_cs_client_id_to_clients_id FOREIGN K
 | **scope_description** | varchar(100) |           |      |     | 申请 ID Token | ......... |
 
 ```
-CREATE TABLE IF NOT EXISTS system_scopes (
+CREATE TABLE IF NOT EXISTS oauth_system_scopes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     scope_name VARCHAR(100),
     scope_description VARCHAR(100)
 );
+
+
+INSERT INTO oauth_system_scopes (scope_name, scope_description) VALUES
+  ('openid', '请求返回 OPENID Connect 身份令牌，其包含用户基本信息'),
+  ('offline_access', '请求返回 Refresh Token'),
+  ('user:info', '请求返回用户基本信息');
 ```
 
 ------
+
+
+### 2.3. 进行 MyBatis 配置
+
+<font color="#92d050">1. application.yaml 处</font>
+```
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.136.8:3306/security?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: root
+    password: wq666666
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.example.oauthserverwithmyproject.entity
+```
+
+
+<font color="#92d050">2. MybatisConfiguration 处</font>
+```
+@Configuration  
+@MapperScan("com.example.oauthserverwithmyproject.mapper")  
+public class MybatisConfiguration {  
+
+}
+```
+
+----
+
+
+### 2.4. 编写 Client Entity 类
+
+Client 类位于 `com.example.oauthserverwithmyproject.entity` 包下
+```
+
+```
+
+----
+
+
+### 2.5. 编写 ClientMapper 接口
+
+ClientMapper 类位于 `com.example.oauthserverwithmyproject.mapper` 包下
+```
+
+```
+
+----
+
+
+### 2.6. 编写 RedirectUrisTypeHandler 类
+
+RedirectUrisTypeHandler 类位于 `com.example.oauthserverwithmyproject.handler` 包下
+```
+@MappedTypes(Set.class)
+public class RedirectUrisTypeHandler extends BaseTypeHandler<Set<String>> {
+
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int i, Set<String> parameter, JdbcType jdbcType) throws SQLException {
+        if (parameter == null || parameter.isEmpty()) {
+            ps.setString(i, null);
+        } else {
+            ps.setString(i, parameter.iterator().next());
+        }
+    }
+
+    @Override
+    public Set<String> getNullableResult(ResultSet rs, String columnName) throws SQLException {
+        String value = rs.getString(columnName);
+        return value == null ? Collections.emptySet() : Collections.singleton(value);
+    }
+
+    @Override
+    public Set<String> getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+        String value = rs.getString(columnIndex);
+        return value == null ? Collections.emptySet() : Collections.singleton(value);
+    }
+
+    @Override
+    public Set<String> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+        String value = cs.getString(columnIndex);
+        return value == null ? Collections.emptySet() : Collections.singleton(value);
+    }
+}
+```
+
+---
+
+
+### 2.7. 编写 ClientSettingsTypeHandler 类
+
+ClientSettingsTypeHandler 类位于 `com.example.oauthserverwithmyproject.handler` 包下
+```
+@MappedTypes(ClientSettings.class)  
+public class ClientSettingsTypeHandler extends BaseTypeHandler<ClientSettings> {  
+  
+    private static final ObjectMapper objectMapper = new ObjectMapper();  
+  
+    @Override  
+    public void setNonNullParameter(PreparedStatement ps, int i, ClientSettings parameter, JdbcType jdbcType) throws SQLException {  
+        String json = null;  
+        try {  
+            json = objectMapper.writeValueAsString(parameter.getSettings());  
+        } catch (JsonProcessingException e) {  
+            throw new RuntimeException(e);  
+        }  
+        ps.setString(i, json);  
+    }  
+  
+    @Override  
+    public ClientSettings getNullableResult(ResultSet rs, String columnName) throws SQLException {  
+        return fromJson(rs.getString(columnName));  
+    }  
+  
+    @Override  
+    public ClientSettings getNullableResult(ResultSet rs, int columnIndex) throws SQLException {  
+        return fromJson(rs.getString(columnIndex));  
+    }  
+  
+    @Override  
+    public ClientSettings getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {  
+        return fromJson(cs.getString(columnIndex));  
+    }  
+  
+    private ClientSettings fromJson(String json) {  
+        if (json == null || json.isBlank()) {  
+            return ClientSettings.builder().build();  
+        }  
+        try {  
+            Map<String, Object> map = objectMapper.readValue(json, new TypeReference<>() {});  
+            return ClientSettings.withSettings(map).build();  
+        } catch (Exception e) {  
+            throw new RuntimeException("Failed to parse ClientSettings JSON", e);  
+        }  
+    }  
+}
+```
+
+---
+
+
+### 2.8. 编写 TokenSettingsTypeHandler 类
+
+TokenSettingsTypeHandler 类位于 `com.example.oauthserverwithmyproject.handler` 包下
+```
+@MappedTypes(TokenSettings.class)
+public class TokenSettingsTypeHandler extends BaseTypeHandler<TokenSettings> {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int i, TokenSettings parameter, JdbcType jdbcType) throws SQLException {
+        String json = null;
+        try {
+            json = objectMapper.writeValueAsString(parameter.getSettings());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        ps.setString(i, json);
+    }
+
+    @Override
+    public TokenSettings getNullableResult(ResultSet rs, String columnName) throws SQLException {
+        return fromJson(rs.getString(columnName));
+    }
+
+    @Override
+    public TokenSettings getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+        return fromJson(rs.getString(columnIndex));
+    }
+
+    @Override
+    public TokenSettings getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+        return fromJson(cs.getString(columnIndex));
+    }
+
+    private TokenSettings fromJson(String json) {
+        if (json == null || json.isBlank()) {
+            return TokenSettings.builder().build();
+        }
+        try {
+            Map<String, Object> map = objectMapper.readValue(json, new TypeReference<>() {});
+            return TokenSettings.withSettings(map).build();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse TokenSettings JSON", e);
+        }
+    }
+}
+```
+
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

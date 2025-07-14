@@ -4,53 +4,81 @@
     "type": "split",
     "children": [
       {
-        "id": "4eb8796b9981cc14",
+        "id": "adb17af9246bda0c",
         "type": "tabs",
         "children": [
           {
-            "id": "3aebf6957ccb1319",
+            "id": "63bf3093fd4328c9",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
+                "file": "minio 临时.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流"
+              "title": "minio 临时"
             }
           },
           {
-            "id": "80f744f20905866c",
+            "id": "bc794127839b1a4b",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "templates/临时：OAUth.md",
+                "file": "source/_posts/笔记：Spring 整合 Minio.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "临时：OAUth"
+              "title": "笔记：Spring 整合 Minio"
             }
           },
           {
-            "id": "59f0b58b185621f9",
+            "id": "9d7e56788ebaf1c8",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：Spring Authorization Server.md",
+                "file": "source/_posts/笔记：搭建 Minio 环境.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：Spring Authorization Server"
+              "title": "笔记：搭建 Minio 环境"
             }
           },
           {
-            "id": "d3ab3e90e6c9c588",
+            "id": "3ee91de2a19336a7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "source/_posts/笔记：Minio 工具.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "笔记：Minio 工具"
+            }
+          },
+          {
+            "id": "a73221b113417bef",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "source/_posts/笔记：Minio 基础.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "笔记：Minio 基础"
+            }
+          },
+          {
+            "id": "bbff8bacb0ffc315",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -64,7 +92,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -227,12 +255,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "source/_posts/笔记：Spring Security.md",
+                "file": "source/_posts/笔记：Minio 基础.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "笔记：Spring Security 的出链列表"
+              "title": "笔记：Minio 基础 的出链列表"
             }
           }
         ]
@@ -261,6 +289,25 @@
               "icon": "clock",
               "title": "Recent Files"
             }
+          },
+          {
+            "id": "c62f6bf0843d9bbe",
+            "type": "leaf",
+            "state": {
+              "type": "kanban",
+              "state": {
+                "file": "Todo 看板.md",
+                "kanbanViewState": {
+                  "kanban-plugin": "board",
+                  "list-collapse": [
+                    false,
+                    false
+                  ]
+                }
+              },
+              "icon": "lucide-trello",
+              "title": "Todo 看板"
+            }
           }
         ]
       }
@@ -283,12 +330,33 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "59f0b58b185621f9",
+  "active": "a73221b113417bef",
   "lastOpenFiles": [
+    "source/_posts/笔记：搭建 Minio 环境.md",
+    "source/_posts/笔记：Minio 工具.md",
+    "source/_posts/笔记：Minio 工具/image-20250714170717756.png",
+    "source/_posts/笔记：Minio 工具",
+    "source/_posts/笔记：Minio 基础.md",
+    "minio 临时.md",
+    "source/_posts/笔记：Spring 整合 Minio.md",
     "source/_posts/笔记：MySQL 基础.md",
+    "source/_posts/未命名看板.md",
+    "templates/临时：mybatis.md",
     "source/_posts/笔记：Spring Authorization Server.md",
     "templates/mysql 临时.md",
+    "Categories.md",
+    "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
+    "templates/临时：mybatis/image-20250714161254838.png",
     "source/_posts/笔记：Spring Security.md",
+    "templates/临时：OAUth.md",
+    "templates/临时：mybatis/image-20250714142401540.png",
+    "templates/临时：mybatis/image-20250714142356095.png",
+    "templates/临时：mybatis/image-20250714142338238.png",
+    "templates/临时：mybatis/image-20250714111238419.png",
+    "templates/临时：mybatis/image-20250714103343673.png",
+    "templates/临时：mybatis/image-20250714103337217.png",
+    "templates/临时：mybatis/image-20250714094045430.png",
+    "Todo 看板.md",
     "source/_posts/笔记：Spring Authorization Server/image-20250713165050243.png",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.zCdzDX",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.ghpIGZ",
@@ -299,38 +367,16 @@
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.mFzQCD",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.ykMnOR",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.qDnFPq",
-    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx",
-    "Todo 看板.md",
     "source/_posts/笔记：Java 数据类型.md",
-    "templates/临时：OAUth.md",
-    "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
     "source/_posts/笔记：Windows.md",
     "source/_posts/笔记：分布式 ID.md",
     "source/_posts/笔记：OAuth 协议.md",
     "source/_posts/笔记：Spring Boot.md",
     "source/_posts/笔记：奶块攻略.md",
-    "templates/临时：mybatis.md",
-    "templates/临时：es/image-20250616164438024.png",
-    "templates/临时：es/image-20250616163426285.png",
-    "templates/临时：es/image-20250616103159416.png",
-    "templates/临时：es/image-20250616102927998.png",
-    "templates/临时：es/image-20250616100102548.png",
-    "templates/临时：es/image-20250615155650857.png",
-    "templates/临时：es/ES基础---数据分布.svg",
     "临时：OAUth.md",
-    "source/_posts/笔记：Spring Boot/image-20250709172129814.png",
     "source/_posts/笔记：Java 项目创建和结构.md",
     "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
-    "minio 临时.md",
-    "source/_posts/笔记：Spring 整合 Minio.md",
-    "source/_posts/笔记：Minio 基础.md",
-    "source/_posts/笔记：Spring Boot/image-20250709074128434.png",
-    "source/_posts/笔记：搭建 Minio 环境.md",
     "source/_posts/笔记：阿里云代码规约.md",
-    "source/_posts/笔记：Java 异常处理.md",
-    "source/_posts/笔记：Spring IOC.md",
-    "source/_posts/笔记：HttpClient.md",
-    "source/_posts/笔记：Java 文档.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]

@@ -1,3 +1,79 @@
+### TypeHandler
+
+在 MyBatis 中，TypeHandler 用于 **Java 类型与数据库类型之间的转换**。它负责把 Java 数据类型转换成 JDBC 类型（数据库数据类型）写入数据库，也负责把数据库查询结果转换成 Java 对象。
+
+MyBatis 中内置了一些 TypeHandler，这也是我们为什么能实现例如从 instant 转 timestamp、tiny 转boolean 等等操作，自定义TypeHandler
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+、、、、、、、、、、
+
+
+![](image-20250714161254838.png)
+
+
+
+
+
+
+![](image-20250714103337217.png)
+
+![](image-20250714103343673.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ![](image-20250701101838609.png)
 
@@ -1308,15 +1384,176 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 
 
 
+```
+<!-- 一次调用，批量插入主表 + 三个关联表 -->
+    <insert id="insertClientFull" parameterType="Client">
+        <!-- 1. 主表 -->
+        INSERT INTO oauth_clients (
+        id,
+        client_id,
+        client_id_issued_at,
+        client_secret,
+        client_secret_expires_at,
+        client_name,
+        redirect_uris,
+        client_settings,
+        token_settings
+        ) VALUES (
+        #{id},
+        #{clientId},
+        #{clientIdIssuedAt},
+        #{clientSecret},
+        #{clientSecretExpiresAt},
+        #{clientName},
+        #{redirectUris, typeHandler=com.example.oauthserverwithmyproject.handler.RedirectUrisTypeHandler},
+        #{clientSettings, typeHandler=com.example.oauthserverwithmyproject.handler.ClientSettingsTypeHandler},
+        #{tokenSettings, typeHandler=com.example.oauthserverwithmyproject.handler.TokenSettingsTypeHandler}
+        );
+
+        <!-- 2. 认证方式 -->
+        INSERT INTO oauth_client_authentication_methods ( client_id, method )
+        VALUES
+        <foreach collection="authenticationMethods" item="m" separator=",">
+            (#{clientId}, #{m.value})
+        </foreach>;
+
+        <!-- 3. 授权类型 -->
+        INSERT INTO oauth_client_authorization_grant_types ( client_id, grant_type )
+        VALUES
+        <foreach collection="authorizationGrantTypes" item="g" separator=",">
+            (#{clientId}, #{g.value})
+        </foreach>;
+
+        <!-- 4. 作用域 -->
+        INSERT INTO oauth_client_scopes ( client_id, scope )
+        VALUES
+        <foreach collection="scopes" item="s" separator=",">
+            (#{clientId}, #{s})
+        </foreach>
+    </insert>
+```
 
 
+一个 SQL 多个语句，需要开启jdbc:mysql://192.168.136.8:3306/security?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&**allowMultiQueries=true**
+![](image-20250714142338238.png)
 
+![](image-20250714142356095.png)
 
-
+![](image-20250714142401540.png)
 
 
 
 ## ---------------
+干脆不支持扁平化的就子查询，能由构造函数的就直接join好了
+
+一般是：
+
+![](image-20250714111238419.png)
+
+
+这两种写法各有场景和利弊，具体怎么选，取决于你对性能、代码复杂度、维护性的侧重点。下面帮你分析一下：
+
+---
+
+## 1. `<collection>` 直接映射子对象（无子查询）
+
+```xml
+<collection property="authorities"
+            ofType="org.springframework.security.core.authority.SimpleGrantedAuthority">
+    <constructor>
+        <arg column="role_name" javaType="java.lang.String"/>
+    </constructor>
+</collection>
+```
+
+### 优点
+
+- 结构简单，写在同一个 resultMap 里。
+    
+- 适合**SQL 语句已包含关联数据**，比如通过 JOIN 一次查出所有信息。
+    
+
+### 缺点
+
+- SQL 会变复杂，JOIN 导致结果集行数增多（行爆炸），性能可能下降。
+    
+- 可能导致数据重复（比如主表字段重复出现多次）。
+    
+
+### 适用场景
+
+- 你的查询 SQL 已经联表查询了所有相关数据。
+    
+- 关联数据量不大，且性能要求不高。
+    
+
+---
+
+## 2. `<collection>` 使用子查询（`select` 属性）
+
+```xml
+<collection property="authorities"
+            ofType="org.springframework.security.core.authority.SimpleGrantedAuthority"
+            select="selectAuthoritiesByUserId"/>
+```
+
+### 优点
+
+- SQL 简单，主查询只查主表。
+    
+- 关联数据通过单独查询加载，结构清晰。
+    
+- 避免 JOIN 导致行爆炸和数据重复。
+    
+
+### 缺点
+
+- 额外的数据库查询，可能导致 N+1 问题（查询次数增多）。
+    
+- 需要写额外的子查询 SQL。
+    
+
+### 适用场景
+
+- 关联数据量较大。
+    
+- 不想写复杂的多表 JOIN。
+    
+- 可以接受多次查询换取主查询简洁和性能。
+    
+
+---
+
+## 3. 综合建议
+
+|场景|选择|
+|---|---|
+|数据量小，关系简单|直接写 `<collection>` 嵌套映射|
+|关联表数据多、复杂|使用子查询 `<collection select=...>`|
+|需要分页、过滤等|子查询方式更灵活|
+
+---
+
+## 4. 小技巧
+
+- 如果用子查询方式，尽量优化子查询（加索引、批量加载）。
+    
+- 复杂情况下，考虑用 MyBatis 的二级缓存减少数据库访问。
+    
+- 你也可以结合缓存或分布式缓存方案降低多次查询压力。
+    
+
+---
+
+如果你想，我可以帮你写一套基于子查询和基于 JOIN 的示例 SQL 和 Mapper XML，你看着选用也方便。
+
+
+
+
+
+
+
+
 
 
 ![](image-20250630164405309.png)
@@ -1383,7 +1620,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 > `jdbcType` 用于明确数据库字段的类型，有助于 MyBatis 正确进行类型映射、处理空值和避免运行时类型错误。写不写都行，但在某些边界情况下（如 `null`、布尔值、存储过程）**建议明确指定**。
 
 
-## ----------------
+## ----------------2
 
 
 ![](image-20250630164501699.png)
@@ -1426,6 +1663,8 @@ private List<SimpleGrantedAuthority> authorities;
 你希望查一个用户，同时把他所有的权限装进 `List<SimpleGrantedAuthority>`，就需要用到 `<collection>`。
 
 ---
+
+![](image-20250714094045430.png)
 
 ### ✅ 回答你的问题二：能不能在 `<resultMap>` 里写 `<collection>`？
 

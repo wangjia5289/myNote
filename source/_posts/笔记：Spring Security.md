@@ -1139,7 +1139,7 @@ INSERT INTO role_authority (role_id, authority_id) VALUES
 
 ##### 1.1.3.2. 编写 User Entity 类
 
-User Entity 类位于 `com.example.securitywithhttpsession.entity` 包下
+User 类位于 `com.example.securitywithhttpsession.entity` 包下
 ```
 public class User {
 
@@ -1182,7 +1182,7 @@ public class User {
 
 ##### 1.1.3.3. 编写 UserMapper 接口，并定义查询方法
 
-User Entity 类位于 `com.example.securitywithhttpsession.mapper` 包下
+UserMapper 类位于 `com.example.securitywithhttpsession.mapper` 包下
 ```
 @Mapper  
 public interface UserMapper {  

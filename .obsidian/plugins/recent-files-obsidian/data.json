@@ -1,20 +1,56 @@
 {
   "recentFiles": [
     {
-      "basename": "笔记：Spring Authorization Server",
-      "path": "source/_posts/笔记：Spring Authorization Server.md"
+      "basename": "笔记：Minio 基础",
+      "path": "source/_posts/笔记：Minio 基础.md"
+    },
+    {
+      "basename": "笔记：搭建 Minio 环境",
+      "path": "source/_posts/笔记：搭建 Minio 环境.md"
+    },
+    {
+      "basename": "笔记：Minio 工具",
+      "path": "source/_posts/笔记：Minio 工具.md"
+    },
+    {
+      "basename": "minio 临时",
+      "path": "minio 临时.md"
+    },
+    {
+      "basename": "笔记：Spring 整合 Minio",
+      "path": "source/_posts/笔记：Spring 整合 Minio.md"
     },
     {
       "basename": "笔记：MySQL 基础",
       "path": "source/_posts/笔记：MySQL 基础.md"
     },
     {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
+    },
+    {
+      "basename": "笔记：Spring Authorization Server",
+      "path": "source/_posts/笔记：Spring Authorization Server.md"
+    },
+    {
       "basename": "mysql 临时",
       "path": "templates/mysql 临时.md"
     },
     {
+      "basename": "Categories",
+      "path": "Categories.md"
+    },
+    {
+      "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
+      "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
+    },
+    {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
+    },
+    {
+      "basename": "临时：OAUth",
+      "path": "templates/临时：OAUth.md"
     },
     {
       "basename": "Todo 看板",
@@ -23,14 +59,6 @@
     {
       "basename": "笔记：Java 数据类型",
       "path": "source/_posts/笔记：Java 数据类型.md"
-    },
-    {
-      "basename": "临时：OAUth",
-      "path": "templates/临时：OAUth.md"
-    },
-    {
-      "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
-      "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
     },
     {
       "basename": "笔记：Windows",
@@ -51,10 +79,6 @@
     {
       "basename": "笔记：奶块攻略",
       "path": "source/_posts/笔记：奶块攻略.md"
-    },
-    {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
     },
     {
       "basename": "image-20250616164438024",
@@ -91,22 +115,6 @@
     {
       "basename": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC",
       "path": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md"
-    },
-    {
-      "basename": "minio 临时",
-      "path": "minio 临时.md"
-    },
-    {
-      "basename": "笔记：Spring 整合 Minio",
-      "path": "source/_posts/笔记：Spring 整合 Minio.md"
-    },
-    {
-      "basename": "笔记：Minio 基础",
-      "path": "source/_posts/笔记：Minio 基础.md"
-    },
-    {
-      "basename": "笔记：搭建 Minio 环境",
-      "path": "source/_posts/笔记：搭建 Minio 环境.md"
     },
     {
       "basename": "笔记：阿里云代码规约",
@@ -173,10 +181,6 @@
       "path": "source/_posts/笔记：RBAC 思想.md"
     },
     {
-      "basename": "Categories",
-      "path": "Categories.md"
-    },
-    {
       "basename": "笔记：跨站请求伪造攻击（CSRF）",
       "path": "source/_posts/笔记：跨站请求伪造攻击（CSRF）.md"
     },
@@ -191,14 +195,6 @@
     {
       "basename": "README",
       "path": "README.md"
-    },
-    {
-      "basename": "firstTest",
-      "path": "Excalidraw/firstTest.md"
-    },
-    {
-      "basename": "default-template",
-      "path": "templates/default-template.md"
     }
   ],
   "omittedPaths": [],

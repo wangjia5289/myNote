@@ -1,3 +1,190 @@
+
+
+### 实现 RegisteredClientRepository 接口
+
+`RegisteredClientRepository` 接口 —— 是 Spring 授权服务器获取客户端信息的**唯一入口**你实现它，就是告诉 Spring：
+
+> **“你以后别用内存了，我来给你数据库查 client。”**
+
+```
+
+```
+非常好，咱们逐个拆解这三个方法是干什么用的，结合你用 Spring Authorization Server 的实际情况来看：
+
+---
+
+## 🌟 `RegisteredClientRepository` 接口 —— 是 Spring 授权服务器获取客户端信息的**唯一入口**
+
+你实现它，就是告诉 Spring：
+
+> **“你以后别用内存了，我来给你数据库查 client。”**
+
+---
+
+### 🔧 方法详解：
+
+---
+
+### `public void save(RegisteredClient registeredClient)`
+
+#### ✅ 作用：
+
+> 把一个 `RegisteredClient` 保存（insert）到数据库中。
+
+#### 🧠 用途：
+
+- 如果你允许系统**动态注册客户端**（比如 OpenID Connect 的动态 client registration），这个方法就会被调用。
+    
+- 在一些初始化脚本中也可能用这个方法保存预设客户端。
+    
+
+#### ❗你项目中：
+
+- **一般不需要实现**，因为你可能是用手动 SQL 或初始化脚本插入客户端数据。
+    
+- 可以直接抛异常：
+    
+
+```java
+@Override
+public void save(RegisteredClient registeredClient) {
+    throw new UnsupportedOperationException("客户端信息只读，禁止新增");
+}
+```
+
+---
+
+### `public RegisteredClient findById(String id)`
+
+#### ✅ 作用：
+
+> 通过 **RegisteredClient 的主键 ID** 查找 client。
+
+#### 🧠 用途：
+
+- Spring 授权服务器在处理令牌请求时，**某些流程会用到 ID 来定位 RegisteredClient**（而不是 client_id）。
+    
+
+#### 📌 举例：
+
+- 一些授权流程内部用的是 UUID 主键（你表里的 `id` 字段）查数据。
+    
+
+#### 💡 建议：
+
+- 实现这个方法，调用你的 `ClientMapper.selectById(id)`。
+    
+
+---
+
+### `public RegisteredClient findByClientId(String clientId)`
+
+#### ✅ 作用：
+
+> 根据客户端提交的 `client_id` 查找 RegisteredClient。
+
+#### 🧠 用途：
+
+- **这是使用频率最高的方法！**
+    
+- OAuth2 客户端认证时，会通过 `client_id` 来找对应的 client，然后比对 `client_secret`、判断授权类型、Token 有效期等。
+    
+
+#### ✅ 必须实现：
+
+```java
+@Override
+public RegisteredClient findByClientId(String clientId) {
+    Client client = clientMapper.selectByClientId(clientId);
+    return convertToRegisteredClient(client);
+}
+```
+
+---
+
+## ✅ 总结一下三者职责对比：
+
+|方法|用途|必须实现？|建议|
+|---|---|---|---|
+|`save(RegisteredClient)`|保存 client 到数据库|❌|一般项目中不使用，可以抛异常|
+|`findById(String id)`|通过主键 ID 查 client（Spring 内部可能调用）|✅|实现|
+|`findByClientId(String clientId)`|通过 client_id 查 client（最常用）|✅|必须实现|
+
+---
+
+### ✅ 下一步建议：
+
+我可以帮你把这三个方法都实现好，配合你的 `ClientMapper` 和实体类，写出完整的 `RegisteredClientRepository` 实现类。你愿意贴一下你的 `Client` 表结构或实体类代码吗？我就能生成最贴合你的项目的实现。
+
+
+
+
+
+### 前端发送来的格式
+
+```
+{
+  "id": "abc123",
+  "clientId": "my-client",
+  "clientIdIssuedAt": "2025-07-14T06:00:00Z",
+  "clientSecret": "secret",
+  "clientSecretExpiresAt": "2025-12-31T23:59:59Z",
+  "clientName": "Test Client",
+  "redirectUris": ["https://example.com/callback"],
+  "clientSettings": {
+    "requireProofKey": true,
+    "requireAuthorizationConsent": false
+  },
+  "tokenSettings": {
+    "accessTokenTimeToLive": 300,
+    "refreshTokenTimeToLive": 1209600
+  },
+  "authenticationMethods": [
+    {"value": "client_secret_basic"}
+  ],
+  "authorizationGrantTypes": [
+    {"value": "authorization_code"},
+    {"value": "refresh_token"}
+  ],
+  "scopes": [
+    "read", "write"
+  ]
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 好问题，咱们继续接着锤：
 
 ---
