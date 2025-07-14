@@ -1105,6 +1105,12 @@ alter table <table-name> add constraint <constraint-name> foreign key (<column-n
 alter table <table-name> drop foreign key <constraint-name>;
 ```
 
+> [!NOTE] 注意事项
+> 1. 不必完全写出表名的所有字符，可以用缩写或简写，但要保证能辨识。  
+例如，`client_authentication_methods` 可缩写为 `cam`，`client_id` 保留完整或简写为 `client_id`。
+fk_表名_字段_to_关联表_字段
+
+
 
 ==3.普通约束==
 
@@ -1122,6 +1128,8 @@ alter table <table-name> add constraint <constraint-name> unique (<column-name>)
 
 # 1.2. 删除唯一约束
 alter table <table-name> drop index <constraint-name>;
+`uk_clients_client_id` —— clients 表的 client_id 字段唯一约束。
+
 
 
 # 2. 检查约束

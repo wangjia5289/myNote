@@ -105,16 +105,23 @@ public class RegisteredClient implements Serializable {
 <font color="#92d050">1. id</font>
 这个字段不是客户端应用提交的注册信息，而是我们入库时生成的自增主键（或者是 UUID 等格式），Spring 会使用该 ID 作为数据结构中的键，例如 `Map<String, RegisteredClient>`。
 
-你可能会疑问，为什么不直接用 `clientId` 作为数据库主键？原因在于客户端应用可能会重置 `clientId`，而数据库主键要求必须保持唯一且不可变。
+Spring Authorization Server 所需的 id 类型为 String，我们可以在数据库中使用 int 类型进行存储，使用时进行数据类型转换
+
+> [!NOTE] 注意事项
+> 1. 为什么不直接用 `clientId` 作为数据库主键？
+> 	1. 原因在于客户端应用可能会重置 `clientId`，而数据库主键要求必须保持唯一且不可变。
+
 
 <font color="#92d050">2. clientId</font>
 clientId 是 OAuth2 协议中用于标识客户端的重要凭证之一，当客户端应用进行注册时，由**我们生成**一个 `clientId` 并返回给他们。
+
+Spring Authorization Server 所需的 clientId 类型为 String，我们可以在数据库中使用 int 类型进行存储，使用时进行数据类型转换
 
 
 <font color="#92d050">3. clientIdIssuedAt</font>
 这是 `clientId` 的发放时间，**同样由我们生成**，通常在生成 `clientId` 时一并创建，该时间用于便于后续跟踪和判断 `clientId` 的有效性。
 
-Spring Authorization Server 要求 clientIdIssuedAt 以 Instant 类型传入，Instant 的格式为：`YYYY-MM-DDTHH:mm:ssZ`，如`2025-07-13T01:23:45Z`，表示 UTC 上的一个时间点。
+Spring Authorization Server 所需的 clientIdIssuedAt 类型为 Instant，Instant 的格式为：`YYYY-MM-DDTHH:mm:ssZ`，如`2025-07-13T01:23:45Z`，表示 UTC 上的一个时间点。
 
 建议在数据库中使用带时区的 `timestamp` 类型存储，格式为：`YYYY-MM-DD HH:mm:ss`，如 `2025-07-13 01:23:45`
 
@@ -131,19 +138,46 @@ VALUES ('my-client', '2025-07-13 01:23:45');
 
 
 <font color="#92d050">4. clientSecret</font>
-clientSecret 同样是 OAuth2 协议中用于标识客户端的重要凭证之一，当客户端应用进行注册时，由我们生成一个 `clientSecret` 并返回给他们。
+clientSecret 同样是 OAuth2 协议中用于标识客户端的重要凭证之一，当客户端应用进行注册时，由我们生成一个 `clientSecret` 并返回给他们，可以将 `clientId` 理解为账号，而 `clientSecret` 则相当于密码。
 
-可以将 `clientId` 理解为账号，而 `clientSecret` 则相当于密码。
+Spring Authorization Server 所需的 clientSecret 类型为 String，格式为：`{bcrypt}$2a$10$...`，格式通常为：`{bcrypt}$2a$10$...`。其中 `{bcrypt}` 是加密前缀，用于指示 Spring Authorization Server 采用哪种方式验证客户端提交的 `clientSecret` 是否与数据库中存储的加密值一致。常见的前缀包括：
+1. {noop}
+	1. 明文密码（不加密）
+2. {bcrypt}
+	1. 使用 BCrypt 加密
+3. {pbkdf2}
+	1. 使用 PBKDF2 加密
+4. {argon2}
+	1. 使用 Argon2 加密
+
+其相关代码逻辑大致如下：
+```
+// 1. 生成未加密的 clientSecret
+String rawPassword = UUID.randomUUID().toString();
+
+
+// 2. 将未加密的 clientSecret 进行加密，并加上对应加密算法的前缀
+String encodedPassword = "{bcrypt}" + passwordEncoder.encode(rawPassword);
+
+
+// 3. 将处理好的 clientSecret 保存到数据库
+registeredClient.setClientSecret(encodedPassword);
+
+
+// 4. 返回给客户端应用的是 未加密的 clientSecret（rawPassword）
+```
 
 
 <font color="#92d050">5. clientSecretExpiresAt</font>
 这是 `clientSecret` 的过期时间，主要用于支持密钥轮换场景，可设置为 `NULL` 表示永不过期（实际应用中通常为不过期）。
 
-格式要求与 `clientIdIssuedAt` 一致，Spring Authorization Server 同样不会对该时间戳进行任何处理
+Spring Authorization Server 所需的 clientSecretExpiresAt 类型为与 clientIdIssuedAt 一致
 
 
 <font color="#92d050">6. clientName</font>
 客户端应用的名称，由客户端应用在注册时指定，用于展示给用户，例如在授权确认页面中，会显示为 “XXX 正在请求访问你的信息，是否同意”。
+
+Spring Authorization Server 所需的 clientName 类型为 String
 
 
 <font color="#92d050">7. clientAuthenticationMethods</font>
@@ -184,6 +218,12 @@ clientSecret 同样是 OAuth2 协议中用于标识客户端的重要凭证之�
 <font color="#92d050">9. redirectUris</font>
 用户授权成功后的回调地址（redirect URI），由客户端应用在注册时进行指定，而且在发起授权请求时必须携带**完全一致**的值，否则服务器将拒绝处理请求，例如：`https://example.com/oauth2/callback`
 
+Spring Authorization Server 所需的 clientName 类型为 String
+
+> [!NOTE] 注意事项
+> 1. Spring Authorization Server 允许一个客户端配置多个 redirectUris，并会依次处理这些地址。
+> 2. 但出于安全考虑，通常我们只允许一个客户端应用注册一个重定向地址。
+
 
 <font color="#92d050">10. scopes</font>
 客户端请求的权限范围，其是我们高度自定义的，客户端应用在注册时需勾选其可能会用到的权限范围（scope），表示未来可能申请这些权限。
@@ -219,9 +259,13 @@ OAuth 的 Scope 本质上是高度自定义的，但 OpenID Connect（OIDC）规
 	2. 如果未集成 OIDC，在 `authorizationGrantTypes` 中配置了 `refresh_token`，Spring Authorization Server 会返回 Refresh Token
 	3. 但是在集成 OIDC 后，必须携带 `offline_access`，授权服务器才会返回 Refresh Token，因为其要求更为严格。
 
+> [!NOTE] 注意事项
+> 1. 我们在颁发 Access Token 的时候，第三方客户端应用肯定不能和我们自己家的客户端应用拥有相同的权限。我们颁发给自家客户端的是具备完整访问权限的 Token，而第三方客户端只能访问部分数据。
+> 2. 因此，我们可以设置一个只有我们自己知道、第三方客户端无法获取的 scope，通过这个 scope，我们就能获取到所有权限。
+
 
 <font color="#92d050">11. clientSettings</font>
-客户端级别的配置，需要客户端应用在注册时指定，格式为 JSON，通常在数据库中以 `TEXT` 类型进行存储。可配置的项包括：
+客户端级别的配置，需要客户端应用在注册时指定，Spring Authorization Server 所需的 clientSettings 类型为 JSON，通常在数据库中以 `TEXT` 类型进行存储。可配置的项包括：
 1. requireAuthorizationConsent(boolean)
 	1. 是否强制用户在授权时显示“授权确认页”（consent screen），即使用户已授权
 	2. 默认值为 `false`
@@ -237,7 +281,7 @@ OAuth 的 Scope 本质上是高度自定义的，但 OpenID Connect（OIDC）规
 
 
 <font color="#92d050">12. tokenSettings</font>
-各种令牌的配置，需要客户端应用在注册时指定，格式为 JSON，通常在数据库中以 `TEXT` 类型进行存储。可配置的项包括：
+各种令牌的配置，需要客户端应用在注册时指定，Spring Authorization Server 所需的 tokenSettings 类型为 JSON，通常在数据库中以 `TEXT` 类型进行存储。可配置的项包括：
 1. accessTokenTimeToLive(Duration)
 	1. 访问令牌（Access Token）的有效期，以分钟为单位
 	2. 例如：`accessTokenTimeToLive(5)` 是 5 分钟
@@ -282,16 +326,128 @@ OAuth 的 Scope 本质上是高度自定义的，但 OpenID Connect（OIDC）规
 ----
 
 
-### 创建 客户端应用 相关数据库表
+### 创建 客户端应用 相关 MySQL 表
+
+#### ER 图
+
+![](image-20250713165050243.png)
+
+----
 
 
+#### clients 表（客户端应用表）
+
+| 列名                           | 数据类型         | 约束        | 索引   | 默认值          | 示例值                                                                                                                                                                                                                                                   | 说明        |
+| ---------------------------- | ------------ | --------- | ---- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| **id**                       | int          | 主键约束、自增属性 | 主键索引 | 自增           | 1                                                                                                                                                                                                                                                     | ......... |
+| **client_id**                | varchar(100) | 唯一约束      | 唯一索引 |              | web-client                                                                                                                                                                                                                                            | ......... |
+| **client_id_issued_at**      | timestamp    |           |      | 当前 timestamp | 2025-07-13 12:00:00                                                                                                                                                                                                                                   | ......... |
+| **client_secret**            | varchar(100) |           |      |              | {bcrypt}$2a$10$...                                                                                                                                                                                                                                    | ......... |
+| **client_secret_expires_at** | timestamp    |           |      | NULL         | 2025-07-13 12:00:00                                                                                                                                                                                                                                   | ......... |
+| **client_name**              | varchar(100) |           |      |              | 吧唧                                                                                                                                                                                                                                                    | ......... |
+| **redirect_uris**            | varchar(100) |           |      |              | `https://example.com/oauth2/callback`                                                                                                                                                                                                                 | ......... |
+| **client_settings**          | text         |           |      | {}           | {<br>  "requireAuthorizationConsent": true,<br>  "requireProofKey": false<br>}                                                                                                                                                                        | ......... |
+| **token_settings**           | text         |           |      | {}           | {<br>  "access_token_time_to_live": 300,<br>  "access_token_format": "REFERENCE",<br>  "reuse_refresh_tokens": false,<br>  "refresh_token_time_to_live": 2592000,<br>  "id_token_time_to_live": 600,<br>  "authorization_code_time_to_live": 300<br>} | ......... |
+```
+CREATE TABLE IF NOT EXISTS clients (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    client_id VARCHAR(100) NOT NULL,
+    client_id_issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    client_secret VARCHAR(100) NOT NULL,
+    client_secret_expires_at TIMESTAMP DEFAULT NULL,
+    client_name VARCHAR(100),
+    redirect_uris VARCHAR(100),
+    client_settings TEXT,
+    token_settings TEXT
+);
 
 
+ALTER TABLE clients ADD CONSTRAINT uk_clients_client_id UNIQUE (client_id);
+```
+
+----
 
 
+#### client_authentication_methods 表（身份认证方式表）
+
+| 列名            | 数据类型         | 约束                 | 索引   | 默认值 | 示例值  | 说明                                                        |
+| ------------- | ------------ | ------------------ | ---- | --- | ---- | --------------------------------------------------------- |
+| **id**        | int          | 主键约束、自增属性          | 主键索引 | 自增  | 1    | .........                                                 |
+| **client_id** | int          | 外键约束（→ clients.id） |      |     | 1    | 是 `clients` 表中的 `id` 字段，而不是 `clients` 表中的 `client_id` 字段。 |
+| **method**    | varchar(100) |                    |      |     | none | .........                                                 |
+```
+CREATE TABLE IF NOT EXISTS client_authentication_methods (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT,
+    method VARCHAR(100)
+);
 
 
+ALTER TABLE client_authentication_methods ADD CONSTRAINT fk_cam_client_id_to_clients_id FOREIGN KEY (client_id) REFERENCES clients(id);
+```
 
+----
+
+
+#### client_authorization_grant_types 表（授权方式表）
+
+| 列名             | 数据类型         | 约束                 | 索引   | 默认值 | 示例值                | 说明                                                        |
+| -------------- | ------------ | ------------------ | ---- | --- | ------------------ | --------------------------------------------------------- |
+| **id**         | int          | 主键约束、自增属性          | 主键索引 | 自增  | 1                  | .........                                                 |
+| **client_id**  | int          | 外键约束（→ clients.id） |      |     | 1                  | 是 `clients` 表中的 `id` 字段，而不是 `clients` 表中的 `client_id` 字段。 |
+| **grant_type** | varchar(100) |                    |      |     | authorization_code | .........                                                 |
+```
+CREATE TABLE client_authorization_grant_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT,
+    grant_type VARCHAR(100)
+);
+
+
+ALTER TABLE client_authorization_grant_types ADD CONSTRAINT fk_cagt_client_id_to_clients_id FOREIGN KEY (client_id) REFERENCES clients(id);
+```
+
+----
+
+
+#### client_scopes 表（权限表）
+
+| 列名            | 数据类型         | 约束                 | 索引   | 默认值 | 示例值    | 说明                                                        |
+| ------------- | ------------ | ------------------ | ---- | --- | ------ | --------------------------------------------------------- |
+| **id**        | int          | 主键约束、自增属性          | 主键索引 | 自增  | 1      | .........                                                 |
+| **client_id** | int          | 外键约束（→ clients.id） |      |     | 1      | 是 `clients` 表中的 `id` 字段，而不是 `clients` 表中的 `client_id` 字段。 |
+| **scope**     | varchar(100) |                    |      |     | openid | .........                                                 |
+```
+CREATE TABLE IF NOT EXISTS client_scopes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT,
+    scope VARCHAR(100)
+);
+
+
+ALTER TABLE client_scopes ADD CONSTRAINT fk_cs_client_id_to_clients_id FOREIGN KEY (client_id) REFERENCES clients(id);
+```
+
+----
+
+
+#### system_scopes 表（系统权限表）
+
+| 列名                    | 数据类型         | 约束        | 索引   | 默认值 | 示例值         | 说明        |
+| --------------------- | ------------ | --------- | ---- | --- | ----------- | --------- |
+| **id**                | int          | 主键约束、自增属性 | 主键索引 | 自增  | 1           | ......... |
+| **scope_name**        | varchar(100) |           |      |     | openid      | ......... |
+| **scope_description** | varchar(100) |           |      |     | 申请 ID Token | ......... |
+
+```
+CREATE TABLE IF NOT EXISTS system_scopes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    scope_name VARCHAR(100),
+    scope_description VARCHAR(100)
+);
+```
+
+------
 
 
 

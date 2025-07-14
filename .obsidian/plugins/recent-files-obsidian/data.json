@@ -5,16 +5,24 @@
       "path": "source/_posts/笔记：Spring Authorization Server.md"
     },
     {
+      "basename": "笔记：MySQL 基础",
+      "path": "source/_posts/笔记：MySQL 基础.md"
+    },
+    {
+      "basename": "mysql 临时",
+      "path": "templates/mysql 临时.md"
+    },
+    {
+      "basename": "笔记：Spring Security",
+      "path": "source/_posts/笔记：Spring Security.md"
+    },
+    {
       "basename": "Todo 看板",
       "path": "Todo 看板.md"
     },
     {
       "basename": "笔记：Java 数据类型",
       "path": "source/_posts/笔记：Java 数据类型.md"
-    },
-    {
-      "basename": "笔记：Spring Security",
-      "path": "source/_posts/笔记：Spring Security.md"
     },
     {
       "basename": "临时：OAUth",
@@ -141,16 +149,8 @@
       "path": "templates/临时：es.md"
     },
     {
-      "basename": "mysql 临时",
-      "path": "templates/mysql 临时.md"
-    },
-    {
       "basename": "笔记：ElasticSearch 基础",
       "path": "source/_posts/笔记：ElasticSearch 基础.md"
-    },
-    {
-      "basename": "笔记：MySQL 基础",
-      "path": "source/_posts/笔记：MySQL 基础.md"
     },
     {
       "basename": "笔记：一键启动 WLAN 小工具",

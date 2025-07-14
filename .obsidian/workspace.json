@@ -48,6 +48,20 @@
               "icon": "lucide-file",
               "title": "笔记：Spring Authorization Server"
             }
+          },
+          {
+            "id": "d3ab3e90e6c9c588",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "source/_posts/笔记：MySQL 基础.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "笔记：MySQL 基础"
+            }
           }
         ],
         "currentTab": 2
@@ -271,20 +285,28 @@
   },
   "active": "59f0b58b185621f9",
   "lastOpenFiles": [
+    "source/_posts/笔记：MySQL 基础.md",
+    "source/_posts/笔记：Spring Authorization Server.md",
+    "templates/mysql 临时.md",
+    "source/_posts/笔记：Spring Security.md",
+    "source/_posts/笔记：Spring Authorization Server/image-20250713165050243.png",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.zCdzDX",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.ghpIGZ",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.LJSHkK",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.yELxfp",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.wUoAWG",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.idGHvv",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.mFzQCD",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.ykMnOR",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.qDnFPq",
+    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx",
     "Todo 看板.md",
     "source/_posts/笔记：Java 数据类型.md",
-    "source/_posts/笔记：Spring Authorization Server.md",
-    "source/_posts/笔记：Spring Security.md",
     "templates/临时：OAUth.md",
     "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
     "source/_posts/笔记：Windows.md",
     "source/_posts/笔记：分布式 ID.md",
-    "source/_posts/笔记：分布式 ID/Map：分布式 ID.xmind",
-    "source/_posts/笔记：分布式 ID",
-    "maps/Map：分布式 ID.xmind",
     "source/_posts/笔记：OAuth 协议.md",
-    "source/_posts/笔记：Spring Authorization Server/Map：SpringAuthorizationServer 1.xmind",
-    "maps/Map：SpringAuthorizationServer.xmind",
     "source/_posts/笔记：Spring Boot.md",
     "source/_posts/笔记：奶块攻略.md",
     "templates/临时：mybatis.md",
@@ -296,11 +318,6 @@
     "templates/临时：es/image-20250615155650857.png",
     "templates/临时：es/ES基础---数据分布.svg",
     "临时：OAUth.md",
-    "Edraw/OAuth协议---理想状态下的授权码模式 + PKCE + OIDC + Refresh Token.eddx.PAUOoR",
-    "Edraw/OAuth协议---理想状态下的授权码模式 + PKCE + OIDC + Refresh Token.eddx.HoByAm",
-    "Edraw/OAuth协议---理想状态下的授权码模式 + PKCE + OIDC + Refresh Token.eddx.MHDOWN",
-    "Edraw/OAuth协议---理想状态下的授权码模式 + PKCE + OIDC + Refresh Token.eddx.lODHAW",
-    "Edraw/OAuth协议---理想状态下的授权码模式 + PKCE + OIDC + Refresh Token.eddx.cirZsj",
     "source/_posts/笔记：Spring Boot/image-20250709172129814.png",
     "source/_posts/笔记：Java 项目创建和结构.md",
     "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
@@ -309,14 +326,11 @@
     "source/_posts/笔记：Minio 基础.md",
     "source/_posts/笔记：Spring Boot/image-20250709074128434.png",
     "source/_posts/笔记：搭建 Minio 环境.md",
-    "source/_posts/笔记：Spring Boot/image-20250708185639252.png",
     "source/_posts/笔记：阿里云代码规约.md",
     "source/_posts/笔记：Java 异常处理.md",
     "source/_posts/笔记：Spring IOC.md",
     "source/_posts/笔记：HttpClient.md",
     "source/_posts/笔记：Java 文档.md",
-    "source/_posts/笔记：URL、URI、API.md",
-    "source/_posts/笔记：JUC.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]
