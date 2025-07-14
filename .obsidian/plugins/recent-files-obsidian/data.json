@@ -13,16 +13,20 @@
       "path": "source/_posts/笔记：Minio 工具.md"
     },
     {
+      "basename": "临时：es",
+      "path": "templates/临时：es.md"
+    },
+    {
+      "basename": "笔记：MySQL 基础",
+      "path": "source/_posts/笔记：MySQL 基础.md"
+    },
+    {
       "basename": "minio 临时",
       "path": "minio 临时.md"
     },
     {
       "basename": "笔记：Spring 整合 Minio",
       "path": "source/_posts/笔记：Spring 整合 Minio.md"
-    },
-    {
-      "basename": "笔记：MySQL 基础",
-      "path": "source/_posts/笔记：MySQL 基础.md"
     },
     {
       "basename": "临时：mybatis",
@@ -151,10 +155,6 @@
     {
       "basename": "question",
       "path": "question.md"
-    },
-    {
-      "basename": "临时：es",
-      "path": "templates/临时：es.md"
     },
     {
       "basename": "笔记：ElasticSearch 基础",

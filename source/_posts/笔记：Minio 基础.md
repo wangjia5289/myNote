@@ -17,9 +17,23 @@ layout: post
 
 ## Minio 语法
 
+### 系统命令
 
+<font color="#92d050">1. 连接 Minio</font>
+```
+mc alias set <Minio 地址别名> <Minio 地址> <用户名> <密码>
+“”“
+./mc alias set myminio http://127.0.0.1:9000 root wq666666
+”“”
+```
 
+> [!NOTE] 注意事项
+> 1. 该命令需在 `mc` 安装目录下执行：`cd /mystudy/mc`
+> 2. MinIO 地址配置别名后，上传文件时只需使用别名，无需每次输入完整认证地址，极大提升了操作便捷性：
+```
+mc cp ./file.txt myminio/mybucket/
 
+```
 
 
 
