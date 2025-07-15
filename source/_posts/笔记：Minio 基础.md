@@ -19,21 +19,152 @@ layout: post
 
 ### 系统命令
 
-<font color="#92d050">1. 连接 Minio</font>
+<font color="#92d050">1. 连接 Minio 服务（配置 Minio 服务别名）</font>
 ```
-mc alias set <Minio 地址别名> <Minio 地址> <用户名> <密码>
+mc alias set <Minio 服务别名> <Minio 地址> <用户名> <密码>
 “”“
-./mc alias set myminio http://127.0.0.1:9000 root wq666666
+1. 示例值：
+	1. mc alias set myminio http://127.0.0.1:9000 root wq666666
 ”“”
 ```
 
 > [!NOTE] 注意事项
-> 1. 该命令需在 `mc` 安装目录下执行：`cd /mystudy/mc`
-> 2. MinIO 地址配置别名后，上传文件时只需使用别名，无需每次输入完整认证地址，极大提升了操作便捷性：
+> 1. 给 MinIO 服务起别名 `myminio`，以后就可以通过 `myminio` 来访问，而不用每次输入 URL 和账号密码：
 ```
+// 1. 使用 Minio 服务别名
 mc cp ./file.txt myminio/mybucket/
 
+
+// 2. 不使用 Minio 服务别名
+mc --insecure --config-dir /root/.mc cp ./file.txt http://127.0.0.1:9000/mybucket/file.txt --access-key root --secret-key wq666666
 ```
+
+----
+
+
+### 集群命令
+
+---
+
+
+### 用户命令
+
+<font color="#92d050">1. 添加用户</font>
+```
+mc admin user add <alias> <username> <password>
+“”“
+1. 示例值：
+	1. mc admin user add myminio alice StrongPass123
+2. 注意事项：
+	1. 添加的用户，默认是启用的
+	2. 被禁用的用户，才需要启用
+”“”
+```
+
+
+<font color="#92d050">2. 禁用用户</font>
+```
+mc admin user disable <alias> <username>
+```
+
+
+<font color="#92d050">3. 启用用户</font>
+```
+mc admin user enable <alias> <username>
+```
+
+
+<font color="#92d050">4. 删除用户</font>
+```
+mc admin user remove <alias> <username>
+```
+
+
+<font color="#92d050">5. 列出所有用户</font>
+```
+mc admin user list <alias>
+```
+
+----
+
+
+### 用户组命令
+
+---
+
+
+
+
+
+
+### Bucket 操作命令
+
+<font color="#92d050">1. 创建 Bucket</font>
+```
+mc mb <alias>/<bucket-name>
+“”“
+1. 示例值：
+	1. mc mb myminio/mybucket
+2. alias：
+	1. 配置好的 Minio 服务别名
+”“”
+```
+
+
+<font color="#92d050">2. 列出当前用户可访问的所有 Bucket</font>
+```
+mc ls <alias>
+“”“
+1. 示例值：
+	1. mc ls myminio
+”“”
+```
+
+
+<font color="#92d050">3. 列出某 Bucket 中当前用户可访问的所有 Object</font>
+```
+mc ls <alias>/<bucket-name>
+“”“
+1. 示例值：
+	1. mc ls myminio/mybucket
+”“”
+```
+
+
+<font color="#92d050">4. 删除 Bucket</font>
+```
+// 1. 删除空 Bucket（不能删除有内容的 Bucket）
+mc rb <alias>/<bucket-name>
+
+
+// 2. 强制删除 Bucket
+mc rb <alias>/<bucket-name> --force
+```
+
+
+<font color="#92d050">5. 设置 Bucket 策略</font>
+
+
+
+
+
+
+
+
+
+---
+
+
+### Object 操作命令
+
+<font color="#92d050">1. 上传 Object</font>
+
+
+
+---
+
+
+
 
 
 

@@ -30,3 +30,16 @@ layout: post
 ```
 export http_proxy="http://172.20.10.3:7890" && export https_proxy="http://172.20.10.3:7890" && export no_proxy="localhost,127.0.0.1,.svc,.cluster.local,192.168.136.0/24,10.96.0.1,10.244.0.0/16" && export HTTP_PROXY=$http_proxy && export HTTPS_PROXY=$https_proxy && export NO_PROXY=$no_proxy
 ```
+
+---
+
+
+### 将 mc 添加到环境变量
+
+如果你不想每次都写 `./mc`，可以把 `mc` 加到 PATH 中：
+```
+cd /mystudy/mc
+
+
+sudo cp ./mc /usr/local/bin/
+```

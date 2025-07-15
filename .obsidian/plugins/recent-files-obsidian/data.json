@@ -9,6 +9,10 @@
       "path": "source/_posts/笔记：搭建 Minio 环境.md"
     },
     {
+      "basename": "笔记：Spring 整合 Minio",
+      "path": "source/_posts/笔记：Spring 整合 Minio.md"
+    },
+    {
       "basename": "笔记：Minio 工具",
       "path": "source/_posts/笔记：Minio 工具.md"
     },
@@ -23,10 +27,6 @@
     {
       "basename": "minio 临时",
       "path": "minio 临时.md"
-    },
-    {
-      "basename": "笔记：Spring 整合 Minio",
-      "path": "source/_posts/笔记：Spring 整合 Minio.md"
     },
     {
       "basename": "临时：mybatis",
