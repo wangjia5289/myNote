@@ -20,9 +20,22 @@ layout: post
 ----
 
 
-### mc 命令行客户端安装
+### 创建软件安装路径
 
-参考 [MinIO 官方下载页面](https://min.io/open-source/download?platform=linux) 进行安装，安装过程会将 `mc` 文件下载到**当前目录**，文件名即为 `mc`（没有扩展名）：
+```
+mkdir -p /mystudy/mc
+```
+
+---
+
+
+### 安装 mc
+
+```
+cd /mystudy/mc
+```
+
+接着参考 [MinIO 官方下载页面](https://min.io/open-source/download?platform=linux) 进行安装，安装过程会将 `mc` 文件下载到**当前目录**，文件名即为 `mc`（没有扩展名）：
 ![](image-20250714170717756.png)
 
 > [!NOTE] 注意事项
@@ -43,3 +56,26 @@ cd /mystudy/mc
 
 sudo cp ./mc /usr/local/bin/
 ```
+
+-----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

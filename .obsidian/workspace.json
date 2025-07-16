@@ -36,20 +36,6 @@
             }
           },
           {
-            "id": "bc794127839b1a4b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "source/_posts/笔记：Spring 整合 Minio.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "笔记：Spring 整合 Minio"
-            }
-          },
-          {
             "id": "9d7e56788ebaf1c8",
             "type": "leaf",
             "state": {
@@ -61,6 +47,20 @@
               },
               "icon": "lucide-file",
               "title": "笔记：搭建 Minio 环境"
+            }
+          },
+          {
+            "id": "bc794127839b1a4b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "source/_posts/笔记：Spring 整合 Minio.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "笔记：Spring 整合 Minio"
             }
           },
           {
@@ -92,7 +92,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -330,17 +330,21 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "a73221b113417bef",
+  "active": "9d7e56788ebaf1c8",
   "lastOpenFiles": [
-    "source/_posts/笔记：搭建 Minio 环境.md",
     "source/_posts/笔记：Spring 整合 Minio.md",
+    "source/_posts/笔记：搭建 Minio 环境.md",
     "source/_posts/笔记：Minio 基础.md",
+    "minio 临时.md",
+    "source/_posts/笔记：Minio 基础/image-20250715224906230.png",
     "source/_posts/笔记：Minio 工具.md",
+    "source/_posts/笔记：Linux.md",
     "templates/临时：es.md",
+    "source/_posts/笔记：搭建 Minio 环境/image-20250715220301330.png",
+    "source/_posts/笔记：搭建 Minio 环境",
     "source/_posts/笔记：MySQL 基础.md",
     "source/_posts/笔记：Minio 工具/image-20250714170717756.png",
     "source/_posts/笔记：Minio 工具",
-    "minio 临时.md",
     "source/_posts/未命名看板.md",
     "templates/临时：mybatis.md",
     "source/_posts/笔记：Spring Authorization Server.md",
@@ -356,9 +360,7 @@
     "templates/临时：mybatis/image-20250714111238419.png",
     "templates/临时：mybatis/image-20250714103343673.png",
     "templates/临时：mybatis/image-20250714103337217.png",
-    "templates/临时：mybatis/image-20250714094045430.png",
     "Todo 看板.md",
-    "source/_posts/笔记：Spring Authorization Server/image-20250713165050243.png",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.zCdzDX",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.ghpIGZ",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.LJSHkK",
@@ -367,7 +369,6 @@
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.idGHvv",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.mFzQCD",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.ykMnOR",
-    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.qDnFPq",
     "source/_posts/笔记：Java 数据类型.md",
     "source/_posts/笔记：Windows.md",
     "source/_posts/笔记：分布式 ID.md",
@@ -376,8 +377,6 @@
     "source/_posts/笔记：奶块攻略.md",
     "临时：OAUth.md",
     "source/_posts/笔记：Java 项目创建和结构.md",
-    "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
-    "source/_posts/笔记：阿里云代码规约.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]
