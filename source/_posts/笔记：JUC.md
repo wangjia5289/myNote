@@ -9,6 +9,37 @@ tags:
 author: 霸天
 layout: post
 ---
+## 导图
+
+![](source/_posts/笔记：JUC/Map：JUC.xmind)
+
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -211,6 +242,22 @@ public class PooledJedisClient {
 
 > [!NOTE] 注意事项
 > 1. `Netty` 好像也能处理这个事情，Redis 就是使用的这个方式，还维护自己的一套nid 线程池？不理解不理解
+
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
