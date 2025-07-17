@@ -1,6 +1,10 @@
 {
   "recentFiles": [
     {
+      "basename": "笔记：JUC",
+      "path": "source/_posts/笔记：JUC.md"
+    },
+    {
       "basename": "笔记：Windows",
       "path": "source/_posts/笔记：Windows.md"
     },
@@ -15,10 +19,6 @@
     {
       "basename": "笔记：MySQL 基础",
       "path": "source/_posts/笔记：MySQL 基础.md"
-    },
-    {
-      "basename": "笔记：JUC",
-      "path": "source/_posts/笔记：JUC.md"
     },
     {
       "basename": "笔记：分布式锁",
