@@ -112,9 +112,9 @@ java -Djava.rmi.server.hostname='<ip 地址>' -Dcom.sun.management.jmxremote -Dc
 ----
 
 
-### 创建线程
+## 创建线程
 
-#### 直接使用 Thread
+### 直接使用 Thread
 
 ```
 // 1. 创建线程对象
@@ -132,7 +132,7 @@ myThread.start();
 ----
 
 
-#### 使用 Runnable + Thread
+### 使用 Runnable + Thread
 
 直接使用 `Thread` 相当于将线程控制与具体任务耦合在一起，为了具有更好的灵活性，也为了更容易与线程池等高级并发 API 配合使用，我们可以使用 `Runnable` 实现了线程与任务的分离。
 
@@ -213,9 +213,9 @@ MyRunnable myRunnable = new MyRunnable();
 ----
 
 
-#### 使用 FutureTask + Thread
+### 使用 FutureTask + Thread
 
-##### Runnable 的缺陷
+#### Runnable 的缺陷
 
 无论是使用 Runnable + Thread，还是直接使用 Thread，我们都会发现只能执行无返回值的方法。也就是说，方法执行完成后无法获取返回值，而有时我们确实需要返回值来进行错误处理。
 
@@ -224,7 +224,7 @@ MyRunnable myRunnable = new MyRunnable();
 ---
 
 
-##### Callable 的引入
+#### Callable 的引入
 
 Callable 和 Runnable 类似，都是用来定义任务的接口。不同的是，Callable 定义了带返回值且可抛异常的 `V call()` 方法。
 
@@ -239,7 +239,7 @@ public interface Callable<V> {
 ---
 
 
-#### FutureTask + Thread 的使用
+### FutureTask + Thread 的使用
 
 ```
 // 1. 创建 Callable 接口对象
@@ -532,7 +532,42 @@ public class Main {
 ----
 
 
+### setDaemon(boolean)
 
+| 方法名                | static | 说明           | 注意事项                                                                                                                                                                                                |
+| ------------------ | ------ | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| setDaemon(boolean) | static | 将用户线程设置为守护线程 | 1. 主线程和我们创建的线程默认都是用户线程。很多人误以为“主线程一结束，JVM 就会退出”，但实际上并非如此，即使主线程结束，只要还有其他用户线程存活，JVM 就不会退出。<br><br>2. 而守护线程的行为则不同，当所有非守护线程（即用户线程）都结束后，JVM 会自动退出，无需等待守护线程执行完毕。<br><br>3. 守护线程常用于后台服务，例如垃圾回收、心跳监控、日志清理等任务 |
+```
+public class Main {  
+    static int repertoryNumber  = 0;  
+  
+    public static void main(String[] args) throws ExecutionException, InterruptedException {  
+  
+        Runnable runnable = new Runnable() {  
+            @Override  
+            public void run() {  
+                while (true){  
+                    if(Thread.currentThread().isInterrupted()){  
+                        break;  
+                    }  
+                }  
+            }  
+        };  
+  
+        Thread myThread = new Thread(runnable, "myThread");  
+  
+        // 设置为守护线程  
+        myThread.setDaemon(true);  
+  
+        myThread.start();  
+  
+        System.out.println("从数据库中读取的数据为："+ repertoryNumber);  
+    }  
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 上面的代码如果没有设置为守护线程，即使 `main` 方法执行完毕，JVM 仍不会停止运行。
 
 
 
@@ -556,6 +591,201 @@ public class Main {
 | interrupted()    | static | 判断当前线程是否被打断                                                    | 会清除打断标记                                                                                                                                 |
 | currentThread()  | static | 获取当前正在执行的线程                                                    |                                                                                                                                         |
 
+----
+
+
+## 线程安全问题
+
+### 临界区概述
+
+当一段代码块中存在对共享资源的多线程读写操作，这段代码就称为**临界区**。例如：
+```
+static int counter = 0;
+
+public static void main(String[] args) throws InterruptedException {
+
+	Thread t1 = new Thread(() -> {
+		for (int i = 0; i < 5000; i++) 
+		// 临界区
+		{	
+			counter++;
+		}
+	}, "t1");
+
+	Thread t2 = new Thread(() -> {
+		for (int i = 0; i < 5000; i++) 
+		// 临界区
+		{
+			counter--;
+		}
+	}, "t2");
+
+	t1.start();
+	t2.start();
+	t1.join();
+	t2.join();
+	System.out.println(counter);
+}
+```
+
+又比如：
+```
+public class Counter {
+
+    private int count = 0;
+
+    public void increment() 
+    // 临界区
+    { 
+        count++;
+    }
+}
+```
+
+---
+
+
+### 线程安全问题概述
+
+现在有这样一个代码：
+```
+static int counter = 0;
+
+public static void main(String[] args) throws InterruptedException {
+	Thread t1 = new Thread(() -> {
+		for (int i = 0; i < 5000; i++) {
+			counter++;
+		}
+	}, "t1");
+
+	Thread t2 = new Thread(() -> {
+		for (int i = 0; i < 5000; i++) {
+			counter--;
+		}
+	}, "t2");
+
+	t1.start();
+	t2.start();
+	t1.join();
+	t2.join();
+	System.out.println(counter);
+}
+```
+
+一个线程对 `counter` 执行 5000 次加法，另一个线程对 `counter` 执行 5000 次减法。**按理来说，最终结果应该是 0**，但实际上输出可能是正数、负数，甚至恰好为零。为什么会这样呢？
+
+这是因为 Java 中对静态变量的自增、自减操作**不是原子性的**。要彻底理解这个问题，我们需要先了解 Java 的内存模型（JMM）：
+![](image-20250718153733803.png)
+
+然后我们要从 字节码层面分析自增、自减的完整过程。以 `counter++` 为例，Java 编译器会生成以下 JVM 字节码指令：
+```
+getstatic       counter           // 获取静态变量 counter 的值
+iconst_1                               // 准备常量 1
+iadd                                     // 自增
+putstatic       counter           // 将修改后的值存入静态变量 counter
+```
+
+而 `counter--` 则会生成类似的指令：
+```
+getstatic       counter          // 获取静态变量 counter 的值
+iconst_1                              // 准备常量 1
+isub                                    // 自减
+putstatic       counter         // 将修改后的值存入静态变量 counter
+```
+
+假设 `counter++` 的线程执行到了 `iadd`，此时 `counter` 的值为 5，准备通过 `putstatic` 写入主内存，但就在这一步之前，CPU 的时间片耗尽发生了线程上下文切换。
+
+接着，另一个执行 `counter--` 的线程获得了 CPU 时间并执行了多次减法操作，将 `counter` 的值减到 2，并把 2 写回了主内存。之后 `counter++` 线程恢复执行，继续完成刚才的 `putstatic`，把原本准备写的 **5** 写回了主内存，覆盖了之前减到 2 的结果，导致最终结果不正确。
+
+----
+
+
+### 线程安全问题分析
+
+一个程序中运行多个线程本身没有问题，关键在于多个线程访问共享资源时的情况：
+1. 多个线程只读共享资源通常不会有问题；
+2. 多个线程中存在读写混合时，就容易出现指令交错，导致读取的数据不是最新的，写入的数据也可能被覆盖，从而引发错误。
+
+---
+
+
+### 线程安全问题解决方案
+
+1. 阻塞式解决方案（悲观锁思想）
+	1. 悲观锁思想：
+		1. 悲观锁基于一种保守假设：只要存在多线程操作共享资源，就极有可能产生冲突。因此，每次访问资源前，线程都会先获取锁，以独占方式持有资源，直到操作完成后释放锁，其它线程需等待锁被释放后才能继续访问。
+	2. synchronized
+	3. Lock
+2. 非阻塞式解决方案（乐观锁思想）
+	1. 乐观锁思想
+		1. 乐观锁认为冲突是小概率事件，访问资源时不加锁，只有在更新时才进行校验。如果检测到资源已被其他线程修改，则放弃本次修改并重试，适用于读多写少的场景。
+	2. 原子变量
+
+-----
+
+
+## synchronized
+
+### synchronized 基本使用
+
+```
+public class Room {
+
+    private int counter = 0;
+
+    public void increment() {
+        synchronized (this) {
+            counter++;
+        }
+    }
+
+    public void decrement() {
+        synchronized (this) {
+            counter--;
+        }
+    }
+    
+    public int getCounter() {
+        synchronized (this) {
+            return counter;
+        }
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 静态方法加 `synchronized static` 时，锁的是该类的 Class 对象
+> 2. 普通方法加 `synchronized` 时，锁的是当前对象（`this`），其可以简写为：
+```
+// 1. 常规写法
+public void increment() {
+	synchronized (this) {
+		counter++;
+	}
+}
+
+
+// 2. 简写方法
+public synchronized void increment() {
+	counter++;
+}
+```
+
+----
+
+
+### synchronized 底层原理
+
+#### Java 对象头
+
+通常我们的一个 Java 对象，他在内存中由两部分组成，一部分是 Java 对象头，一部分是对象中的一些成员变量，对于 对象头而言，以 32 位虚拟机为例：
+
+<font color="#92d050">1. 普通对象</font>
+![](image-20250718231947171.png)
+
+
+<font color="#92d050">2. 数组对象</font>
+![](image-20250718232007146.png)
 
 
 
@@ -569,7 +799,14 @@ public class Main {
 
 
 
-dafd
+
+
+
+
+
+
+
+
 
 
 
