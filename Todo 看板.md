@@ -6,6 +6,7 @@ kanban-plugin: board
 
 ## Todo
 
+- [ ] JUC 看完看另一个 JUC 适配
 - [ ] Spring Security
 - [ ] Java 生成密钥与加密解密
 - [ ] Spring Security 集成 Oauth2，要看视频：尚硅谷 Spring Security + OAuth2、Spring AuthorizationServer 极简入门

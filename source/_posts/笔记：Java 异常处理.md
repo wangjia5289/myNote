@@ -8,6 +8,104 @@ tags:
 author: 霸天
 layout: post
 ---
+明白了，你说的是 Java 异常中**“必须处理的”和“可以不用处理的”**两种类型，确实是这样，具体说法如下：
+
+---
+
+## Java 异常的两大类：Checked Exception 和 Unchecked Exception
+
+### 1. Checked Exception （**受检异常**）
+
+- 编译器强制你必须处理（捕获 try-catch）或声明抛出（throws）
+    
+- 否则代码无法通过编译
+    
+- 一般是**可预见、可恢复的异常**，如文件找不到、数据库连接失败等
+    
+- 典型例子：
+    
+    - `IOException`
+        
+    - `SQLException`
+        
+    - `ClassNotFoundException`
+        
+    - `InterruptedException`
+        
+
+**示例**：
+
+```java
+public void readFile() throws IOException {
+    FileReader fr = new FileReader("file.txt");  // 可能抛 IOException
+}
+```
+
+如果不声明 `throws IOException`，编译会报错。
+
+---
+
+### 2. Unchecked Exception （**运行时异常**）
+
+- 继承自 `RuntimeException`
+    
+- 编译器不强制要求捕获或声明抛出
+    
+- 这类异常通常是**程序错误引起的，比如空指针、数组越界、非法参数**
+    
+- 典型例子：
+    
+    - `NullPointerException`
+        
+    - `ArrayIndexOutOfBoundsException`
+        
+    - `IllegalArgumentException`
+        
+    - `ArithmeticException`
+        
+
+**示例**：
+
+```java
+public void divide(int a, int b) {
+    int c = a / b;  // 可能抛 ArithmeticException，但不强制处理
+}
+```
+
+你可以捕获，但不写也能编译通过。
+
+---
+
+### 小结
+
+|类型|编译器是否强制处理|典型类举例|说明|
+|---|---|---|---|
+|**Checked Exception**|是|IOException, SQLException|必须 try-catch 或 throws|
+|**Unchecked Exception**|否|NullPointerException, IllegalArgumentException|可选捕获，不处理也编译通过|
+
+---
+
+你说的那个“必须处理否则编译不通过”的，就是 Checked Exception；“不必须处理”的，就是 Unchecked Exception。
+
+---
+
+需要的话我可以帮你梳理具体哪些异常属于 Checked，哪些是 Unchecked，或者帮你理解怎么写 try-catch 更规范？
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ![](image-20250705191045840.png)
 
 这种该怎么办
