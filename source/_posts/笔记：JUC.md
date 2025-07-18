@@ -268,6 +268,16 @@ try {
 }
 ```
 
+> [!NOTE] 注意事项
+> 1. 创建 FutureTask 对象时，可直接使用 Lambda 表达式，无需单独创建 Callable 接口对象
+```
+FutureTask<Integer> futureTask = new FutureTask<>(() -> 1 + 2);
+
+Thread myThread = new Thread(futureTask, "myThread");
+
+myThread.start();
+```
+
 ----
 
 
@@ -275,45 +285,26 @@ try {
 
 ### 操作系统层面
 
-![](image-20250717200949287.png)
+![](image-20250717222336285.png)
 
 ----
 
 
 ### Java 层面
 
-![](image-20250717222336285.png)
+![](image-20250717201013757.png)
+
 
 ---
 
 
 ## 线程的常用方法
 
-### 方法表
+### start() 方法
 
-| 方法名              | static | 说明                                 | 注意事项                                                                                                                                    |
-| ---------------- | ------ | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| start()          |        | 启动一个新线程，在新的线程运行 run 方法中的代码         | 1. start 方法只是让线程从初始状态进入就绪状态，里面代码不一定立刻运行（需要CPU 将时间片分配给它）<br><br>2. 每个线程对象的 start 方法只能调用一次（即使线程已终止），如果调用多次会出现 IllegalThreadStateException |
-| sleep(long n)    | static | 让当前执行的线程休眠n 毫秒，休眠时让出 cpu 的时间片给其它线程 |                                                                                                                                         |
-| join()           |        | 等待线程运行结束                           |                                                                                                                                         |
-| join(long n)     |        | 等待线程运行结束，最多等待 n 毫秒                 |                                                                                                                                         |
-| getId()          |        | 获取线程长整型的 id                        | id 唯一                                                                                                                                   |
-| getName()        |        | 获取线程名                              |                                                                                                                                         |
-| setName(String)  |        | 修改线程名                              |                                                                                                                                         |
-| getPriority()    |        | 获取线程优先级                            |                                                                                                                                         |
-| setPriority(int) |        | 修改线程优先级                            | java中规定线程优先级是1~10 的整数，较大的优先级能提高该线程被 CPU 调度的机率                                                                                           |
-| getState()       |        | 获取线程状态                             | Java 中线程状态是用 6 个 enum 表示，分别为：NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED                                                 |
-| isInterrupted()  |        | 判断是否被打断                            | 不会清除打断标记                                                                                                                                |
-| isAlive()        |        | 线程是否存活（还没有运行完毕）                    |                                                                                                                                         |
-| interrupt()      |        | 打断线程                               | 如果被打断线程正在 sleep, wait, join 会导致被打断的线程抛出 InterruptedException，并清除打断标记；如果打断的正在运行的线程，则会设置打断标记；park 的线程被打断，也会设置打断标记                         |
-| interrupted()    | static | 判断当前线程是否被打断                        | 会清除打断标记                                                                                                                                 |
-| currentThread()  | static | 获取当前正在执行的线程                        |                                                                                                                                         |
-| yield()          | static | 提示线程调度器让出当前线程对CPU的使用               | 主要是为了测试和调试                                                                                                                              |
-
-----
-
-
-### start() 示例
+| 方法名     | static | 说明                         | 注意事项                                                                                                                                                                                                                        |
+| ------- | ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| start() |        | 启动一个新线程，在新的线程运行 run 方法中的代码 | 1. start 方法只是让线程从初始状态进入就绪状态，里面代码不一定立刻运行（需要CPU 将时间片分配给它）<br><br>2. 每个线程对象的 start 方法只能调用一次（即使线程已终止），如果调用多次会出现 IllegalThreadStateException<br><br>3.`static` 方法是通过类名调用，如 `Thread.xxx`；非 `static` 方法是通过实例对象调用，如 `myThread.xxx`。 |
 
 ```
 public class Main {
@@ -336,6 +327,234 @@ public class Main {
 }
 ```
 
+----
+
+
+### sleep(long) 方法
+
+| 方法名         | static | 说明                                                             | 注意事项                                                                                                                                                                                                                                                                                              |
+| ----------- | ------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| sleep(long) | static | 让当前执行的线程休眠 n 毫秒（从运行状态进入 Timed Waiting 状态），休眠时会让出 cpu 的时间片给其它线程 | 1. 其他线程可以通过 `interrupt` 方法打断正在睡眠的线程，此时 `sleep` 方法会抛出 `InterruptedException`。如果你未捕获并处理该异常，线程可能会直接终止；<br><br>2. 如果线程在睡眠结束或被中断（并正确处理了异常），将会从 `TIMED_WAITING` 状态被唤醒，转入就绪状态，等待 CPU 分配时间片继续执行。<br><br>3. 建议使用 TimeUnit 的 sleep 代替 Thread 的 sleep，两者功能相同，但前者可读性更强，单位更清晰。<br><br>4. 以 毫秒 为单位，1000 毫秒是 1 秒 |
+
+```
+public class Main {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Callable<Integer> task = new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+            
+                // 执行本方法的线程 sleep
+                try {
+                    Thread.sleep(50000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                return 1 + 2;
+            }
+        };
+
+        FutureTask<Integer> futureTask = new FutureTask<>(task);
+
+        Thread myThread = new Thread(futureTask, "myThread");
+
+        myThread.start();
+
+        // Main 线程 sleep
+        Thread.sleep(1000);
+        
+        myThread.interrupt();
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 使用 TimeUnit：
+```
+public class Main {
+
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Callable<Integer> task = new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+            
+                // 执行本方法的线程 sleep
+                try {
+                    TimeUnit.HOURS.sleep(5);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                return 1 + 2;
+            }
+        };
+
+        FutureTask<Integer> futureTask = new FutureTask<>(task);
+
+        Thread myThread = new Thread(futureTask, "myThread");
+
+        myThread.start();
+
+        // Main 线程 sleep
+        TimeUnit.MILLISECONDS.sleep(5000);
+
+        myThread.interrupt();
+    }
+}
+```
+
+---
+
+
+### yield() 方法
+
+| 方法名     | static | 说明                                   | 注意事项                                                                                                                                                                                     |
+| ------- | ------ | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| yield() | static | 提示线程调度器让出当前线程对 CPU 的使用，线程从运行状态进入就绪状态 | 1. 主要是为了测试和调试<br><br>2. yield 方法仅是建议性提示，是否生效取决于具体的调度策略；<br><br>3. 与 `sleep()` 方法的区别在于：`yield()` 让出时间片后，线程会处于就绪状态，如果没有其他可运行的线程，当前线程仍有可能被继续调度执行；而 `sleep()` 会使线程进入`TIMED_WAITING`，不能随即就被调度 |
+
+```
+public class Main {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Runnable runnable1 = new Runnable() {
+            @Override
+            public void run() {
+                Thread.yield();
+                while (true){
+                    System.out.println("----->1");
+                }
+            }
+        };
+        Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    System.out.println("       ----->2");
+                }
+            }
+        };
+
+        Thread myThread1 = new Thread(runnable1, "myThread1");
+
+        Thread myThread2 = new Thread(runnable2, "myThread2");
+        
+        myThread1.start();
+        
+        myThread2.start();
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 该代码在多核处理器上效果可能不明显，但在单核环境中其调度行为将更为明显
+
+---
+
+
+### setPriority(int) 方法
+
+| 方法名              | static | 说明      | 注意事项                                                                                                                                                     |
+| ---------------- | ------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| setPriority(int) |        | 修改线程优先级 | 1. Java 中规定线程优先级为 1~10 之间的整数，数值越大，表示该线程被 CPU 调度的概率越高；<br><br>2. 该优先级仅是建议性提示，是否生效取决于具体的调度策略；<br><br>3. 当 CPU 忙碌时，高优先级线程通常会获得更多时间片；但在 CPU 空闲时，优先级对调度几乎无影响。 |
+```
+public class Main {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Runnable runnable1 = new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    System.out.println("----->1");
+                }
+            }
+        };
+        Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    System.out.println("       ----->2");
+                }
+            }
+        };
+
+        Thread myThread1 = new Thread(runnable1, "myThread1");
+
+        Thread myThread2 = new Thread(runnable2, "myThread2");
+        
+        // 设置线程优先级
+        myThread1.setPriority(Thread.MAX_PRIORITY);
+
+        myThread1.start();
+        
+        myThread2.start();
+    }
+}
+```
+
+----
+
+### join()、join(long) 方法
+
+| 方法名        | static | 说明                 | 注意事项                                                  |
+| ---------- | ------ | ------------------ | ----------------------------------------------------- |
+| join()     |        | 等待线程运行结束           |                                                       |
+| join(long) |        | 等待线程运行结束，最多等待 n 毫秒 | 1. 超时后，代码不再等待，继续向下执行；<br><br>2. 以 毫秒 为单位，1000 毫秒是 1 秒 |
+```
+public class Main {
+    static int repertoryNumber  = 0;
+
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // 模拟从 MySQL 中读取数据，假设独到的是 1500
+                    TimeUnit.MINUTES.sleep(1);
+                    repertoryNumber = 1500;
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
+        Thread myThread = new Thread(runnable, "myThread");
+
+        myThread.start();
+
+        myThread.join();
+
+        System.out.println("从数据库中读取的数据为："+ repertoryNumber);
+    }
+}
+```
+
+----
+
+
+
+
+
+
+
+| 方法名              | static | 说明                                                             | 注意事项                                                                                                                                    |
+| ---------------- | ------ | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| join()           |        | 等待线程运行结束                                                       |                                                                                                                                         |
+| join(long n)     |        | 等待线程运行结束，最多等待 n 毫秒                                             |                                                                                                                                         |
+| start()          |        | 启动一个新线程，在新的线程运行 run 方法中的代码                                     | 1. start 方法只是让线程从初始状态进入就绪状态，里面代码不一定立刻运行（需要CPU 将时间片分配给它）<br><br>2. 每个线程对象的 start 方法只能调用一次（即使线程已终止），如果调用多次会出现 IllegalThreadStateException |
+| sleep(long n)    | static | 让当前执行的线程休眠n 毫秒（从 Running 进入 Timed Waiting），休眠时让出 cpu 的时间片给其它线程 |                                                                                                                                         |
+| yield()          | static | 提示线程调度器让出当前线程对CPU的使用                                           | 主要是为了测试和调试                                                                                                                              |
+| setPriority(int) |        | 修改线程优先级                                                        | java中规定线程优先级是1~10 的整数，较大的优先级能提高该线程被 CPU 调度的机率                                                                                           |
+| getId()          |        | 获取线程长整型的 id                                                    | id 唯一                                                                                                                                   |
+| getName()        |        | 获取线程名                                                          |                                                                                                                                         |
+| setName(String)  |        | 修改线程名                                                          |                                                                                                                                         |
+| getPriority()    |        | 获取线程优先级                                                        |                                                                                                                                         |
+| getState()       |        | 获取线程状态                                                         | Java 中线程状态是用 6 个 enum 表示，分别为：NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED                                                 |
+| isInterrupted()  |        | 判断是否被打断                                                        | 不会清除打断标记                                                                                                                                |
+| isAlive()        |        | 线程是否存活（还没有运行完毕）                                                |                                                                                                                                         |
+| interrupt()      |        | 打断线程                                                           | 如果被打断线程正在 sleep, wait, join 会导致被打断的线程抛出 InterruptedException，并清除打断标记；如果打断的正在运行的线程，则会设置打断标记；park 的线程被打断，也会设置打断标记                         |
+| interrupted()    | static | 判断当前线程是否被打断                                                    | 会清除打断标记                                                                                                                                 |
+| currentThread()  | static | 获取当前正在执行的线程                                                    |                                                                                                                                         |
 
 
 
@@ -350,20 +569,7 @@ public class Main {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+dafd
 
 
 
