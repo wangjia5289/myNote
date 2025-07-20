@@ -1,8 +1,24 @@
 {
   "recentFiles": [
     {
+      "basename": "笔记：Java 数据类型",
+      "path": "source/_posts/笔记：Java 数据类型.md"
+    },
+    {
+      "basename": "笔记：JVM",
+      "path": "source/_posts/笔记：JVM.md"
+    },
+    {
       "basename": "笔记：JUC",
       "path": "source/_posts/笔记：JUC.md"
+    },
+    {
+      "basename": "笔记：阿里云代码规约",
+      "path": "source/_posts/笔记：阿里云代码规约.md"
+    },
+    {
+      "basename": "笔记：AutoHotKey",
+      "path": "source/_posts/笔记：AutoHotKey.md"
     },
     {
       "basename": "笔记：微软输入法",
@@ -101,10 +117,6 @@
       "path": "templates/临时：OAUth.md"
     },
     {
-      "basename": "笔记：Java 数据类型",
-      "path": "source/_posts/笔记：Java 数据类型.md"
-    },
-    {
       "basename": "笔记：分布式 ID",
       "path": "source/_posts/笔记：分布式 ID.md"
     },
@@ -157,10 +169,6 @@
       "path": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md"
     },
     {
-      "basename": "笔记：阿里云代码规约",
-      "path": "source/_posts/笔记：阿里云代码规约.md"
-    },
-    {
       "basename": "笔记：Spring IOC",
       "path": "source/_posts/笔记：Spring IOC.md"
     },
@@ -177,10 +185,6 @@
       "path": "source/_posts/笔记：URL、URI、API.md"
     },
     {
-      "basename": "笔记：JVM",
-      "path": "source/_posts/笔记：JVM.md"
-    },
-    {
       "basename": "question",
       "path": "question.md"
     },
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：本地图库小工具",
       "path": "source/_posts/笔记：本地图库小工具.md"
-    },
-    {
-      "basename": "笔记：Docker 基础",
-      "path": "source/_posts/笔记：Docker 基础.md"
     }
   ],
   "omittedPaths": [],
