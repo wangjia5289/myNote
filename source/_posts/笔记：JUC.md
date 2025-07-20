@@ -946,7 +946,7 @@ Java 中的 `synchronized` 只能实现非公平锁，而 `ReentrantLock` 和 `R
 
 而共享锁是指，在同一时刻，该锁可以被多个线程同时持有，多个线程可以并发访问共享资源（通常是只读操作）。
 
-Java 中的 `synchronized`、`ReentrantLock` 只能实现互斥锁，而 `ReentrantReadWriteLock` 则支持公平锁和非公平锁两种模式。
+Java 中的 `synchronized`、`ReentrantLock` 只能实现互斥锁，而 `ReentrantReadWriteLock` 则支持互斥锁和共享锁两种模式。
 
 ----
 
@@ -1154,17 +1154,6 @@ public class Room {
 #### ReentrantLock
 
 ##### ReentrantLock 与 synchronized 的区别
-ReentrantLock 是个类，而 synchronized 是个关键字，他们都是在 JVM 层面实现互斥锁的，但是如果竞争比较激烈，推荐使用 ReentrantLock，因为 ReentrantLock 可以响应中断，也可以限时等待，也可以非阻塞式获取锁。
-
-ReentrantLock 可以响应中断，而 synchronized 不可以。
-
-ReentrantLock 可以限时等待，而 synchronized 不可以。
-
-ReentrantLock 可以非阻塞式获取锁，而 synchronized 不可以。
-
-ReentrantLock 可以选择公平锁或非公平锁，而 synchronized 只能是非公平锁。
-
-ReentrantLock 可以在多个条件变量上等待，而 synchronized 只能在一个条件变量上等待。
 
 
 
@@ -1602,6 +1591,99 @@ public class PooledJedisClient {
 > 1. `Netty` 好像也能处理这个事情，Redis 就是使用的这个方式，还维护自己的一套nid 线程池？不理解不理解
 
 ----
+
+
+# ----------
+
+
+## 并发编程三大特性
+
+### 原子性
+
+原子性是指，保证指令不会受到线程上下文切换的影响。
+
+----
+
+
+### 可见性
+
+#### 可见性概述
+
+可见性是指，当一个线程修改了共享变量的值，其他线程能够立即知道这个修改，保证指令不会受 cpu 缓存的影响。首先我们来看一个代码：
+```
+static boolean run = true;
+
+public static void main(String[] args) throws InterruptedException {
+    new Thread(() -> {
+        while (run) {
+            // 业务逻辑
+        }
+    }).start();
+
+    Thread.sleep(1000);
+
+    run = false;
+}
+```
+
+按理来说，`run = false` 应该能使线程退出循环，但是实际上，线程并不会立即退出循环，而是会继续执行循环体中的代码。这是因为，`run` 变量被修改后，线程并不知道这个变化，它仍然使用的是旧值，所以会继续执行循环体中的代码。
+
+其实本质原因是，在线程初始化时，会将 `run` 变量的值从主内存复制到线程的工作内存中：
+![](image-20250719223150888.png)
+
+执行一次就要从主内存中读取一次，应为线程频繁从主内存中读取run 的值，JIT 会将 run 变量的值缓存到线程的工作内存中的高速缓存中，避免每次都从主内存中读取，从而提高效率。
+![](image-20250719223516927.png)
+
+这种优化本意是好的，但是也带来了可见性问题：main 线程修改了 `run` 变量的值，并同步至主内存，但是线程并不知道这个变化，它仍然使用的是旧值，所以会继续执行循环体中的代码。
+
+![](image-20250719223757282.png)
+
+---
+
+
+#### 可见性问题解决方案
+
+想解决这个问题其实很简单，我们只需为共享变量添加一个新的修饰符 `volatile`。这个关键字的含义是“易变的”，也就是说，加上 `volatile` 之后，变量的值不能再从线程的本地缓存中读取，而是每次都必须从主内存中读取最新的值。
+```
+static volatile boolean run = true;
+
+public static void main(String[] args) throws InterruptedException {
+    new Thread(() -> {
+        while (run) {
+            // 业务逻辑
+        }
+    }).start();
+
+    Thread.sleep(1000);
+
+    run = false;
+}
+```
+
+虽然这样做在性能上会有一定的损失，但它确保了多个线程之间对共享变量的可见性，也就是说，一个线程修改了变量的值，其他线程能够及时看到这个变化。
+
+> [!NOTE] 注意事项
+> 1. volatile 可以用来修饰成员变量和静态变量，不用用来修饰局部变量
+> 2. 除了加 volatile 之外，还可以使用 synchronized 关键字来确保可见性，因为持有锁的线程会在释放锁之前将所有修改的共享变量同步至主内存中；在获取锁时，会从主内存中重新加载所有与这个锁相关的共享变量
+
+----
+
+
+
+
+
+
+
+
+
+
+
+### 有序性
+
+有序性是指，程序执行的顺序按照代码的先后顺序执行，保证指令不会受 cpu 指令重排的影响。
+
+---
+
 
 
 
