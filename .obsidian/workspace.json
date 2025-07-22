@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：Java 数据类型.md",
+                "file": "source/_posts/笔记：JVM.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：Java 数据类型"
+              "title": "笔记：JVM"
             }
           }
         ],
@@ -276,8 +276,18 @@
   },
   "active": "e3ac610b71fffeba",
   "lastOpenFiles": [
+    "source/_posts/笔记：JVM/image-20250722190040146.png",
+    "source/_posts/笔记：Edraw Max.md",
+    "source/_posts/笔记：Edraw Max/image-20250722184302359.png",
+    "source/_posts/笔记：Edraw Max/image-20250722184234036.png",
+    "source/_posts/笔记：Edraw Max",
     "source/_posts/笔记：JVM.md",
+    "Todo 看板.md",
+    "source/_posts/笔记：JVM/提高图片清晰度 (1).png",
+    "source/_posts/笔记：JVM/提高图片清晰度.png",
     "source/_posts/笔记：JUC.md",
+    "source/_posts/笔记：JVM/image-20250720222834054.png",
+    "source/_posts/笔记：Java 数据类型.md",
     "source/_posts/笔记：阿里云代码规约.md",
     "source/_posts/笔记：AutoHotKey.md",
     "source/_posts/笔记：AutoHotKey/image-20250720134431254.png",
@@ -287,14 +297,8 @@
     "source/_posts/笔记：JUC/image-20250719223516927.png",
     "source/_posts/笔记：JUC/image-20250719223150888.png",
     "source/_posts/笔记：微软输入法.md",
-    "source/_posts/笔记：JUC/image-20250719194006784.png",
-    "source/_posts/笔记：JUC/image-20250719183232957.png",
-    "source/_posts/笔记：JUC/image-20250719181758906.png",
-    "source/_posts/笔记：JUC/image-20250719102443800.png",
-    "source/_posts/笔记：JUC/image-20250719101521799.png",
     "source/_posts/笔记：Java 异常处理.md",
     "node_modules/is-windows/README.md",
-    "Todo 看板.md",
     "source/_posts/笔记：MySQL 基础.md",
     "source/_posts/笔记：Windows.md",
     "source/_posts/笔记：Minio 工具.md",
@@ -315,13 +319,9 @@
     "templates/临时：mybatis.md",
     "source/_posts/笔记：Spring Authorization Server.md",
     "Categories.md",
-    "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
-    "source/_posts/笔记：Spring Security.md",
-    "templates/临时：OAUth.md",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.zCdzDX",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.ghpIGZ",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.LJSHkK",
-    "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.yELxfp",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]

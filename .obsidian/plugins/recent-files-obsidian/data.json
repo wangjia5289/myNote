@@ -1,16 +1,24 @@
 {
   "recentFiles": [
     {
-      "basename": "笔记：Java 数据类型",
-      "path": "source/_posts/笔记：Java 数据类型.md"
-    },
-    {
       "basename": "笔记：JVM",
       "path": "source/_posts/笔记：JVM.md"
     },
     {
+      "basename": "笔记：Edraw Max",
+      "path": "source/_posts/笔记：Edraw Max.md"
+    },
+    {
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
+    },
+    {
       "basename": "笔记：JUC",
       "path": "source/_posts/笔记：JUC.md"
+    },
+    {
+      "basename": "笔记：Java 数据类型",
+      "path": "source/_posts/笔记：Java 数据类型.md"
     },
     {
       "basename": "笔记：阿里云代码规约",
@@ -43,10 +51,6 @@
     {
       "basename": "README",
       "path": "node_modules/is-windows/README.md"
-    },
-    {
-      "basename": "Todo 看板",
-      "path": "Todo 看板.md"
     },
     {
       "basename": "笔记：MySQL 基础",
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：一键启动 WLAN 小工具",
       "path": "source/_posts/笔记：一键启动 WLAN 小工具.md"
-    },
-    {
-      "basename": "笔记：本地图库小工具",
-      "path": "source/_posts/笔记：本地图库小工具.md"
     }
   ],
   "omittedPaths": [],
