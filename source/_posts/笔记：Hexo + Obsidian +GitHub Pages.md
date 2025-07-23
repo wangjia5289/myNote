@@ -218,17 +218,20 @@ deploy:
 ### 4.4. Hexo 项目推送到 GitHub Pages
 
 ```
-# 1. 清除缓存和生成的静态文件
+# 1. 清除现存的Hexo的静态文件
 hexo clean
 
-# 2. 根据当前的配置和文章，生成静态网页文件
+
+# 2. 生成新的 Hexo 静态文件
 hexo g
 
-# 3. 将生成的静态网页发布到指定的 Page
-hexo d
 
-# 4. 补充：启动本地服务器，预览生成的网页效果，便于本地调试（http:localhost:4000）
+# 3. 启动本地服务器，预览生成的网页效果，便于本地调试
 hexo s
+
+
+# 4. 将 Hexo 项目推送到 GitHub Pages
+hexo d
 ```
 
 ---

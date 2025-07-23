@@ -1,17 +1,18 @@
 <%
-var separator = theme.title_join_string || theme.tab_title_separator
-var title = page.title ? [page.title, config.title].join(separator) : config.title
-var keywords = page.keywords || config.keywords
+let separator = theme.title_join_string || theme.tab_title_separator
+let title = page.title ? [page.title, config.title].join(separator) : config.title
+let keywords = page.keywords || config.keywords
 if (keywords instanceof Array) {
   keywords = keywords.join(',')
 }
-var description = page.description || page.excerpt || (is_post() && page.content) || config.description
+let description = page.description || page.excerpt || (is_post() && page.content) || config.description
 if (description) {
   description = strip_html(description).substring(0, 200).trim().replace(/\n/g, ' ')
 }
-var ogImage = page.og_img || page.index_img
-var ogConfig = Object.assign({ image: ogImage && url_for(ogImage) }, theme.open_graph)
+let ogImage = page.og_img || page.index_img
+let ogConfig = Object.assign({ image: ogImage && url_for(ogImage) }, theme.open_graph)
 %>
+
 
 <head>
   <meta charset="UTF-8">
@@ -39,9 +40,9 @@ var ogConfig = Object.assign({ image: ogImage && url_for(ogImage) }, theme.open_
     || (theme.footer.statistics.enable && theme.footer.statistics.source === 'busuanzi')) { %>
     <meta name="referrer" content="no-referrer-when-downgrade">
   <% } %>
-  <% if (theme.custom_head) { %>
-    <%- theme.custom_head %>
-  <% } %>
+  <% /* if (theme.custom_head) {
+    - theme.custom_head
+  } */ %>
   <title><%= title %></title>
 
   <%- partial('_partials/css.ejs') %>

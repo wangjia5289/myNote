@@ -1,16 +1,88 @@
 {
   "recentFiles": [
     {
+      "basename": "笔记：JVM",
+      "path": "source/_posts/笔记：JVM.md"
+    },
+    {
+      "basename": "笔记：Java 数据类型",
+      "path": "source/_posts/笔记：Java 数据类型.md"
+    },
+    {
+      "basename": "笔记：本地图库小工具",
+      "path": "source/_posts/笔记：本地图库小工具.md"
+    },
+    {
       "basename": "笔记：Hexo + Obsidian +GitHub Pages",
       "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages.md"
+    },
+    {
+      "basename": "README",
+      "path": "node_modules/hexo-deployer-git/node_modules/hexo-util/README.md"
+    },
+    {
+      "basename": "笔记：Markdown 图片路径修复小工具",
+      "path": "source/_posts/笔记：Markdown 图片路径修复小工具.md"
     },
     {
       "basename": "笔记：Git 家族",
       "path": "source/_posts/笔记：Git 家族.md"
     },
     {
-      "basename": "笔记：JVM",
-      "path": "source/_posts/笔记：JVM.md"
+      "basename": "image-20250310173524507",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310173524507.png"
+    },
+    {
+      "basename": "image-20250310172731797",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310172731797.png"
+    },
+    {
+      "basename": "image-20250310172624881",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310172624881.png"
+    },
+    {
+      "basename": "image-20250310172338749",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310172338749.png"
+    },
+    {
+      "basename": "image-20250310172043190",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310172043190.png"
+    },
+    {
+      "basename": "image-20250310171951376",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171951376.png"
+    },
+    {
+      "basename": "image-20250310171948799",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171948799.png"
+    },
+    {
+      "basename": "image-20250310171902656",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171902656.png"
+    },
+    {
+      "basename": "image-20250310171747324",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171747324.png"
+    },
+    {
+      "basename": "image-20250310171539936",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171539936.png"
+    },
+    {
+      "basename": "image-20250310171208901",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171208901.png"
+    },
+    {
+      "basename": "image-20250310171119367",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171119367.png"
+    },
+    {
+      "basename": "image-20250310164200172",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310164200172.png"
+    },
+    {
+      "basename": "image-20250310162727945",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310162727945.png"
     },
     {
       "basename": "笔记：JUC",
@@ -23,10 +95,6 @@
     {
       "basename": "Todo 看板",
       "path": "Todo 看板.md"
-    },
-    {
-      "basename": "笔记：Java 数据类型",
-      "path": "source/_posts/笔记：Java 数据类型.md"
     },
     {
       "basename": "笔记：阿里云代码规约",
@@ -131,74 +199,6 @@
     {
       "basename": "笔记：分布式 ID",
       "path": "source/_posts/笔记：分布式 ID.md"
-    },
-    {
-      "basename": "笔记：OAuth 协议",
-      "path": "source/_posts/笔记：OAuth 协议.md"
-    },
-    {
-      "basename": "笔记：Spring Boot",
-      "path": "source/_posts/笔记：Spring Boot.md"
-    },
-    {
-      "basename": "笔记：奶块攻略",
-      "path": "source/_posts/笔记：奶块攻略.md"
-    },
-    {
-      "basename": "image-20250616164438024",
-      "path": "templates/临时：es/image-20250616164438024.png"
-    },
-    {
-      "basename": "image-20250616163426285",
-      "path": "templates/临时：es/image-20250616163426285.png"
-    },
-    {
-      "basename": "image-20250616103159416",
-      "path": "templates/临时：es/image-20250616103159416.png"
-    },
-    {
-      "basename": "image-20250616102927998",
-      "path": "templates/临时：es/image-20250616102927998.png"
-    },
-    {
-      "basename": "image-20250616100102548",
-      "path": "templates/临时：es/image-20250616100102548.png"
-    },
-    {
-      "basename": "image-20250615155650857",
-      "path": "templates/临时：es/image-20250615155650857.png"
-    },
-    {
-      "basename": "ES基础---数据分布",
-      "path": "templates/临时：es/ES基础---数据分布.svg"
-    },
-    {
-      "basename": "笔记：Java 项目创建和结构",
-      "path": "source/_posts/笔记：Java 项目创建和结构.md"
-    },
-    {
-      "basename": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC",
-      "path": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md"
-    },
-    {
-      "basename": "笔记：Spring IOC",
-      "path": "source/_posts/笔记：Spring IOC.md"
-    },
-    {
-      "basename": "笔记：HttpClient",
-      "path": "source/_posts/笔记：HttpClient.md"
-    },
-    {
-      "basename": "笔记：Java 文档",
-      "path": "source/_posts/笔记：Java 文档.md"
-    },
-    {
-      "basename": "笔记：URL、URI、API",
-      "path": "source/_posts/笔记：URL、URI、API.md"
-    },
-    {
-      "basename": "question",
-      "path": "question.md"
     }
   ],
   "omittedPaths": [],

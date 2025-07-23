@@ -8,31 +8,31 @@
         "type": "tabs",
         "children": [
           {
-            "id": "0aff271663937b25",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "笔记：Hexo + Obsidian +GitHub Pages"
-            }
-          },
-          {
             "id": "e3ac610b71fffeba",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：Git 家族.md",
+                "file": "source/_posts/笔记：JVM.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：Git 家族"
+              "title": "笔记：JVM"
+            }
+          },
+          {
+            "id": "dea70bfab16ec9de",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "source/_posts/笔记：Java 数据类型.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "笔记：Java 数据类型"
             }
           }
         ]
@@ -111,7 +111,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 313.5041847229004
+    "width": 313.5041847229004,
+    "collapsed": true
   },
   "right": {
     "id": "0803248b5c8c75de",
@@ -272,28 +273,31 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "0aff271663937b25",
+  "active": "e3ac610b71fffeba",
   "lastOpenFiles": [
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722231904464.png",
-    "source/_posts/笔记：Git 家族.md",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages.md",
+    "source/_posts/笔记：JVM/image-20250723180737908.png",
+    "source/_posts/笔记：JVM/image-20250723180724466.png",
+    "source/_posts/笔记：JVM/image-20250723180709989.png",
+    "source/_posts/笔记：JVM/image-20250723180621968.png",
+    "source/_posts/笔记：JVM/image-20250723180532258.png",
+    "source/_posts/笔记：JVM/image-20250723180343374.png",
+    "source/_posts/笔记：JVM/image-20250723180252011.png",
+    "source/_posts/笔记：JVM/image-20250723180216377.png",
+    "source/_posts/笔记：JVM/image-20250723180139005.png",
+    "source/_posts/笔记：JVM/image-20250723180026214.png",
+    "source/_posts/笔记：JVM/PixPin_2025-07-23_17-51-24.png",
+    "source/_posts/笔记：Java 数据类型.md",
     "source/_posts/笔记：JVM.md",
+    "source/_posts/笔记：本地图库小工具.md",
+    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages.md",
+    "node_modules/hexo-deployer-git/node_modules/hexo-util/README.md",
+    "source/_posts/笔记：Markdown 图片路径修复小工具.md",
+    "source/_posts/笔记：Git 家族.md",
     "source/_posts/笔记：Hexo + Obsidian +GitHub Pages",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722225727860.png",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722225302802.png",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722221831285.png",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722221726737.png",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722221633784.png",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722221458392.png",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722221155776.png",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722220832053.png",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722220723829.png",
-    "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250722220538295.png",
     "source/_posts/笔记：JUC.md",
     "source/_posts/笔记：Edraw Max.md",
     "source/_posts/笔记：Edraw Max",
     "Todo 看板.md",
-    "source/_posts/笔记：Java 数据类型.md",
     "source/_posts/笔记：阿里云代码规约.md",
     "source/_posts/笔记：AutoHotKey.md",
     "source/_posts/笔记：AutoHotKey",
@@ -313,11 +317,8 @@
     "source/_posts/笔记：Spring 整合 Minio.md",
     "source/_posts/笔记：Minio 基础.md",
     "source/_posts/笔记：搭建 Minio 环境.md",
-    "source/_posts/笔记：Linux.md",
     "source/_posts/笔记：搭建 Minio 环境",
     "source/_posts/笔记：Minio 工具",
-    "source/_posts/未命名看板.md",
-    "templates/临时：mybatis.md",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.zCdzDX",
     "Edraw/Spring Authorization Server --- 客户端应用相关 MySQL 表 --- ER 图.eddx.ghpIGZ",
     "未命名.canvas",
