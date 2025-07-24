@@ -64,7 +64,7 @@ npm install
 
 <font color="#92d050">2. 配置 Hexo 元数据</font>
 在系统 `myNote/_config.yml` 文件中配置元数据：
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310173524507.png)
+![](image-20250310173524507.png)
 
 ---
 
@@ -191,7 +191,7 @@ git config --global http.proxy 127.0.0.1:7890
 ### 4.2. 创建 GitHub Pages
 
 首先，登录 GitHub 并创建一个名为 `<your_id>.github.io` 的仓库，并确保将其设置为 Public（公开）
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310162727945.png)
+![](image-20250310162727945.png)
 
 ---
 
@@ -248,7 +248,7 @@ hexo d
 
 <font color="#92d050">1. 创建 GitHub Repository</font>
 我们额外创建一个名为 `myNote`（名称可自定义）的仓库，并确保将其设置为 Private（私有）用于备份所有文件，以防数据丢失
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310164200172.png)
+![](image-20250310164200172.png)
 
 
 <font color="#92d050">2. 依次运行命令</font>
@@ -295,10 +295,10 @@ git push -u origin main
 在Hexo中，为确保每篇文章都能以预设格式和样式展示，通常需要在文章头部设置特定的属性。然而，手动设置这些属性对于每一次撰写新文章来说可能显得繁琐。为简化这一过程，可以创建一个模板。这样，每次撰写新文章时，只需导入该模板，即可自动包含所需的默认属性设置。
 
 <font color="#92d050">1. 创建模版</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310171119367.png)
+![](image-20250310171119367.png)
 
 <font color="#92d050">2. 设置模版</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310171208901.png)
+![](image-20250310171208901.png)
 
 > [!NOTE] 注意事项：Hexo 页面加锁
 ```
@@ -316,15 +316,15 @@ password: xxxxxx
 ### 6.2. Custom Attachment Location 插件
 
 <font color="#92d050">1. 修改 Obsidian 配置</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310171539936.png)
+![](image-20250310171539936.png)
 
 
 <font color="#92d050">2. 安装 Custom Attachment Location 插件</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310171747324.png)
+![](image-20250310171747324.png)
 
 
 <font color="#92d050">3. 进行插件配置</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310171902656.png)
+![](image-20250310171902656.png)
 
 
 <font color="#92d050">4. 进行 myNote/config.yml 配置</font>
@@ -345,11 +345,11 @@ marked:
 ### 6.3. File Explorer++ 插件
 
 <font color="#92d050">1. 安装 File Explorer++ 插件</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310171951376.png)
+![](image-20250310171951376.png)
 
 
 <font color="#92d050">2. 进行插件配置</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310172043190.png)
+![](image-20250310172043190.png)
 
 ---
 
@@ -357,15 +357,15 @@ marked:
 ### 6.4. Git 插件
 
 <font color="#92d050">1. 安装 Git 插件</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310172338749.png)
+![](image-20250310172338749.png)
 
 
 <font color="#92d050">2. 配置插件</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310172624881.png)
+![](image-20250310172624881.png)
 
 
 <font color="#92d050">3. 手动实现推送到 Repository</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310172731797.png)
+![](image-20250310172731797.png)
 
 ---
 
@@ -373,15 +373,15 @@ marked:
 ## 7. Page 与域名绑定（可选）
 
 <font color="#92d050">1. 登录 GitHub，在您的 id.github.io 项目中，通过 Settings选项进行域名配置</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310175254198.png)
+![](image-20250310175254198.png)
 
 
 <font color="#92d050">2. 在 public 文件夹下创建一个名为 CNAME 的文件，并在其中保存您希望绑定的域名</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310174709288.png)
+![](image-20250310174709288.png)
 
 
 <font color="#92d050">3. 为域名添加 CNAME 记录并指向 id.github.io</font>
-![](source/_posts/笔记：Hexo%20+%20Obsidian%20+GitHub%20Pages/image-20250310174924876.png)
+![](image-20250310174924876.png)
 
 ---
 

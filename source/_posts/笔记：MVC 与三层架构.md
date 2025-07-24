@@ -20,7 +20,7 @@ MVC（Model-View-Controller）是一种常用的软件设计模式，通过将�
     2. <font color="#00b0f0">过滤器（Filter）</font>：在请求到达控制器之前进行预处理，如身份验证或日志记录。
     3. <font color="#00b0f0">监听器（Listener）</font>：监控应用程序或请求生命周期中的事件，如上下文初始化、销毁等。
 
-![](source/_posts/笔记：MVC%20与三层架构/image-20250411213131995.png)
+![](image-20250411213131995.png)
 
 > [!NOTE] 注意事项
 > 1. Service 接口本身不需要添加 `@Service`，只需要在 ServiceImpl 上添加

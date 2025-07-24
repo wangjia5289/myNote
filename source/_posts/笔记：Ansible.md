@@ -17,7 +17,7 @@ Ansible 是一款强大的自动化运维工具，提供配置管理、应用部
 
 ### 2. 环境准备
 
-完成 Ubuntu 操作系统的安装和基本配置见：[Ubuntu 操作系统的安装和基本配置](https://blog.wangjia.xin/2025/03/15/%E7%AC%94%E8%AE%B0%EF%BC%9ALinux/)
+完成 Ubuntu 操作系统的安装和基本配置见：[Ubuntu 操作系统的安装和基本配置](https://blog.wangjia.xin/2025/03/15/笔记：Linux/)
 
 ---
 

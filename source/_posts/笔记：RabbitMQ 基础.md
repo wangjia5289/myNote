@@ -23,7 +23,7 @@ layout: post
 
 
 
-![](source/_posts/笔记：RabbitMQ%20基础/PixPin_2025-05-09_15-09-55.png)
+![](source/_posts/笔记：RabbitMQ 基础/PixPin_2025-05-09_15-09-55.png)
 
 | 特性    | RabbitMQ   | Kafka          | RocketMQ               | ActiveMQ       |
 | ----- | ---------- | -------------- | ---------------------- | -------------- |
@@ -63,7 +63,7 @@ rabbitmq:3.13-management
 #### 1.2. 访问 RabbitMQ 控制台
 
 访问 RabbitMQ 控制台： http://192.168.136.7:15672
-![](source/_posts/笔记：RabbitMQ%20基础/image-20250510173743688.png)
+![](image-20250510173743688.png)
 
 ---
 
@@ -160,10 +160,10 @@ sudo rm /etc/apt/sources.list.d/erlang.list \
 ```
 
 然后进行 RabbitMQ 的安装：
-![](source/_posts/笔记：RabbitMQ%20基础/image-20250513090533397.png)
+![](image-20250513090533397.png)
 
 以下情况，无需在意，实际上它已经创建了主目录：
-![](source/_posts/笔记：RabbitMQ%20基础/image-20250513100716597.png)
+![](image-20250513100716597.png)
 
 ---
 
@@ -346,10 +346,10 @@ rabbitmqctl cluster_status
 #### 0.1. 虚拟空间
 
 
-![](source/_posts/笔记：RabbitMQ%20基础/image-20250511112907036.png)
+![](image-20250511112907036.png)
 
 
-![](source/_posts/笔记：RabbitMQ%20基础/image-20250511112921622.png)
+![](image-20250511112921622.png)
 
 
 
@@ -383,19 +383,15 @@ queue.direct.order.backup
 
 
 这个能直接发布信息
-![](source/_posts/笔记：Spring%20Data%20RabbitMQ/image-20250510215227990.png)
+![](image-20250510215227990.png)
 
 
 对这个图
-![](source/_posts/笔记：Spring%20Data%20RabbitMQ/image-20250510215558278.png)
+![](image-20250510215558278.png)
 
 
 
-![](source/_posts/笔记：Spring%20Data%20RabbitMQ/image-20250510220812312.png)
-
-
-
-
+![](image-20250510220812312.png)
 
 
 
@@ -404,7 +400,11 @@ queue.direct.order.backup
 
 
 
-![](source/_posts/笔记：RabbitMQ%20基础/image-20250510194722644.png)
+
+
+
+
+![](image-20250510194722644.png)
 
 
 
@@ -469,7 +469,7 @@ sudo apt update && sudo apt install erlang -y
 #### 1.1. 访问方式
 
 当我们部署完 RabbitMQ 后，可以访问服务器节点： http://192.168.136.7:15672
-![](source/_posts/笔记：RabbitMQ%20基础/image-20250510173743688.png)
+![](image-20250510173743688.png)
 
 ---
 
@@ -494,7 +494,7 @@ sudo apt update && sudo apt install erlang -y
 
 
 
-![](source/_posts/笔记：Spring%20Data%20RabbitMQ/image-20250511104732641.png)
+![](image-20250511104732641.png)
 
 
 

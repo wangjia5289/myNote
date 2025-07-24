@@ -1105,7 +1105,7 @@ OIDC 在 OAuth 2.0 的基础上，通过引入身份认证流程（`id_token`）
 
 ## 1. 导图
 
-![](source/_posts/笔记：OAuth%20协议/Map：OAuth%20协议.xmind)
+![](source/_posts/笔记：OAuth 协议/Map：OAuth 协议.xmind)
 
 ---
 ## 2. OAuth2 协议
@@ -1415,7 +1415,7 @@ GET https://github.com/login?
     client_id=5a179b878a9f6ac42acd
     &return_to=/login/oauth/authorize?
         client_id=5a179b878a9f6ac42acd
-        &redirect_uri=https%3A%2F%2Fgitee.com%2Fauth%2Fgithub%2Fcallback
+        &redirect_uri=https://gitee.com/auth/github/callback
         &response_type=code
         &scope=user
         &state=81fda4a8066fb1ea3310d3bf577ece61a8e0286c03f82c91

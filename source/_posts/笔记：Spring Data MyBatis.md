@@ -1592,7 +1592,7 @@ public interface CarMapper {
 ### 6. 常用连接池
 
 Spring Boot MyBatis 默认使用 HikariCP 作为连接池，因为其性能最高，关于连接池的配置我们都能在其 README 或文档中找到：
-1. Druid：[Druid 官方文档](https://github.com/alibaba/druid/wiki/DruidDataSource%E9%85%8D%E7%BD%AE%E5%B1%9E%E6%80%A7%E5%88%97%E8%A1%A8) 
+1. Druid：[Druid 官方文档](https://github.com/alibaba/druid/wiki/DruidDataSource配置属性列表) 
 2. HikariCP：[HikariCP 官方文档](https://github.com/brettwooldridge/HikariCP?tab=readme-ov-file)
 3. C3P0：[C3P0 官方文档](https://github.com/swaldman/c3p0)
 4. Spring Boot 配置连接池：[Spring Boot 中配置连接池的属性](https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.actuator)

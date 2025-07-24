@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/about/index.md",
+                "file": "source/_posts/笔记：Spring Aop.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "笔记：Spring Aop"
             }
           }
         ]
@@ -260,6 +260,7 @@
   },
   "active": "e3ac610b71fffeba",
   "lastOpenFiles": [
+    "source/about/index.md",
     "public/img/archive.png",
     "public/img/404.png",
     "public/img/index.png",
@@ -280,7 +281,6 @@
     "public/live2dw/assets/moc/shizuku.1024/texture_03.png",
     "public/live2dw/assets/moc/shizuku.1024/texture_01.png",
     "public/live2dw/assets/moc/shizuku.1024/texture_02.png",
-    "public/live2dw/assets/moc/shizuku.1024/texture_00.png",
     "source/_posts/笔记：JVM.md",
     "templates/redis 临时.md",
     "templates/NFS 挂载参数.md",

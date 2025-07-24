@@ -20,7 +20,7 @@ layout: post
 
 #### 1.1、模型图
 
-![](source/_posts/笔记：Spring%20Aop/image-20250311102729843.png)
+![](image-20250311102729843.png)
 
 ---
 
@@ -159,7 +159,7 @@ public class LoggingAspect {
 
 ###### 2.5.4.2、切点表达式书写方法
 
-![](source/_posts/笔记：Spring%20Aop/image-20250311103200725.png)
+![](image-20250311103200725.png)
 
 ----
 
@@ -254,7 +254,7 @@ public void logBefore(JoinPoint joinPoint) {
 
 
 ###### 2.5.5.3、通知的顺序
-![](source/_posts/笔记：Spring%20Aop/image-20250311103243112.png)
+![](image-20250311103243112.png)
 
 ---
 

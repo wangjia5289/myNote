@@ -1185,7 +1185,7 @@ tolerations:
 
 
 #### 9.7. 补充：Node 节点“自污
-![](source/_posts/笔记：K8s/image-20250324091041496.png)
+![](image-20250324091041496.png)
 
 ---
 
@@ -1473,7 +1473,7 @@ strictARP: false  -> strictARP: true
 # 3. 重启 Kube-proxy pod
 kubectl rollout restart daemonset -n kube-system kube-proxy
 ```
-![](source/_posts/笔记：K8s/image-20250404155459306.png)
+![](image-20250404155459306.png)
 
 
 ==2.安装 MetalLB==
@@ -1645,7 +1645,7 @@ curl http://<VIP>:<service-port>
 ```
 kubectl get service <service-name> -n namespace
 ```
-![](source/_posts/笔记：K8s/image-20250404145519072.png)
+![](image-20250404145519072.png)
 1. ==Cluster-IP==：
 	1. 可以理解为 `Service IP`，它不是某个具体主机的物理 IP，而是由 Kubernetes 提供的虚拟 IP。
 2. ==EXTERNAL-IP==：
@@ -1867,7 +1867,7 @@ spec:
 
 ##### 11.4.1. NFS 环境搭建
 
-NFS 环境搭建见：[Categories/数据管理/NFS](https://blog.wangjia.xin/2025/03/22/%E7%AC%94%E8%AE%B0%EF%BC%9ANFS/)
+NFS 环境搭建见：[Categories/数据管理/NFS](https://blog.wangjia.xin/2025/03/22/笔记：NFS/)
 
 ---
 
@@ -1904,7 +1904,7 @@ spec:
 
 ###### 11.5.1.1. 所有节点安装 NFS 客户端
 
-安装 NFS 客户端见：[Categories/数据管理/NFS](https://blog.wangjia.xin/2025/03/22/%E7%AC%94%E8%AE%B0%EF%BC%9ANFS/)
+安装 NFS 客户端见：[Categories/数据管理/NFS](https://blog.wangjia.xin/2025/03/22/笔记：NFS/)
 
 ---
 
@@ -3817,7 +3817,7 @@ sudo vim /etc/containerd/config.toml
 sudo systemctl restart containerd && sudo systemctl enable containerd
 ```
 
-![](source/_posts/笔记：K8s/image-20250402174618934.png)
+![](image-20250402174618934.png)
 > [!NOTE] 注意事项
 > 1. 如果镜像的源 不是 `docker.io`，那么你在 `containerd` 里配置的 `docker.io` 加速镜像是 **无效** 的。
 

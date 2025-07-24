@@ -13,7 +13,7 @@ layout: post
 
 ## 1. 导图
 
-![](Map：SpringAuthorizationServer%201.xmind)
+![](Map：SpringAuthorizationServer 1.xmind)
 
 ---
 

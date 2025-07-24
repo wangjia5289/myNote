@@ -14,7 +14,7 @@ layout: post
 
 
 ### 1、框架发展史
-![](source/_posts/笔记：Java%20日志记录/image-20250311223318675.png)
+![](image-20250311223318675.png)
 
 ---
 
@@ -30,7 +30,7 @@ JUL 全称 Java Util Logging，是 JDK 内置的日志记录框架，使用时�
 
 #### 2.2、JUL 组件介绍
 
-![|500](source/_posts/笔记：Java%20日志记录/image-20250311134645238.png)
+![|500](source/_posts/笔记：Java 日志记录/image-20250311134645238.png)
 
 1. <font color="#00b0f0">Logger</font>：
 	1. Logger（记录器）是日志框架的入口，我们通过调用 `Logger.getLogger(String name)` 获取 Logger 实例，并调用其方法记录日志信息。
@@ -379,7 +379,7 @@ Log4J2 支持以下日志级别：
 
 
 无需担心 SLF4J 日志门面框架只有五个标准级别的限制。在配置层面，我们依然可以灵活设置日志级别，这是因为适配器在 SLF4J 和 Log4j2 之间建立了一套完整的映射关系。映射关系大致如下：
-![](source/_posts/笔记：Java%20日志记录/image-20250312195258282.png)
+![](image-20250312195258282.png)
 
 
 ---

@@ -1,6 +1,10 @@
 {
   "recentFiles": [
     {
+      "basename": "笔记：Spring Aop",
+      "path": "source/_posts/笔记：Spring Aop.md"
+    },
+    {
       "basename": "index",
       "path": "source/about/index.md"
     },
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：Minio 基础",
       "path": "source/_posts/笔记：Minio 基础.md"
-    },
-    {
-      "basename": "笔记：搭建 Minio 环境",
-      "path": "source/_posts/笔记：搭建 Minio 环境.md"
     }
   ],
   "omittedPaths": [],

@@ -11,7 +11,7 @@ layout: post
 ---
 ## 导图
 
-![](source/_posts/笔记：分布式%20ID/Map：分布式%20ID.xmind)
+![](source/_posts/笔记：分布式 ID/Map：分布式 ID.xmind)
 
 ----
 

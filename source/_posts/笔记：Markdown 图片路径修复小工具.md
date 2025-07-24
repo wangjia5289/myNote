@@ -23,13 +23,13 @@ def process_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # 匹配 ![](source/_posts/xxx/image-xxx.png)
+    # 匹配 ![](image-xxx.png)
     pattern = r'!\[\]\(source/_posts/[^)]*?/((image-[^)]*?))\)'
 
     # 替换为 ![](image-xxx.png)
     new_content = re.sub(pattern, r'![](\1)', content)
 
-    # 解码 %20 为 空格 等
+    # 解码   为 空格 等
     new_content = urllib.parse.unquote(new_content)
 
     if content != new_content:

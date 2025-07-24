@@ -26,14 +26,14 @@ Docker 致力于以下三个方面：
 3. **方便部署和迁移**
 	- 通过 Docker，你可以把应用快速部署到任何支持 Docker 的服务器或云平台上，而无需关心底层环境的差异。
 
-![](source/_posts/笔记：Docker%20基础/image-20250313103856946.png)
+![](image-20250313103856946.png)
 
 ---
 
 
 ### 3. Docker 核心组件图
 
-![](source/_posts/笔记：Docker%20基础/image-20250313090125273.png)
+![](image-20250313090125273.png)
 
 ---
 
@@ -233,7 +233,7 @@ docker images zookeeper
 # 3. 仅显示镜像 ID（常用于一键删除所有镜像）
 docker images -q
 ```
-![](source/_posts/笔记：Docker%20基础/image-20250313102408127.png)
+![](image-20250313102408127.png)
 1. ==REPOSITORY==：
 	1. 镜像的名称
 2. ==TAG==：
@@ -257,7 +257,7 @@ docker search nginx
 
 # 3. 直接上其他镜像仓库搜索（例如阿里云）
 ```
-![](source/_posts/笔记：Docker%20基础/image-20250313102619922.png)
+![](image-20250313102619922.png)
 
 > [!NOTE] 注意事项：上官网搜索的好处
 > 1. 当我们可以查看某镜像特定版本还可以查阅相关文档
@@ -618,14 +618,14 @@ git push -u origin main
 
 ==4.阿里云创建镜像仓库==
 在创建镜像仓库时，将其与我们之前创建的 GitHub 仓库进行关联。
-![](source/_posts/笔记：Docker%20基础/image-20250406135036107.png)
+![](image-20250406135036107.png)
 
 
 ==5.添加构建规则==
-![](source/_posts/笔记：Docker%20基础/image-20250406140638445.png)
+![](image-20250406140638445.png)
 
 ==6.编辑构建规则==
-![](source/_posts/笔记：Docker%20基础/image-20250406140437388.png)
+![](image-20250406140437388.png)
 
 
 ### 6. Docker Container（容器）
@@ -635,7 +635,7 @@ git push -u origin main
 Docker Container 就是从镜像启动的“运行实例”，它是一个独立的小盒子，应用就在里面跑，可以理解为一个大 Linux 系统中的小 Linux 系统。容器可以随时启动、停止、销 毁，互不干扰。
 
 <font color="#ff0000">Docker 官方推荐一个容器运行一个程序</font>，这样可以保持容器的简单性和高效性
-![](source/_posts/笔记：Docker%20基础/image-20250313103856946.png)
+![](image-20250313103856946.png)
 
 ---
 
@@ -663,7 +663,7 @@ docker inspect <container-id> / <container-name>
 # 5. 查看容器日志
 docker logs <container-id> / <container-name> 
 ```
-![](source/_posts/笔记：Docker%20基础/image-20250313104542342.png)
+![](image-20250313104542342.png)
 1. ==CONTAINER ID==：
 	1. 容器的唯一 ID（截断版，前12位，后续引用时可简写，只要能唯一区分）
 2. ==IMAGE==：

@@ -13,7 +13,7 @@ layout: post
 
 ## 1. 导图
 
-![](source/_posts/笔记：Spring%20Security/Map：SpringSecurity.xmind)
+![](source/_posts/笔记：Spring Security/Map：SpringSecurity.xmind)
 
 ---
 

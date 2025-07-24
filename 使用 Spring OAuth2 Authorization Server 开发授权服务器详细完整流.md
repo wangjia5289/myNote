@@ -1,4 +1,4 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" class="logo" width="120"/>
+<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark@2x.png" class="logo" width="120"/>
 
 # 使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流程（基于 JWT + PKCE + OIDC）
 

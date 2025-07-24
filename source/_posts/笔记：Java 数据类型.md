@@ -19,7 +19,7 @@ layout: post
 > 	2. 同时我么也也可以删除自动生成的 equals、hashCode、toString 方法，改为使用 IDEA 生成
 ## 导图
 
-![](source/_posts/笔记：Java%20数据类型/Map：Java数据类型.xmind)
+![](source/_posts/笔记：Java 数据类型/Map：Java数据类型.xmind)
 
 -----
 
@@ -207,7 +207,7 @@ String[] names = {"Tom", "Jerry", "Spike"};
 
 ##### 4.5.1. 集合框架一览图
 
-![](mermaid-202556%20182836.png)
+![](mermaid-202556 182836.png)
 
 ----
 
@@ -616,7 +616,7 @@ com.example.project
 
 ### 1. MySQL 数据类型
 
-![](source/_posts/笔记：数据类型和传参/image-20250412122816030.png)
+![](image-20250412122816030.png)
 
 
 

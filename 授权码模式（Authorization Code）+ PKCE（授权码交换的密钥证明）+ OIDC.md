@@ -1,4 +1,4 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" class="logo" width="120"/>
+<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark@2x.png" class="logo" width="120"/>
 
 # 授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC（身份认证协议）详细流程
 

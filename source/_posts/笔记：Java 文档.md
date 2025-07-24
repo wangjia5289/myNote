@@ -13,7 +13,7 @@ layout: post
 
 ## 1. 导图
 
-![](source/_posts/笔记：Java%20文档/Map：Java%20文档.xmind)
+![](source/_posts/笔记：Java 文档/Map：Java 文档.xmind)
 
 ----
 
@@ -200,9 +200,9 @@ springdoc:
 > [!NOTE] 注意事项
 > 1. 如果想下载 JSON 格式的文档，可以在 IDEA 中下载插件 `OpenAPI Specifications`，点击模块的右键 `Export OpenAPI` 导出 JSON 类型的 API 文档
 
-![](source/_posts/笔记：Java%20文档/image-20250413223859767.png)
+![](image-20250413223859767.png)
 
-![](source/_posts/笔记：Java%20文档/image-20250413223920691.png)
+![](image-20250413223920691.png)
 
 
 <font color="#92d050">2. 获取 YAML 格式的文档</font>
@@ -677,7 +677,7 @@ public User createUser(@RequestBody User user) {
     return "hello";
 }
 ```
-![](source/_posts/笔记：Java%20文档/image-20250517160013458.png)
+![](image-20250517160013458.png)
 
 ![](image-20250706160803198.png)
 

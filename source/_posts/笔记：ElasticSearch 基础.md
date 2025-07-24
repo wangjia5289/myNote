@@ -69,7 +69,7 @@ elasticsearch是一款非常强大的开源搜索引擎，可以帮助我们从�
 	1. <font color="#00b0f0">字段名称</font>：
 		1. 通常与数据库字段名保持一致
 	2. <font color="#00b0f0">字段数据类型</font>：
-		1. 参照 [笔记：数据类型和传参](https://blog.wangjia.xin/2025/04/12/%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%92%8C%E4%BC%A0%E5%8F%82/#MySQL-ES)
+		1. 参照 [笔记：数据类型和传参](https://blog.wangjia.xin/2025/04/12/笔记：数据类型和传参/#MySQL-ES)
 	3. <font color="#00b0f0">插入文档时使用的分词器</font>：
 		1. 用于对文档内容进行分词，一般是使用自定义分词器
 		2. 主要适用于 `text` 类型字段，非 `text` 字段无需且不能指定分词器，不打算使用这个 `text` 检索，也不需要指定分词器
@@ -267,7 +267,7 @@ PUT /<索引库名称>
 如家酒店还不错 -> `["如家", "rujia", "rj", "酒店", "jiudian", "jd", "还不", "haibu", "hb", "不错", "bucuo", "bc"`
 
 感觉并没有实现r家这种搜索，虽然自定义分词器在创建索引的时候很好，插入文档后能很好的分词，很不错，，但是如果查询的时候还用这个分词器就不太好了，因为拼音有很多的同声字，例如shizi 有狮子、十字、师资、柿子、虱子等等等等
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250427210357524.png)
+![](image-20250427210357524.png)
 
 为了解决这个问头，我们只能创建索引时使用自定义索引，但是查询时不使用自定义索引，应该用户输入拼音，你就那拼音搜，输入中文，就拿中文搜
 
@@ -773,7 +773,7 @@ mkdir -p /mystudy/es
 
 ==1.下载 ES==
 从 [ES 下载地址](https://www.elastic.co/cn/downloads/past-releases#elasticsearch)下载 ES 安装包：
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250416201625864.png)
+![](image-20250416201625864.png)
 
 
 ==2.安装 ES==
@@ -1279,7 +1279,7 @@ sudo rm -rf /mystudy/es/elasticsearch/data/*
 访问服务器节点，返回下述内容即证明部署成功： https://192.168.136.8:9200
 
 
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250417090125699.png)
+![](image-20250417090125699.png)
 
 ---
 
@@ -2091,7 +2091,7 @@ Kibana 的部署数量没有强制要求，也不需要必须部署在 Elasticse
 ##### 1.3.2. 下载 Kibana 安装包
 
 从 [Kibana 下载地址](https://www.elastic.co/cn/downloads/past-releases#kibana)下载 Kibana 安装包，注意要和 ES 版本一致：
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250417102403638.png)
+![](image-20250417102403638.png)
 
 ---
 
@@ -2257,7 +2257,7 @@ server.ssl.key: "/mystudy/kibana/kibana/config/kibana1.key"
 > [!NOTE] 注意事项
 > 1. `kibana` 是 Elasticsearch 默认提供的服务账号，专用于 Kibana 与 ES 通信，不应使用具有最高权限的 `elastic` 超管账号进行配置
 
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250501142642453.png)
+![](image-20250501142642453.png)
 
 监听的地址，监听的网卡，与es 的http.host类似，但是没有_local_ 这种那么灵活的
 
@@ -2327,7 +2327,7 @@ kill -9 123456
 ##### 1.3.9. 访问 Kibana 节点
 
 访问 Kibana 节点： https://192.168.136.8:5601
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250417121921514.png)
+![](image-20250417121921514.png)
 
 ---
 
@@ -2471,9 +2471,9 @@ Mapping 是对索引库中文档的约束，相当于 MySQL 中列名的属性�
 
 ES 5.0 之前选用 TF-IDF 打分算法，但是该算法有个缺点，打分会随着词频的增加而越来越大，在 ES 5.0 之后选用 BM 2.5 算法，虽然也会随着词频增加而增大，但增长曲线会逐渐趋于水平
 
-![](source/_posts/笔记：ElasticSearch%20基础/PixPin_2025-04-27_11-26-54_PhotoGrid.png)
+![](source/_posts/笔记：ElasticSearch 基础/PixPin_2025-04-27_11-26-54_PhotoGrid.png)
 
-![](source/_posts/笔记：ElasticSearch%20基础/PixPin_2025-04-27_11-22-54_PhotoGrid.png)
+![](source/_posts/笔记：ElasticSearch 基础/PixPin_2025-04-27_11-22-54_PhotoGrid.png)
 
 > [!NOTE] 注意事项
 > 1. 在以后设计的时候也需要注意，参与算分的条件越多，性能就越差
@@ -2502,7 +2502,7 @@ ES 5.0 之前选用 TF-IDF 打分算法，但是该算法有个缺点，打分�
 # 麻烦
 
 
-![|500](source/_posts/笔记：ElasticSearch%20基础/image-20250418184544203.png)
+![|500](source/_posts/笔记：ElasticSearch 基础/image-20250418184544203.png)
 
 
 
@@ -2511,10 +2511,10 @@ ES 5.0 之前选用 TF-IDF 打分算法，但是该算法有个缺点，打分�
 
 
 
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250417122657685.png)
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250417122752564.png)
+![](image-20250417122657685.png)
+![](image-20250417122752564.png)
 
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250417122922783.png)
+![](image-20250417122922783.png)
 
 
 ---
@@ -2758,15 +2758,15 @@ ES 5.0 之前选用 TF-IDF 打分算法，但是该算法有个缺点，打分�
 
 
 
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250416192542363.png)
+![](image-20250416192542363.png)
 
 
 
 
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250416192834497.png)
+![](image-20250416192834497.png)
 
 有 ES 脑裂问题
-![](source/_posts/笔记：ElasticSearch%20基础/image-20250416194752833.png)
+![](image-20250416194752833.png)
 
 偶数的话，可能出现问题和脑裂
 

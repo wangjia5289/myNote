@@ -366,54 +366,54 @@ from employees
 group by department
 having sum(amount) > 350;
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250410141156407.png)
+![](image-20250410141156407.png)
 
 
 
 ==1.SQL 执行：FROM -> JOIN -> WHERE==
-![](source/_posts/笔记：MySQL%20基础/image-20250410141156407.png)
+![](image-20250410141156407.png)
 
 
 ==2.SQL 执行：-> GROPY BY==
 可以**理解为**，相同组的数据被归类到一起，形成了很多表（当然这是不可能的）例如：
 
 1. **归类1**
-![](source/_posts/笔记：MySQL%20基础/image-20250410145608083.png)
+![](image-20250410145608083.png)
 
 2. **归类2**
-![](source/_posts/笔记：MySQL%20基础/image-20250410145637852.png)
+![](image-20250410145637852.png)
 
 3. **归类3**
-![](source/_posts/笔记：MySQL%20基础/image-20250410145648701.png)
+![](image-20250410145648701.png)
 
 4. **归类4**
-![](source/_posts/笔记：MySQL%20基础/image-20250410145658659.png)
+![](image-20250410145658659.png)
 
 5. **归类5**
-![](source/_posts/笔记：MySQL%20基础/image-20250410145805811.png)
+![](image-20250410145805811.png)
 
 
 ==3.SQL 执行：-> HAVING==
 HAVING 对前面分组后的数据进行了筛选。
 
 1. **筛选1**
-![](source/_posts/笔记：MySQL%20基础/image-20250410145817283.png)
+![](image-20250410145817283.png)
 
 2. **筛选2**
-![](source/_posts/笔记：MySQL%20基础/image-20250410145951287.png)
+![](image-20250410145951287.png)
 
 
 ==4.SQL 执行：-> SELECT -> DISTINCT -> ORDER BY -> LIMIT / OFFSET==
 `SELECT` 可以**理解为**对前面筛选出来的多个表分别执行查询操作，然后将结果聚合成一个表。
 
 1. **查询1**
-![](source/_posts/笔记：MySQL%20基础/image-20250410150044456.png)
+![](image-20250410150044456.png)
 
 2. **查询2**
-![](source/_posts/笔记：MySQL%20基础/image-20250410150052131.png)
+![](image-20250410150052131.png)
 
 3. **聚合**
-![](source/_posts/笔记：MySQL%20基础/image-20250410150102998.png)
+![](image-20250410150102998.png)
 
 ---
 
@@ -477,11 +477,11 @@ select * from emp limit 12,6;
 ###### 4.5.6.2. 笛卡尔积问题
 
 执行多表查询时，若直接使用 `select * from emp,dept;` 执行结果有笛卡尔积问题：
-![](source/_posts/笔记：MySQL%20基础/image-20250410161532467.png)
+![](image-20250410161532467.png)
 
 
 在 SQL 语句中，如何去除无效的笛卡尔积？给多表查询加上连接查询的条件即可 `select * from emp,dept where emp.dept_id = dept.id;` 执行结果如下：
-![](source/_posts/笔记：MySQL%20基础/image-20250410161552865.png)
+![](image-20250410161552865.png)
 
 ---
 
@@ -491,11 +491,11 @@ select * from emp limit 12,6;
 假设我们有 `employees`（员工表）和 `departments`（部门表）：
 
 ==1.employess 表==
-![](source/_posts/笔记：MySQL%20基础/image-20250410165218847.png)
+![](image-20250410165218847.png)
 
 
 ==2.departments 表==
-![](source/_posts/笔记：MySQL%20基础/image-20250410162851472.png)
+![](image-20250410162851472.png)
 
 ---
 
@@ -515,7 +515,7 @@ from
 inner join 
     departments as d on e.department_id = d.department_id;
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250410165304264.png)
+![](image-20250410165304264.png)
 > [!NOTE] 注意事项
 > 1. 根据 SQL 执行顺序，先执行 `FROM`，再执行 `JOIN`，因此在 `FROM` 和 `INNER JOIN` 中为表指定的别名，可以在整个查询中使用。
 > 2. 切操作需遵循 SQL 执行顺序。在为表起别名之前，我们可以直接使用表名；但一旦为表指定了别名，之后必须使用别名，不能再使用原表名。
@@ -537,7 +537,7 @@ from
 left join 
     departments d on e.department_id = d.department_id;
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250410165415783.png)
+![](image-20250410165415783.png)
 
 ---
 
@@ -557,7 +557,7 @@ from
 right join 
     departments d on e.department_id = d.department_id;
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250410165544009.png)
+![](image-20250410165544009.png)
 
 ---
 
@@ -608,9 +608,9 @@ INNER JOIN
 ON 
   e.EmpID = w.EmpID;
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250521211043750.png)
+![](image-20250521211043750.png)
 
-![](source/_posts/笔记：MySQL%20基础/image-20250521211108505.png)
+![](image-20250521211108505.png)
 
 ----
 
@@ -647,9 +647,9 @@ INNER JOIN
 ON 
   e.DeptID = d.DeptID;
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250521212132677.png)
+![](image-20250521212132677.png)
 
-![](source/_posts/笔记：MySQL%20基础/image-20250521212154361.png)
+![](image-20250521212154361.png)
 
 ---
 
@@ -693,11 +693,11 @@ JOIN
 JOIN
   Course c ON e.CourseID = c.CourseID // 第二次 JOIN：连接课程
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250522101521175.png)
+![](image-20250522101521175.png)
 
-![](source/_posts/笔记：MySQL%20基础/image-20250522101539693.png)
+![](image-20250522101539693.png)
 
-![](source/_posts/笔记：MySQL%20基础/image-20250522101559348.png)
+![](image-20250522101559348.png)
 
 > [!NOTE] 注意事项
 > 1. 我们平时常见的是两个实体之间的多对多关系，但其实三个甚至更多实体之间也能形成多对多关系，也是一个中间表。查询的时候，只要用中间表，多次连接相关表，就能把信息都查出来。
@@ -1197,9 +1197,9 @@ CREATE TABLE WorkCard (
     FOREIGN KEY (EmpID) REFERENCES Employee(EmpID)
 );
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250521211043750.png)
+![](image-20250521211043750.png)
 
-![](source/_posts/笔记：MySQL%20基础/image-20250521211108505.png)
+![](image-20250521211108505.png)
 
 > [!NOTE] 注意事项：
 > 1. 删除数据时，先删除从表数据，再删除主表数据
@@ -1241,9 +1241,9 @@ CREATE TABLE Employee (
     FOREIGN KEY (DeptID) REFERENCES Department(DeptID)
 );
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250521212132677.png)
+![](image-20250521212132677.png)
 
-![](source/_posts/笔记：MySQL%20基础/image-20250521212154361.png)
+![](image-20250521212154361.png)
 
 > [!NOTE] 注意事项：
 > 1. 删除数据时，先删除从表数据，再删除主表数据
@@ -1324,9 +1324,9 @@ CREATE TABLE Enrollment (
 	3. 在 `InnoDB` 存储引擎中，当你查询二级索引列的数据时，过程如下：
 		1. 查询会首先通过二级索引查找该列的值，并返回二级索引中的存储的主键值
 		2. 得到主键值后，查询会使用主键值回到聚集索引中查找实际的数据行。
-![](source/_posts/笔记：MySQL%20基础/image-20250409183911323.png)
+![](image-20250409183911323.png)
 
-![](source/_posts/笔记：MySQL%20基础/image-20250409192001892.png)
+![](image-20250409192001892.png)
 
 ---
 
@@ -1500,7 +1500,7 @@ cat /var/lib/mysql/localhost-slow.log
 > 1. 只要你是在 `conf.d`、`mysql.conf.d`、或者自定义的 `.cnf` 文件里配置，请务必写上 `[mysqld]`
 > 2. 开启慢查询日志后，当你执行 SQL 语句时，如果查询执行时间超过设定的阈值，MySQL 会自动记录该查询为慢查询，并且会立即提醒：
 
-![](source/_posts/笔记：MySQL%20基础/image-20250409223121020.png)
+![](image-20250409223121020.png)
 
 ---
 
@@ -1544,7 +1544,7 @@ show profile cpu for query <query-id>;
 ```
 explain <select 语句>
 ```
-![](source/_posts/笔记：MySQL%20基础/image-20250410100653127.png)
+![](image-20250410100653127.png)
 1. ==id==:
 	1. 查询的 **标识符**，它表示在多表查询中每个操作的执行顺序。例如，`id = 1` 是最先执行的操作，`id = 2` 是第二个执行的操作，依此类推。
 	2. 在单表查询中，`id` 始终为 `1`。
@@ -1771,7 +1771,7 @@ public class FakerDemo {
 
 #### 3.1. 汉化
 
-![](source/_posts/笔记：MySQL%20基础/image-20250519144517641.png)
+![](image-20250519144517641.png)
 
 ---
 
@@ -1841,7 +1841,7 @@ cp /tools/mycat2-1.22-release-jar-with-dependencies.jar /tools/mycat/lib
 
 
 绕过 Linux 的用户名和密码，直接使用 MyCat2 的用户名和密码进行登录
-![](source/_posts/笔记：MySQL%20基础/image-20250523113818549.png)
+![](image-20250523113818549.png)
 
 
 启动有问题看日志：
@@ -1869,7 +1869,7 @@ cat /tools/mycat/logs/wrapper.log
 
 #### 1.1. 目录总览
 
-![](source/_posts/笔记：MyCat2/image-20250406155610051.png)
+![](image-20250406155610051.png)
 1. ==bin==：
 	1. 执行主要命令的目录
 2. ==conf==：
@@ -2151,7 +2151,7 @@ SQL 文件（.sql 文件）通常用于存储数据库操作的 SQL 脚本，这
 我们可以手动编写 SQL 脚本，也可以使用工具如 Navicat，将已创建的表和数据库导出为 SQL 文件。通过在其他地方运行该 SQL 文件，我们可以轻松重建之前的表和数据库。SQL 文件不仅可以作为备份使用，还可以共享给他人。
 
 ==1.导出 SQL 文件==
-![](source/_posts/笔记：MySQL%20基础/image-20250410104022257.png)
+![](image-20250410104022257.png)
 
 > [!NOTE] 注意事项
 > 1. 这里将数据库导出为 SQL 文件，包含库、表和数据的创建。
@@ -2159,7 +2159,7 @@ SQL 文件（.sql 文件）通常用于存储数据库操作的 SQL 脚本，这
 
 
 ==2.运行 SQL 文件==
-![](source/_posts/笔记：MySQL%20基础/image-20250410104203864.png)
+![](image-20250410104203864.png)
 
 
 ==3.SQL 文件示例==
@@ -2326,7 +2326,7 @@ docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:l
 
 
 
-![](source/_posts/笔记：MySQL%20基础/image-20250406182807697.png)
+![](image-20250406182807697.png)
 
 
 
@@ -2683,9 +2683,9 @@ SHOW MASTER STATUS;
 ```
 
 
-![](source/_posts/笔记：MySQL%20基础/image-20250408141545381.png)
+![](image-20250408141545381.png)
 两个从节点可能相同，但是主节点不同，要注意了
-![](source/_posts/笔记：MySQL%20基础/image-20250408141924184.png)
+![](image-20250408141924184.png)
 
 从库执行命令
 ```

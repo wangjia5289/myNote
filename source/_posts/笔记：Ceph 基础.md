@@ -47,22 +47,22 @@ layout: post
 
 
 ### 数据存储流程
-![](source/_posts/笔记：Ceph%20基础/image-20250409101551563.png)
+![](image-20250409101551563.png)
 
 
 
-![](source/_posts/笔记：Ceph%20基础/image-20250409101918985.png)
+![](image-20250409101918985.png)
 
 
 ### Ceph 数据冗余机制
 
-![](source/_posts/笔记：Ceph%20基础/image-20250409101837245.png)
+![](image-20250409101837245.png)
 PG 下的 OSD 也会选主，主要是为了磁盘之间的数据一致性同步和像 mon 报告自身状态，使用的是 Hash 算法将数据 object 对象到 PG，将 PG里面的数据分散到不同的OSD
 
 
 
 #### Ceph 存储类型
-![](source/_posts/笔记：Ceph%20基础/image-20250409102406023.png)
+![](image-20250409102406023.png)
 
 
 
@@ -99,10 +99,10 @@ https://docs.ceph.com/en/pacific/install/
 
 
 
-![](source/_posts/笔记：Ceph%20基础/image-20250409110737249.png)
+![](image-20250409110737249.png)
 
 
-![](source/_posts/笔记：Ceph%20基础/image-20250409110924759.png)
+![](image-20250409110924759.png)
 
 
 
