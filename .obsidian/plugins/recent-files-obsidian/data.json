@@ -1,8 +1,48 @@
 {
   "recentFiles": [
     {
+      "basename": "index",
+      "path": "source/about/index.md"
+    },
+    {
       "basename": "笔记：JVM",
       "path": "source/_posts/笔记：JVM.md"
+    },
+    {
+      "basename": "redis 临时",
+      "path": "templates/redis 临时.md"
+    },
+    {
+      "basename": "速度",
+      "path": "templates/速度.md"
+    },
+    {
+      "basename": "马士兵",
+      "path": "templates/马士兵.md"
+    },
+    {
+      "basename": "临时：OAUth",
+      "path": "templates/临时：OAUth.md"
+    },
+    {
+      "basename": "临时：mybatis",
+      "path": "templates/临时：mybatis.md"
+    },
+    {
+      "basename": "临时：es",
+      "path": "templates/临时：es.md"
+    },
+    {
+      "basename": "可加密码",
+      "path": "templates/可加密码.md"
+    },
+    {
+      "basename": "测试",
+      "path": "templates/测试.md"
+    },
+    {
+      "basename": "笔记：Hexo + Obsidian +GitHub Pages",
+      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages.md"
     },
     {
       "basename": "笔记：Java 数据类型",
@@ -11,10 +51,6 @@
     {
       "basename": "笔记：本地图库小工具",
       "path": "source/_posts/笔记：本地图库小工具.md"
-    },
-    {
-      "basename": "笔记：Hexo + Obsidian +GitHub Pages",
-      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages.md"
     },
     {
       "basename": "README",
@@ -149,10 +185,6 @@
       "path": "templates/mysql 临时.md"
     },
     {
-      "basename": "临时：es",
-      "path": "templates/临时：es.md"
-    },
-    {
       "basename": "minio 临时",
       "path": "minio 临时.md"
     },
@@ -167,38 +199,6 @@
     {
       "basename": "笔记：搭建 Minio 环境",
       "path": "source/_posts/笔记：搭建 Minio 环境.md"
-    },
-    {
-      "basename": "笔记：Linux",
-      "path": "source/_posts/笔记：Linux.md"
-    },
-    {
-      "basename": "临时：mybatis",
-      "path": "templates/临时：mybatis.md"
-    },
-    {
-      "basename": "笔记：Spring Authorization Server",
-      "path": "source/_posts/笔记：Spring Authorization Server.md"
-    },
-    {
-      "basename": "Categories",
-      "path": "Categories.md"
-    },
-    {
-      "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
-      "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
-    },
-    {
-      "basename": "笔记：Spring Security",
-      "path": "source/_posts/笔记：Spring Security.md"
-    },
-    {
-      "basename": "临时：OAUth",
-      "path": "templates/临时：OAUth.md"
-    },
-    {
-      "basename": "笔记：分布式 ID",
-      "path": "source/_posts/笔记：分布式 ID.md"
     }
   ],
   "omittedPaths": [],
