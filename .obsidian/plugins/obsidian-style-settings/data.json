@@ -95,5 +95,6 @@
   "shiba-theme-settings@@shib-h4-underline": false,
   "shiba-theme-settings@@shib-h6-color-custom": "shib-h6-violet",
   "shiba-theme-settings@@shiba-bold-colors": "shib-bold-blue",
-  "shiba-theme-settings@@shib-custom-bg-card-fg-opacity-light": 0
+  "shiba-theme-settings@@shib-custom-bg-card-fg-opacity-light": 0,
+  "blue-topaz-theme@@background-settings-workplace-theme-dark": "background-settings-workplace-waves"
 }

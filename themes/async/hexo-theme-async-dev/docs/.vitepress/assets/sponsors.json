@@ -1,0 +1,75 @@
+{
+	"modes": [
+		{
+			"type": "alipay",
+			"title": "支付宝",
+			"path": "https://www.imalun.com/images/reward/alipay.jpg"
+		},
+		{
+			"type": "wechat",
+			"title": "微信",
+			"path": "https://www.imalun.com/images/reward/wx_pay.jpg"
+		},
+		{
+			"type": "qq",
+			"title": "QQ",
+			"path": "https://www.imalun.com/images/reward/qq_pay.jpg"
+		}
+	],
+	"logs": [
+		{
+			"name": "**俊",
+			"money": 20,
+			"type": "alipay",
+			"date": "2023-07-04"
+		},
+		{
+			"name": "**锋",
+			"money": 1,
+			"type": "alipay",
+			"date": "2023-04-29"
+		},
+		{
+			"name": "**伟",
+			"money": 6.66,
+			"type": "alipay",
+			"date": "2023-04-20"
+		},
+		{
+			"name": "Jesse",
+			"money": 66.66,
+			"type": "alipay",
+			"date": "2023-03-23"
+		},
+		{
+			"name": "对*.",
+			"money": 10.0,
+			"type": "wechat",
+			"date": "2023-01-11"
+		},
+		{
+			"name": "*负能量",
+			"money": 5.0,
+			"type": "wechat",
+			"date": "2022-12-30"
+		},
+		{
+			"name": "*羊",
+			"money": 1.0,
+			"type": "wechat",
+			"date": "2022-12-11"
+		},
+		{
+			"name": "*奶",
+			"money": 1.88,
+			"type": "wechat",
+			"date": "2022-10-27"
+		},
+		{
+			"name": "*洋",
+			"money": 1.0,
+			"type": "wechat",
+			"date": "2022-10-18"
+		}
+	]
+}
