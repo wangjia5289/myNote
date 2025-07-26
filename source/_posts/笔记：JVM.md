@@ -16,6 +16,9 @@ layout: post
 
 ![](image-20250724223952607.png)
 
+从线程是否共享的角度又可以为：
+![](image-20250726201657760.png)
+
 ----
 
 
@@ -44,20 +47,20 @@ PC 寄存器是一块极小的内存区域，几乎可以忽略不计，因为�
 ---
 
 
-### 1.3. 栈区
+### 1.3. 虚拟机栈
 
-#### 1.3.1. 栈区一览图
+#### 1.3.1. 虚拟机栈一览图
 
 ![](图像清晰化.png)
 
 ----
 
 
-#### 1.3.2. 栈区概述
+#### 1.3.2. 虚拟机栈概述
 
 
 > [!NOTE] 注意事项
-> 1. 栈区不会发生 GC，但会抛出 OOM 或 StackOverflowError，常见有：
+> 1. 虚拟机栈不会发生 GC，但会抛出 OOM 或 StackOverflowError，常见有：
 > 	1. OOM
 > 		1. OutOfMemoryError: unable to create new native thread
 > 			1. JVM 尝试创建新线程时，系统无法分配栈内存
@@ -265,7 +268,7 @@ public class Test {
 
 JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放操作数并参与计算，而是依赖操作数栈（Operand Stack）来完成大部分运算。因此，JVM 的指令通常不携带操作数，比如 `iadd`（整数加法）会默认从栈顶弹出两个数，相加后再将结果压回栈中，使字节码更加简洁紧凑。
 
-这种设计虽然带来了跨平台性强、字节码体积小、指令格式简单等优点，但也引入了性能问题：所有操作都依赖栈，频繁的入栈、出栈操作会导致大量内存访问，从而拖慢指令执行速度。一次简单的加法可能需要经历 `load → push → push → iadd → store` 的多个步骤，而不像寄存器架构那样仅需一条指令。此外，每次入栈和出栈本质上都是对 JVM 内存结构（即栈帧中的操作数栈区域）的访问，而内存访问速度远不如 CPU 寄存器。
+这种设计虽然带来了跨平台性强、字节码体积小、指令格式简单等优点，但也引入了性能问题：所有操作都依赖栈，频繁的入栈、出栈操作会导致大量内存访问，从而拖慢指令执行速度。一次简单的加法可能需要经历 `load → push → push → iadd → store` 的多个步骤，而不像寄存器架构那样仅需一条指令。此外，每次入栈和出栈本质上都是对 JVM 内存结构（即栈帧中的操作数虚拟机栈域）的访问，而内存访问速度远不如 CPU 寄存器。
 
 为了解决这一问题，HotSpot JVM 的设计者提出了栈顶缓存（ToS，Top-of-Stack Caching）技术，将操作数栈顶部的若干个元素缓存在 CPU 寄存器中，以减少对操作数栈内存的频繁访问，从而提升执行引擎的整体执行效率。
 
@@ -290,22 +293,29 @@ JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放�
 
 ---
 
-#### 栈区异常示例
+#### 1.3.6. 虚拟机栈异常示例
 
 ---
 
 
+### 1.4. 本地方法栈
 
-### 1.4. 堆区
 
-#### 堆区一览图
+
+
+---
+
+
+### 1.5. 堆区
+
+#### 1.5.1. 堆区一览图
 
 ![](image-20250725114229098.png)
 
 ----
 
 
-#### 堆区概述
+#### 1.5.2. 堆区概述
 
 在一个 JVM 实例中，只存在一块堆内存，堆是 Java 内存管理的核心区域，也是整个内存结构中最大的一块，几乎所有的对象实例和数组，在运行时都会被分配到堆上（需考虑逃逸分析的优化可能），Java 堆是所有线程共享的（但需考虑线程私有的 TLAB 缓冲区机制）。
 
@@ -367,12 +377,166 @@ JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放�
 
 
 
-#### 堆区异常示例
+#### 1.5.3. 堆区异常示例
 
 ----
 
 
-## 方法区
+### 1.6. 方法区
+
+#### 方法区一览图
+
+---
+
+
+#### 方法区概述
+
+---
+
+
+#### 常量池
+
+```
+public class Test {
+
+    public static Object instance = new Object();
+    public static final int num = 1;
+    
+    public int compute(int a,int b){
+        return a * b - num;
+    }
+    
+    public static void main(String[] args) {
+        Test test = new Test();
+        int a = 4;
+        int b = 5;
+        int c = test.compute(a,b);
+        System.out.println(c);
+    }
+}
+```
+
+
+```
+PS D:\文件集合\summer\JUC\src\main\java\org\example\test> javap -l -c -v Test.class
+Classfile /D:/文件集合/summer/JUC/src/main/java/org/example/test/Test.class
+  Last modified 2025年7月26日; size 666 bytes
+  SHA-256 checksum 0e59b8b62b24b374efb47f1d8cf4c65013ac16b888c0c3e89bad4957c9266e31
+  Compiled from "Test.java"
+public class org.example.test.Test
+  minor version: 0
+  major version: 61
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #7                          // org/example/test/Test
+  super_class: #2                         // java/lang/Object
+  interfaces: 0, fields: 2, methods: 4, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3          // java/lang/Object."<init>":()V
+   #2 = Class              #4             // java/lang/Object
+   #3 = NameAndType        #5:#6          // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Class              #8             // org/example/test/Test
+   #8 = Utf8               org/example/test/Test
+   #9 = Methodref          #7.#3          // org/example/test/Test."<init>":()V
+  #10 = Methodref          #7.#11         // org/example/test/Test.compute:(II)I
+  #11 = NameAndType        #12:#13        // compute:(II)I
+  #12 = Utf8               compute
+  #13 = Utf8               (II)I
+  #14 = Fieldref           #15.#16        // java/lang/System.out:Ljava/io/PrintStream;
+  #15 = Class              #17            // java/lang/System
+  #16 = NameAndType        #18:#19        // out:Ljava/io/PrintStream;
+  #17 = Utf8               java/lang/System
+  #18 = Utf8               out
+  #19 = Utf8               Ljava/io/PrintStream;
+  #20 = Methodref          #21.#22        // java/io/PrintStream.println:(I)V
+  #21 = Class              #23            // java/io/PrintStream
+  #22 = NameAndType        #24:#25        // println:(I)V
+  #23 = Utf8               java/io/PrintStream
+  #24 = Utf8               println
+  #25 = Utf8               (I)V
+  #26 = Fieldref           #7.#27         // org/example/test/Test.instance:Ljava/lang/Object;
+  #27 = NameAndType        #28:#29        // instance:Ljava/lang/Object;
+  #28 = Utf8               instance
+  #29 = Utf8               Ljava/lang/Object;
+  #30 = Utf8               num
+  #31 = Utf8               I
+  #32 = Utf8               ConstantValue
+  #33 = Integer            1
+  #34 = Utf8               Code
+  #35 = Utf8               LineNumberTable
+  #36 = Utf8               main
+  #37 = Utf8               ([Ljava/lang/String;)V
+  #38 = Utf8               <clinit>
+  #39 = Utf8               SourceFile
+  #40 = Utf8               Test.java
+{
+  public static java.lang.Object instance;
+    descriptor: Ljava/lang/Object;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+
+  public static final int num;
+    descriptor: I
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1
+
+  public org.example.test.Test();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 2: 0
+
+  public int compute(int, int);
+    descriptor: (II)I
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=2, locals=3, args_size=3
+         0: iload_1
+         1: iload_2
+         2: imul
+         3: iconst_1
+         4: isub
+         5: ireturn
+      LineNumberTable:
+        line 7: 0
+
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=3, locals=5, args_size=1
+         0: new           #7                  // class org/example/test/Test
+         3: dup
+         4: invokespecial #9                  // Method "<init>":()V
+         7: astore_1
+         8: iconst_4
+         9: istore_2
+        10: iconst_5
+        11: istore_3
+        12: aload_1
+        13: iload_2
+        14: iload_3
+        15: invokevirtual #10                 // Method compute:(II)I
+        18: istore        4
+        20: getstatic     #14                 // Field java/lang/System.out:Ljava/io/PrintStream;
+        23: iload         4
+        10: return
+      LineNumberTable:
+        line 3: 0
+}
+SourceFile: "Test.java"
+```
+
+
+
+
+---
 
 
 
@@ -393,14 +557,178 @@ JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放�
 
 
 
-## 垃圾回收（GC）
+方法区用于存储已被虚拟机加载的 类型信息、域信息、方法信息、
 
-### GC 概述
+<font color="#92d050">1. 类型信息</font>
 
+|  信息内容   | 说明  | 注意事项 |
+| :-----: | :-: | :--: |
+|  类的名称   |     |      |
+| 类加载器的引用 |     |      |
+|         |     |      |
+
+
+
+
+
+```
+public class Example {
+
+    // 1. 静态常量：属于类，编译期常量，可能会放入常量池
+    public static final String CONST = "Hello, JVM";
+
+    // 2. 静态变量：属于类，变量的值存储在堆中
+    public static int staticCount = 42;
+
+    // 3. 实例变量：属于对象，完全存储在堆中
+    private int instanceValue = 100;
+
+    // 4. 实例方法：属于类结构的一部分，方法信息存储在方法区
+    public void printInstanceValue() {
+        System.out.println("Instance value: " + instanceValue);
+    }
+
+    // 5. 静态方法：方法结构存在方法区，不属于某个对象
+    public static void printStatic() {
+        System.out.println("Static count: " + staticCount);
+    }
+
+    public static void main(String[] args) {
+        // 类加载时，类的结构被加载到方法区
+        Example obj = new Example(); // 对象在堆中分配
+        obj.printInstanceValue();    // 调用实例方法
+        Example.printStatic();       // 调用静态方法
+        System.out.println(CONST);   // 访问静态常量
+    }
+}
+
+```
+
+
+
+
+
+永久代、元空间
+
+使用本地内存，就更不容易出现 OOM
+
+JVM 的虚拟内存难道不是使用的本地内存嘛？
+
+
+> [!NOTE] 注意事项
+> 1. 方法区既会发生 GC，也会抛出 OOM，常见有：
+> 	1. java.lang.OutOfMemoryError: Metaspace
+> 		1. 
+> 	2. java.lang.OutOfMemoryError: PermGen space
+> 		1. 
+> 2. JDK1.7 之前的永久代、JDK1.8 之后的元空间，都是对 JVM 规范中方法区的实现，其最大的区别在于：元空间不再使用 JVM 虚拟机设置的堆内存，而是改为使用本地内存，因此更少发生 OOM异常。
+> 	1. 永久代（PermGen） 是 JVM 内存的一部分，大小由 `-XX:PermSize` 和 `-XX:MaxPermSize` 限制，默认值往往较小（比如几十 MB），而且很容易超过上限，从而导致 OOM
+> 	2. 元空间（Metaspace） 使用的是 本地内存（Native memory），大小可以远远超过 JVM 堆的限制，甚至可以动态扩展至整个物理内存的上限
+> 3. 方法区在 JVM 启动时被创建，其实际的物理内存可以是不连续的内存空间
+> 4. 方法区的大小可以通过 JVM 参数手动指定，包括初始空间和最大空间，且在运行时具有动态扩展能力
+> 	1. JDK1.7 之前
+> 		1. -XX:PermSize=64m
+> 			1. 用于设置方法区的初始内存大小
+> 			2. 例如：java -XX:PermSize=64m -XX:MaxPermSize=128m -jar MyApp.jar
+> 			3. 默认值：20.75m
+> 			4. 常用单位：k、m、g
+> 		2. -XX:MaxPermSize=128m
+> 			1. 用于设置方法区的最大内存大小
+> 			2. 例如：java -XX:PermSize=64m -XX:MaxPermSize=128m -jar MyApp.jar
+> 			3. 默认值：32 位机器默认是 64 M，64 位机器默认是 82 M
+> 	2. JDK1.8 之前
+> 		1. -XX:MetaspaceSize=128m
+> 			1. 用于设置方法区的初始内存大小
+> 			2. 例如：java -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -jar MyApp.jar
+> 			3. 默认值：21m
+> 			4. 注意事项：
+> 				1. 如果初始高水位线（-XX:MetaspaceSize）设置过低，可能会导致 Full GC 频繁触发，建议将其设置为一个相对较高的值以减少不必要的 GC 开销。
+> 		2. -XX:MaxMetaspaceSize=256m
+> 			1. 用于设置方法区的最大内存大小
+> 			2. 例如：java -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -jar MyApp.jar
+> 			3. 默认值：-1，既没有限制
+> 5. 方法区的 GC 过程：
+> 	1. 当方法区（Metaspace 或 PermGen）的使用量，触及初始高水位线（即默认的 -XX:MetaspaceSize）时，JVM 会尝试触发一次 Full GC（不会触发 Minor GC）
+> 	2. Full GC 会对新生代、老年代、方法区进行垃圾回收，其中在方法区中会卸载那些对应类加载器不再存活的类
+> 	3. 触发 GC 后，高水位线会被动态调整，新的高水位线取决于 GC 后释放了多少空间：
+> 		1. 如果释放的空间不足，在不超过 MaxMetaspaceSize 限制时，会适当提高高水位线
+> 		2. 如果释放的空间过多，则会适当降低高水位线
+> 	4. 如果 Full GC 后空间依然不足，且超过了 MaxMetaspaceSize 限制，则 JVM 会抛出 OOM 异常
+> 	5. 如果初始高水位线（-XX:MetaspaceSize）设置过低，可能会导致 Full GC 频繁触发，建议将其设置为一个相对较高的值以减少不必要的 GC 开销。
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 2. 垃圾回收（GC）
+
+### 2.1. 垃圾回收概述
+
+垃圾回收是指在程序运行过程中，对堆区中没有任何指针指向的对象进行回收，对在方法区中卸载那些其对应类加载器已不再存活的类。
+
+其中，堆区是垃圾收集器的主要工作区域，从回收频率上看，通常遵循以下规律：
+1. 频繁收集新生代
+2. 较少收集老年代
+3. 基本不懂永久代（方法区、元空间）
+
+---
+
+
+### 垃圾回收相关算法
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 2.2. GC 常用 JVM 参数
 
 > [!NOTE] 注意事项
 > 1. GC 常用的 JVM 参数有：
 > 	1. -XX:±PrintGCDetails
+
+----
+
+
+
+
+
+
+
+## 3. 对象实例化流程
+
 
 
 

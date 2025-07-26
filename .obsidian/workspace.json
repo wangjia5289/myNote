@@ -261,9 +261,11 @@
   },
   "active": "b775e4cf9d2432e8",
   "lastOpenFiles": [
+    "source/_posts/笔记：Java SE.md",
+    "source/_posts/笔记：JVM.md",
+    "source/_posts/笔记：JVM/image-20250726201657760.png",
     "source/_posts/笔记：JUC.md",
     "node_modules/highlight.js/CHANGES.md",
-    "source/_posts/笔记：JVM.md",
     "source/_posts/笔记：JVM/image-20250725114229098.png",
     "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
     "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
@@ -287,7 +289,6 @@
     "public/live2dw/assets/moc/shizuku.1024/texture_03.png",
     "public/live2dw/assets/moc/shizuku.1024/texture_04.png",
     "public/live2dw/assets/moc/shizuku.1024/texture_02.png",
-    "public/live2dw/assets/moc/shizuku.1024/texture_01.png",
     "source/_posts/提高图片清晰度.md",
     "source/about/index.md",
     "source/_posts/笔记：Spring Aop.md",
@@ -306,7 +307,6 @@
     "themes/fluid/hexo-theme-fluid-master/README_en.md",
     "fluid/README_en.md",
     "fluid/README.md",
-    "themes/hexo-theme-fluid-master/README_en.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]

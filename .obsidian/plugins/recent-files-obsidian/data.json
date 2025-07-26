@@ -5,6 +5,10 @@
       "path": "source/_posts/笔记：JVM.md"
     },
     {
+      "basename": "笔记：Java SE",
+      "path": "source/_posts/笔记：Java SE.md"
+    },
+    {
       "basename": "笔记：JUC",
       "path": "source/_posts/笔记：JUC.md"
     },
