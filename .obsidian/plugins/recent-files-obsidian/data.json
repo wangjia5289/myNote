@@ -9,6 +9,10 @@
       "path": "source/_posts/笔记：JUC.md"
     },
     {
+      "basename": "CHANGES",
+      "path": "node_modules/highlight.js/CHANGES.md"
+    },
+    {
       "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",
       "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
     },
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：Windows",
       "path": "source/_posts/笔记：Windows.md"
-    },
-    {
-      "basename": "笔记：Minio 工具",
-      "path": "source/_posts/笔记：Minio 工具.md"
     }
   ],
   "omittedPaths": [],

@@ -262,6 +262,7 @@
   "active": "b775e4cf9d2432e8",
   "lastOpenFiles": [
     "source/_posts/笔记：JUC.md",
+    "node_modules/highlight.js/CHANGES.md",
     "source/_posts/笔记：JVM.md",
     "source/_posts/笔记：JVM/image-20250725114229098.png",
     "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
@@ -306,7 +307,6 @@
     "fluid/README_en.md",
     "fluid/README.md",
     "themes/hexo-theme-fluid-master/README_en.md",
-    "themes/hexo-theme-fluid-master/README.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]
