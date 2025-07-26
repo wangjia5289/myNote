@@ -17,10 +17,6 @@
       "path": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md"
     },
     {
-      "basename": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC",
-      "path": "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md"
-    },
-    {
       "basename": "Categories",
       "path": "Categories.md"
     },
