@@ -19,9 +19,9 @@ layout: post
 > 	2. 同时我么也也可以删除自动生成的 equals、hashCode、toString 方法，改为使用 IDEA 生成
 ## 导图
 
-![](source/_posts/笔记：Java 数据类型/Map：Java数据类型.xmind)
 
------
+
+![](Map：Java数据类型%201.xmind)-----
 
 
 

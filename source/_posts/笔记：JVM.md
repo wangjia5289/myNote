@@ -143,44 +143,6 @@ public class Test {
 }
 ```
 
-> [!NOTE] 注意事项
->5. Java 类里各种变量的 “诞生” 与 “存活” 流程
->	1. 在下面的例子中，变量会经历以下几个阶段：
->		1. 类加载阶段
->			1. 准备阶段
->				1. JVM 将 `Demo.class` 文件加载到内存，并为静态变量 `staticVar` 分配内存，并赋予默认值 0
->				2. 该静态变量存储在方法区（元空间、Metaspace）（坏事了，jdk1.7 之前确实是方法区，jdk 1.8 之后是放到堆内存，直接放到老年代，那准备阶段对象都还没创建呢，啊对，静态变量与对象根本没关系，而是而是属于类本身的，不用等对象）
->				3. 准备阶段不执行任何代码，也不调用任何方法，只是为静态变量提供一个 “安全” 的初始状态，避免野指针或未定义行为。
->			2. 初始化阶段
->				1. 执行静态变量的显式赋值语句（如 `staticVar = 10;`）和静态代码块（`static {}`）中的代码。
->		2. 对象创建阶段
->			1. JVM 在堆内存中为对象 `demo` 分配空间，所有成员变量（如 `instanceVar`）都被分配内存并赋予默认值（0、false、null）
->			2. 然后执行构造方法，可以对成员变量进行显式初始化或逻辑处理。
->		3. 方法调用阶段
->			1. JVM 在栈内存中为方法调用创建一个新的栈帧
->			2. 因为是实例方法，槽位 0 用于存放 `this` 引用，指向当前调用方法的 `demo` 对象。
->			3. 槽位 1 用于存放方法参数 `param`，槽位 2 存放局部变量 `localVar`。
->			4. 需要注意的是，局部变量和方法参数不会像静态变量或成员变量那样自动初始化默认值。
->			5. 如果你只是声明了一个局部变量（如 `int localVar;`），但没有显式赋值（如 `localVar = 5`），那么就会编译报错。
-```
-public class Demo {
-
-    // 静态变量（类变量）
-    static int staticVar = 10;
-
-    // 成员变量（实例变量）
-    int instanceVar;
-    
-	// 方法参数
-    public void method(int param) {
-    
-	    // 局部变量
-        int localVar = 5;
-        
-        System.out.println(localVar);
-    }
-}
-```
 
 ----
 
@@ -395,6 +357,25 @@ JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放�
 
 
 #### 常量池
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```
 public class Test {
@@ -689,7 +670,108 @@ JVM 的虚拟内存难道不是使用的本地内存嘛？
 ---
 
 
-### 垃圾回收相关算法
+### 垃圾标记算法
+
+#### 垃圾标记概述
+
+在堆中存放着几乎所有的 Java 对象实例，在 GC 执行垃圾回收之前，首先需要区分内存中哪些是存活的对象，哪些是已经死亡的对象。
+
+只有被标记为死亡的对象，GC 在执行回收时才会释放它们所占用的内存空间，因此，这一过程被称为垃圾标记阶段。
+
+---
+
+
+#### 引用计数法
+
+引用计数算法是为每一个对象维护一个整型的引用计数器**属性**，用于记录该对象被引用的次数。例如，对于一个对象 A，只要有其他任何对象引用了 A，则 A 的引用计数器就加 1；当引用失效时，计数器减 1。当 A 的引用计数器为 0 时，说明该对象已经无法再被访问，可以被回收。
+
+其优点是：
+1. 实现简单
+2. 垃圾对象易于识别
+3. 判定效率高，回收无需等待
+
+其缺点是：
+1. 增加了一定的存储空间的开销
+2. 每次赋值都需要更新计数器，伴随着加法和减法操作，带来一定的时间开销
+3. 前两点尚可接受，但引用计数法有一个致命缺陷：**无法处理循环引用的问题**，这正是 Java 的垃圾回收器没有采用该算法的根本原因
+
+下面的代码是一个典型的循环引用示例：
+```
+public class RefCountGC {
+		
+    private byte[] bigSize = new byte[5 * 1024 * 1024]; //5MB
+    Object reference = null;
+		
+    public static void main(String[] args) {
+	    
+        RefCountGC obj1 = new RefCountGC();
+        RefCountGC obj2 = new RefCountGC();
+		
+        obj1.reference = obj2;
+        obj2.reference = obj1;
+		
+        obj1 = null;
+        obj2 = null;
+        
+        // 显式执行 Full GC，若使用引用计数法，obj1 和 obj2 将无法被回收
+        System.gc();
+    }
+}
+```
+
+其图示如下：
+![](image-20250727083631864.png)
+
+> [!NOTE] 注意事项
+> 1. 由于 Java 并未采用引用计数算法，所以在面试中回答 “什么会导致内存泄漏” 这类问题时，应避免以“循环引用”作为主要答案
+
+---
+
+
+#### 可达性分析算法（根搜索方法、追踪性垃圾收集）
+
+##### 可达性分析算法概述
+
+可达性分析算法是以根对象集合（GC Roots，一组始终处于活跃状态的引用）为起始点，自上而下地搜索与这些根对象相关联的目标对象是否可达，内存中的所有存活对象，都会被根对象集合直接或间接连接。
+
+搜索过程中所经过的路径被称为引用链（Reference Chain），如果某个目标对象在内存中没有任何引用链与 GC Roots 相连，那么它就是不可达的，也就意味着该对象已死亡，可被标记为垃圾对象。
+
+> [!NOTE] 注意事项
+> 1. 如果要使用可达性分析算法判断内存是否可回收，分析工作必须在一个能够**保证内存状态一致性的快照中进行**。
+> 2. 如果无法满足这一点，分析结果的准确性就无法保证，这也是导致 GC 进行时必须执行 “Stop The World” 的一个重要原因。
+> 3. 即便是号称几乎不会停顿的 CMS 收集器，在枚举根节点阶段，也必须暂停所有应用线程（主线程、工作线程、守护线程）
+
+---
+
+
+##### 常见 GC Roots
+
+---
+
+
+##### 查看 GC Roots
+
+---
+
+
+### 垃圾清除算法
+
+---
+
+
+### 对象的 finalization 机制
+
+---
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -729,7 +811,169 @@ JVM 的虚拟内存难道不是使用的本地内存嘛？
 
 ## 3. 对象实例化流程
 
+```
+public class Test {
 
+    // 1. 实例基本数据类型变量
+    public int instanceBasicTypeValue = 5;
+
+    // 2. 实例字符串类型变量 1
+    public String instanceStringTypeValue1 = "abc";
+
+    // 3. 实例字符串类型变量 2
+    public String instanceStringTypeValue2 = new String("def");
+
+    // 4. 实例字符串类型变量 3
+    public String instanceStringTypeValue3 = instanceStringTypeValue2.intern();
+
+    // 5. 实例引用类型变量
+    public Demo instanceReferenceTypeValue = new Demo();
+
+    // 6. 静态基本数据类型变量
+    public static int staticBasicTypeValue = 10;
+
+    // 7. 静态字符串类型变量 1
+    public static String staticStringTypeValue1 = "abc";
+
+    // 8. 静态字符串类型变量 2
+    public static String staticStringTypeValue2 = new String("def");
+
+    // 9. 静态字符串类型变量 3
+    public static String staticStringTypeValue3 = staticStringTypeValue2.intern();
+
+    // 10. 静态引用类型变量
+    public static Demo staticReferenceTypeValue = new Demo();
+
+    // 11. 基本数据类型常量
+    public final int finalBasicTypeValue = 15;
+
+    // 12. 字符串类型常量 1
+    public final String finalStringTypeValue1 = "abc";
+
+    // 13. 字符串类型常量 2
+    public final String finalStringTypeValue2 = new String("def");
+
+    // 14. 字符串类型常量 3
+    public final String finalStringTypeValue3 = finalStringTypeValue2.intern();
+
+    // 15. 引用类型常量
+    public final Demo finalReferenceTypeValue = new Demo();
+
+    // 16. 静态基本数据类型常量
+    public static final int staticFinalBasicTypeValue = 20;
+
+    // 17. 静态字符串类型常量 1
+    public static final String staticFinalStringTypeValue1 = "abc";
+
+    // 18. 静态字符串类型常量 2
+    public static final String staticFinalStringTypeValue2 = new String("def");
+
+    // 19. 静态字符串类型常量 3
+    public static final String staticFinalStringTypeValue3 = staticFinalStringTypeValue2.intern();
+
+    // 20. 静态引用类型常量
+    public static final Demo staticFinalReferenceTypeValue = new Demo();
+
+    // 方法参数
+    public void method(int param) {
+        // 局部变量
+        int localValue = 25;
+        System.out.println(localValue);
+    }
+
+    public static void main(String[] args) {
+        Test test = new Test();
+
+        System.out.println("instanceBasicTypeValue = " + test.instanceBasicTypeValue); // 5
+        System.out.println("instanceStringTypeValue1 = " + test.instanceStringTypeValue1); // abc
+        System.out.println("instanceStringTypeValue2 = " + test.instanceStringTypeValue2); // def
+        System.out.println("instanceStringTypeValue3 = " + test.instanceStringTypeValue3); // def
+        System.out.println("instanceReferenceTypeValue = " + test.instanceReferenceTypeValue); // org.example.test.Demo@7699a589
+
+        System.out.println("staticBasicTypeValue = " + Test.staticBasicTypeValue); // 10
+        System.out.println("staticStringTypeValue1 = " + Test.staticStringTypeValue1); // abc
+        System.out.println("staticStringTypeValue2 = " + Test.staticStringTypeValue2); // def
+        System.out.println("staticStringTypeValue3 = " + Test.staticStringTypeValue3); // def
+        System.out.println("staticReferenceTypeValue = " + Test.staticReferenceTypeValue); // org.example.test.Demo@58372a00
+
+        System.out.println("finalBasicTypeValue = " + test.finalBasicTypeValue); // 15
+        System.out.println("finalStringTypeValue1 = " + test.finalStringTypeValue1); // abc
+        System.out.println("finalStringTypeValue2 = " + test.finalStringTypeValue2); // def
+        System.out.println("finalStringTypeValue3 = " + test.finalStringTypeValue3); // def
+        System.out.println("finalReferenceTypeValue = " + test.finalReferenceTypeValue); // org.example.test.Demo@4dd8dc3
+
+        System.out.println("staticFinalBasicTypeValue = " + Test.staticFinalBasicTypeValue); // 20
+        System.out.println("staticFinalStringTypeValue1 = " + Test.staticFinalStringTypeValue1); // abc
+        System.out.println("staticFinalStringTypeValue2 = " + Test.staticFinalStringTypeValue2); // def
+        System.out.println("staticFinalStringTypeValue3 = " + Test.staticFinalStringTypeValue3); // def
+        System.out.println("staticFinalReferenceTypeValue = " + Test.staticFinalReferenceTypeValue); // org.example.test.Demo@6d03e736
+    }
+}
+```
+
+
+
+
+
+
+![](image-20250727112402102.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+> [!NOTE] 注意事项
+>5. Java 类里各种变量的 “诞生” 与 “存活” 流程
+>	1. 在下面的例子中，变量会经历以下几个阶段：
+>		1. 类加载阶段
+>			1. 准备阶段
+>				1. JVM 将 `Demo.class` 文件加载到内存，并为静态变量 `staticVar` 分配内存，并赋予默认值 0
+>				2. 该静态变量存储在方法区（元空间、Metaspace）（坏事了，jdk1.7 之前确实是方法区，jdk 1.8 之后是放到堆内存，直接放到老年代，那准备阶段对象都还没创建呢，啊对，静态变量与对象根本没关系，而是而是属于类本身的，不用等对象）
+>				3. 准备阶段不执行任何代码，也不调用任何方法，只是为静态变量提供一个 “安全” 的初始状态，避免野指针或未定义行为。
+>			2. 初始化阶段
+>				1. 执行静态变量的显式赋值语句（如 `staticVar = 10;`）和静态代码块（`static {}`）中的代码。
+>		2. 对象创建阶段
+>			1. JVM 在堆内存中为对象 `demo` 分配空间，所有成员变量（如 `instanceVar`）都被分配内存并赋予默认值（0、false、null）
+>			2. 然后执行构造方法，可以对成员变量进行显式初始化或逻辑处理。
+>		3. 方法调用阶段
+>			1. JVM 在栈内存中为方法调用创建一个新的栈帧
+>			2. 因为是实例方法，槽位 0 用于存放 `this` 引用，指向当前调用方法的 `demo` 对象。
+>			3. 槽位 1 用于存放方法参数 `param`，槽位 2 存放局部变量 `localVar`。
+>			4. 需要注意的是，局部变量和方法参数不会像静态变量或成员变量那样自动初始化默认值。
+>			5. 如果你只是声明了一个局部变量（如 `int localVar;`），但没有显式赋值（如 `localVar = 5`），那么就会编译报错。
+```
+public class Demo {
+
+    // 静态变量（类变量）
+    static int staticVar = 10;
+
+    // 成员变量（实例变量）
+    int instanceVar;
+    
+	// 方法参数
+    public void method(int param) {
+    
+	    // 局部变量
+        int localVar = 5;
+        
+        System.out.println(localVar);
+    }
+}
+```
 
 
 

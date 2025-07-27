@@ -5,6 +5,14 @@
       "path": "source/_posts/笔记：JVM.md"
     },
     {
+      "basename": "笔记：Java 数据类型",
+      "path": "source/_posts/笔记：Java 数据类型.md"
+    },
+    {
+      "basename": "笔记：AutoHotKey",
+      "path": "source/_posts/笔记：AutoHotKey.md"
+    },
+    {
       "basename": "笔记：Java SE",
       "path": "source/_posts/笔记：Java SE.md"
     },
@@ -75,10 +83,6 @@
     {
       "basename": "测试",
       "path": "templates/测试.md"
-    },
-    {
-      "basename": "笔记：Java 数据类型",
-      "path": "source/_posts/笔记：Java 数据类型.md"
     },
     {
       "basename": "笔记：本地图库小工具",
@@ -163,10 +167,6 @@
     {
       "basename": "笔记：阿里云代码规约",
       "path": "source/_posts/笔记：阿里云代码规约.md"
-    },
-    {
-      "basename": "笔记：AutoHotKey",
-      "path": "source/_posts/笔记：AutoHotKey.md"
     },
     {
       "basename": "笔记：微软输入法",

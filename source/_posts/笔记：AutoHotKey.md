@@ -50,13 +50,24 @@ Win + R 输入 `shell:startup` 打开 “启动” 文件夹，然后将你的 `
 
 ## 常用脚本
 
-### ctrl + ; 跳到行尾（模拟按 End 键）
+### Ctrl + 箭头 实现跳转
 
 ```
-; Ctrl + ; 让光标跳到行尾（模拟按 End 键）
-^;::
-Send, {End}
-Return
+^Left::  ; Ctrl + ← 跳转到当前行行首
+    Send, {Home}
+return
+
+^Right::  ; Ctrl + → 跳转到当前行行尾
+    Send, {End}
+return
+
+^Up::  ; Ctrl + ↑ 跳转到上一行行尾
+    Send, {Up}{End}
+return
+
+^Down::  ; Ctrl + ↓ 跳转到下一行行尾
+    Send, {Down}{End}
+return
 ```
 
 ----
