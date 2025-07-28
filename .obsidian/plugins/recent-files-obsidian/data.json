@@ -5,8 +5,76 @@
       "path": "source/_posts/笔记：JVM.md"
     },
     {
+      "basename": "笔记：阿里云代码规约",
+      "path": "source/_posts/笔记：阿里云代码规约.md"
+    },
+    {
+      "basename": "JVM_对象实例化流程_实例变量",
+      "path": "Excalidraw/JVM_对象实例化流程_实例变量.md"
+    },
+    {
+      "basename": "笔记：Spring 整合 Minio",
+      "path": "source/_posts/笔记：Spring 整合 Minio.md"
+    },
+    {
       "basename": "笔记：Java 数据类型",
       "path": "source/_posts/笔记：Java 数据类型.md"
+    },
+    {
+      "basename": "image-20250501113003650",
+      "path": "source/_posts/笔记：ElasticSearch 基础/image-20250501113003650.png"
+    },
+    {
+      "basename": "image-20250501113019828",
+      "path": "source/_posts/笔记：ElasticSearch 基础/image-20250501113019828.png"
+    },
+    {
+      "basename": "PixPin_2025-04-27_11-32-26_PhotoGrid",
+      "path": "source/_posts/笔记：ElasticSearch 基础/PixPin_2025-04-27_11-32-26_PhotoGrid.png"
+    },
+    {
+      "basename": "PixPin_2025-04-27_11-26-54_PhotoGrid",
+      "path": "source/_posts/笔记：ElasticSearch 基础/PixPin_2025-04-27_11-26-54_PhotoGrid.png"
+    },
+    {
+      "basename": "PixPin_2025-04-27_11-22-54_PhotoGrid",
+      "path": "source/_posts/笔记：ElasticSearch 基础/PixPin_2025-04-27_11-22-54_PhotoGrid.png"
+    },
+    {
+      "basename": "PixPin_2025-04-26_17-15-36",
+      "path": "source/_posts/笔记：ElasticSearch 基础/PixPin_2025-04-26_17-15-36.png"
+    },
+    {
+      "basename": "image-20250509094115904",
+      "path": "source/_posts/笔记：ElasticSearch 基础/image-20250509094115904.png"
+    },
+    {
+      "basename": "image-20250509094124447",
+      "path": "source/_posts/笔记：ElasticSearch 基础/image-20250509094124447.png"
+    },
+    {
+      "basename": "PixPin_2025-04-26_17-10-28",
+      "path": "source/_posts/笔记：ElasticSearch 基础/PixPin_2025-04-26_17-10-28.png"
+    },
+    {
+      "basename": "笔记：ElasticSearch 基础",
+      "path": "source/_posts/笔记：ElasticSearch 基础.md"
+    },
+    {
+      "basename": "临时：es",
+      "path": "templates/临时：es.md"
+    },
+    {
+      "basename": "firstTest",
+      "path": "Excalidraw/firstTest.md"
+    },
+    {
+      "basename": "Pasted Image 20250727180040_276",
+      "path": "Excalidraw/attachments/Pasted Image 20250727180040_276.png"
+    },
+    {
+      "basename": "Pasted Image 20250727180120_060",
+      "path": "Excalidraw/attachments/Pasted Image 20250727180120_060.png"
     },
     {
       "basename": "笔记：AutoHotKey",
@@ -73,10 +141,6 @@
       "path": "templates/临时：mybatis.md"
     },
     {
-      "basename": "临时：es",
-      "path": "templates/临时：es.md"
-    },
-    {
       "basename": "可加密码",
       "path": "templates/可加密码.md"
     },
@@ -135,70 +199,6 @@
     {
       "basename": "image-20250310171747324",
       "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171747324.png"
-    },
-    {
-      "basename": "image-20250310171539936",
-      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171539936.png"
-    },
-    {
-      "basename": "image-20250310171208901",
-      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171208901.png"
-    },
-    {
-      "basename": "image-20250310171119367",
-      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171119367.png"
-    },
-    {
-      "basename": "image-20250310164200172",
-      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310164200172.png"
-    },
-    {
-      "basename": "image-20250310162727945",
-      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310162727945.png"
-    },
-    {
-      "basename": "笔记：Edraw Max",
-      "path": "source/_posts/笔记：Edraw Max.md"
-    },
-    {
-      "basename": "Todo 看板",
-      "path": "Todo 看板.md"
-    },
-    {
-      "basename": "笔记：阿里云代码规约",
-      "path": "source/_posts/笔记：阿里云代码规约.md"
-    },
-    {
-      "basename": "笔记：微软输入法",
-      "path": "source/_posts/笔记：微软输入法.md"
-    },
-    {
-      "basename": "image-20250717222336285",
-      "path": "source/_posts/笔记：JUC/image-20250717222336285.png"
-    },
-    {
-      "basename": "image-20250717201013757",
-      "path": "source/_posts/笔记：JUC/image-20250717201013757.png"
-    },
-    {
-      "basename": "image-20250717200949287",
-      "path": "source/_posts/笔记：JUC/image-20250717200949287.png"
-    },
-    {
-      "basename": "笔记：Java 异常处理",
-      "path": "source/_posts/笔记：Java 异常处理.md"
-    },
-    {
-      "basename": "README",
-      "path": "node_modules/is-windows/README.md"
-    },
-    {
-      "basename": "笔记：MySQL 基础",
-      "path": "source/_posts/笔记：MySQL 基础.md"
-    },
-    {
-      "basename": "笔记：Windows",
-      "path": "source/_posts/笔记：Windows.md"
     }
   ],
   "omittedPaths": [],

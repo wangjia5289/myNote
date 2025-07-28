@@ -22,7 +22,7 @@ layout: post
 elasticsearch是一款非常强大的开源搜索引擎，可以帮助我们从海量数据中快速找到需要的内容
 
 ---
-
+![](source/_posts/笔记：ElasticSearch 基础/PixPin_2025-04-26_17-15-36.png)
 
 
 

@@ -9,7 +9,7 @@ tags:
 author: 霸天
 layout: post
 ---
-
+S
 > [!NOTE] 注意事项
 > 1. 与数据库表映射的类通常称为 Entity 类，也可称为 DO 类或 PO 类，统属 POJO 类，通常只包含 getter、setter 、equals、hashCode、toString 方法及构造方法，不应包含业务逻辑方法
 > 2. 数据库中的表名一般使用复数形式，如 users；而在 Java 中则采用单数形式命名，如 User

@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "11d8be19106b3bc6",
+        "id": "956e3ccfdbde0b06",
         "type": "tabs",
         "children": [
           {
-            "id": "b775e4cf9d2432e8",
+            "id": "a2ce064672098ea6",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -22,17 +22,29 @@
             }
           },
           {
-            "id": "3f03a5937d9747e7",
+            "id": "7e2f1a0c3f642cce",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：Java 数据类型.md",
+                "file": "source/_posts/笔记：阿里云代码规约.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：Java 数据类型"
+              "title": "笔记：阿里云代码规约"
+            }
+          },
+          {
+            "id": "5e7d4e3ab2b4b3d8",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/JVM_对象实例化流程_实例变量.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "JVM_对象实例化流程_实例变量"
             }
           }
         ]
@@ -111,7 +123,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 313.5041847229004,
+    "width": 306.5110321044922,
     "collapsed": true
   },
   "right": {
@@ -273,28 +285,38 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "b775e4cf9d2432e8",
+  "active": "a2ce064672098ea6",
   "lastOpenFiles": [
-    "source/_posts/笔记：JVM/image-20250727112402102.png",
-    "source/_posts/笔记：Java 数据类型.md",
-    "source/_posts/笔记：AutoHotKey.md",
+    "source/_posts/笔记：JVM/image-20250727224146335.png",
+    "source/_posts/笔记：阿里云代码规约.md",
+    "Excalidraw/JVM_对象实例化流程_实例变量.md",
     "source/_posts/笔记：JVM.md",
+    "source/_posts/笔记：JVM/image-20250727224126808.png",
+    "source/_posts/笔记：Spring 整合 Minio.md",
+    "source/_posts/笔记：Java 数据类型.md",
+    "source/_posts/笔记：JVM/image-20250727223437242.png",
+    "Excalidraw/attachments/Pasted Image 20250727222656_265.png",
+    "Excalidraw/attachments/Pasted Image 20250727214857_507.png",
+    "Excalidraw/attachments/Pasted Image 20250727214302_751.png",
+    "Excalidraw/attachments/Pasted Image 20250727214018_066.png",
+    "Excalidraw/attachments/Pasted Image 20250727213845_635.png",
+    "source/_posts/笔记：JVM/image-20250727210546488.png",
+    "source/_posts/笔记：JVM/image-20250727181821578.png",
+    "Excalidraw/attachments/Pasted Image 20250727181744_043.png",
+    "source/_posts/笔记：ElasticSearch 基础.md",
+    "templates/临时：es.md",
+    "Excalidraw/firstTest.md",
+    "Excalidraw/Drawing 2025-07-27 17.59.08.excalidraw.md",
+    "source/_posts/笔记：AutoHotKey.md",
     "source/_posts/笔记：Java 数据类型/Map：Java数据类型 1.xmind",
-    "source/_posts/笔记：JVM/image-20250727083631864.png",
     "source/_posts/笔记：Java SE.md",
-    "source/_posts/笔记：JVM/image-20250726201657760.png",
     "source/_posts/笔记：JUC.md",
     "node_modules/highlight.js/CHANGES.md",
-    "source/_posts/笔记：JVM/image-20250725114229098.png",
     "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
     "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
     "Categories.md",
     "source/_posts/笔记：Hexo + Obsidian +GitHub Pages.md",
     "db.json",
-    "public/img/archive.png",
-    "public/img/404.png",
-    "public/img/index.png",
-    "public/img/about.png",
     "public/categories/Java/安全框架/RBAC-规范/index.html",
     "public/categories/Java/安全框架/OAuth-规范/index.html",
     "public/categories/Java/安全框架/RBAC-规范",
@@ -303,9 +325,6 @@
     "public/categories/Java/安全框架",
     "public/categories/网关与负载均衡/Nginx/index.html",
     "public/categories/网关与负载均衡/Nginx",
-    "public/live2dw/assets/moc/shizuku.1024/texture_05.png",
-    "public/live2dw/assets/moc/shizuku.1024/texture_03.png",
-    "public/live2dw/assets/moc/shizuku.1024/texture_04.png",
     "source/_posts/提高图片清晰度.md",
     "source/about/index.md",
     "source/_posts/笔记：Spring Aop.md",
@@ -314,13 +333,6 @@
     "templates/速度.md",
     "templates/马士兵.md",
     "templates/临时：OAUth.md",
-    "templates/临时：mybatis.md",
-    "templates/临时：es.md",
-    "templates/可加密码.md",
-    "templates/测试.md",
-    "themes/fluid/README_en.md",
-    "themes/fluid/README.md",
-    "themes/fluid/hexo-theme-fluid-master/README.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]
