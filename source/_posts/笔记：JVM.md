@@ -9,10 +9,815 @@ tags:
 author: 霸天
 layout: post
 ---
+## 1. 类编译过程
 
-## 1. 运行时数据区
+---
 
-### 1.1. 运行时数据区一览图
+
+## 2. 类加载过程
+
+### 2.1. 类加载过程一览图
+
+![](image-20250728104904949.png)
+
+---
+
+
+### 类加载概述
+
+**类加载**是指 JVM 将类的 `.class` 字节码文件中的二进制数据读取到内存，为该类在 JVM 内部构建一个对应的 `java.lang.Class` 实例，并依次完成对该类的结构信息的加载、验证、准备、解析和初始化，确保类可以被程序在运行时安全、合法地使用。
+
+---
+
+
+### 2.2. 类加载的时机
+
+JVM（Java 虚拟机）在运行时并不会一次性加载所有的类，而是采取**按需加载**的策略，这被称为**动态加载**。类加载的时机主要分为两种：**启动时加载**和**运行时加载**。
+1. 启动时加载
+	1. JVM 启动时，会加载启动类，然后执行其 main 方法
+		1. 不会在堆内存中创建启动类的实例对象
+		2. 因为 `main` 方法是一个静态方法，它不需要一个类的实例就可以被调用
+	2. 同时，JVM 会加载运行程序所需的核心类，例如 `java.lang.Object`、`java.lang.String` 以及其他在启动过程中直接或间接被引用的类。
+2. 运行时加载
+	1. 这是类加载最常见的场景，常见触发情况有：
+	2. 创建类的实例时：
+		1. 当你使用 `new` 关键字创建一个类的对象时，如果这个类还没有被加载，JVM 会立即加载它。
+		2. 例如：`MyClass obj = new MyClass();` // 第一次使用 MyClass 时，会被加载
+	3. 访问类的静态成员时：
+		1. 当你访问一个类的静态变量（`static field`）或者调用一个类的静态方法（`static method`）时，如果该类还没有被加载，JVM 会加载它
+		2. 例如：`MyClass.staticMethod();`
+	4. 使用反射时
+		1. 当你通过 `java.lang.reflect` 包中的方法，例如 `Class.forName("com.example.MyClass")` 来获取一个类的 `Class` 对象时，会触发该类的加载
+		2. 例如：`Class<?> clazz = Class.forName("com.example.MyClass");`
+	5. 子类被加载时，父类也会被加载
+		1. 当一个类的子类被初始化时，它的父类如果尚未加载，则会首先被加载
+		2. 这是因为子类继承了父类的成员，需要确保父类已经就绪
+	6. 使用 ClassLoader.loadClass()
+		1. 根据给定的类全名（例如 `java.lang.String` 或 `com.example.MyClass`）来加载对应的类
+		2. 这是更底层、更灵活的加载方式，通常在自定义类加载器时使用
+
+---
+
+#### JVM 类加载的时机
+
+JVM（Java Virtual Machine）中类的加载是指将类的 `.class` 文件中的二进制数据读取到内存中，并为之创建对应的 `java.lang.Class` 对象的过程。这个过程并非在 JVM 启动时一次性完成所有类的加载，而是根据需要动态地进行。类加载的时机主要分为以下几个阶段：
+
+#### 1. 加载 (Loading)
+
+**“加载”是类加载过程的第一个阶段。** 在这个阶段，JVM 完成以下三件事：
+
+- **通过类的完全限定名获取定义此类的二进制字节流。** 这一步可以通过多种方式实现，例如从本地文件系统（最常见）、网络、JAR 包、运行时计算生成（如动态代理）等。
+    
+- **将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。** 方法区是存储已被虚拟机加载的类信息、常量、静态变量、即时编译器编译后的代码等数据的区域。
+    
+- **在内存中生成一个代表这个类的 `java.lang.Class` 对象。** 这个对象作为方法区这个类的各种数据的访问入口。
+    
+
+**何时开始加载？**
+
+加载阶段通常在以下情况发生：
+
+- 当遇到 `new`、`getstatic`、`putstatic` 或 `invokestatic` 这四条字节码指令时，如果类没有进行过初始化，则需要先触发其初始化。在这之前，自然需要先完成加载和验证、准备阶段。
+    
+- 使用 `java.lang.reflect` 包的方法对类进行反射调用时。
+    
+- 当初始化一个类时，如果其父类还没有被初始化，则需要先初始化其父类。
+    
+- 当虚拟机启动时，用户需要指定一个要执行的主类（包含 `main()` 方法的那个类），虚拟机会先加载并初始化这个主类。
+    
+- 当使用 `JDK 7` 的动态语言支持时，如果一个 `java.lang.invoke.MethodHandle` 实例最后的解析结果是 `REF_getStatic`、`REF_putStatic`、`REF_invokeStatic`、`REF_newInvokeSpecial` 四种类型的方法句柄，并且这个方法句柄对应的类没有进行过初始化，则需要先触发其初始化。
+
+        
+
+**何时触发初始化？**
+
+JVM 规范严格规定了有且只有以下五种情况（在 JDK 7 中增加了第六种情况）必须立即对类进行初始化（而加载、验证、准备自然要在此之前完成）：
+
+1. 遇到 `new`、`getstatic`、`putstatic` 或 `invokestatic` 这四条字节码指令时，如果类没有进行过初始化，则需要先触发其初始化。这四条指令分别对应：
+    
+    - 使用 `new` 关键字实例化对象。
+        
+    - 读取一个类的静态字段（被 `final` 修饰，已在编译期把结果放入常量池的静态字段除外）。
+        
+    - 设置一个类的静态字段。
+        
+    - 调用一个类的静态方法。
+        
+2. 使用 `java.lang.reflect` 包的方法对类进行反射调用时，如果类没有进行过初始化，则需要先触发其初始化。
+    
+3. 当初始化一个类时，如果其父类还没有被初始化，则需要先初始化其父类。
+    
+4. 当虚拟机启动时，用户需要指定一个要执行的主类（包含 `main()` 方法的那个类），虚拟机会先加载并初始化这个主类。
+    
+5. 当使用 `JDK 7` 的动态语言支持时，如果一个 `java.lang.invoke.MethodHandle` 实例最后的解析结果是 `REF_getStatic`、`REF_putStatic`、`REF_invokeStatic`、`REF_newInvokeSpecial` 四种类型的方法句柄，并且这个方法句柄对应的类没有进行过初始化，则需要先触发其初始化。
+    
+6. 当一个接口中定义了 `JDK 8` 新加入的默认方法（`default` 方法）时，如果有这个接口的实现类发生了初始化，那该接口要在其之前被初始化。
+    
+
+这些情况被称为 **“主动引用”**。除此之外的所有引用类的方式，都不会触发类的初始化，这被称为 **“被动引用”**。
+
+是初始化还是类加载？？？？？？///
+
+---
+
+
+### 加载阶段
+
+#### 加载概述
+
+加载阶段是类加载过程的第一个阶段，JVM 会在该阶段完成以下三件事：
+1. 通过类的完全限定名获取定义此类的二进制字节流
+	1. 这一步可以通过多种方式实现，常见有：
+		1. 从本地文件系统直接加载
+			1. 根据类名查找磁盘上的 `.class` 文件
+			2. 例如：org.example.test.MyClass → org/example/test/MyClass.class
+			3. 场景：本地 Java 应用
+		2. 通过网络加载
+			1. 类的字节码通过 HTTP 或 FTP 等协议远程获取
+			2. 场景：分布式类加载
+		3. 运行时动态生成字节码
+			1. 程序运行时动态创建字节数组作为类定义内容
+			2. 场景：
+				1. 动态代理
+				2. 字节码增强技术
+		4. 从其他文件类型转换生成
+			1. `.jsp` 被转换为 `.java`，再编译成 `.class` 并加载
+			2. 场景：
+				1. JSP
+2. 将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构
+3. 在内存中生成一个代表这个类的 `java.lang.Class` 对象
+	1. 这个对象作为方法区这个类的各种数据的访问入口
+
+![](image-20250728230311438.png)
+
+> [!NOTE] 注意事项
+> 1. JVM 验证的并不是 `.class` 字节码文件本身，而是将其加载并解析后生成的**结构化类元信息**，因此验证过程发生在加载过程之后
+> 2. 一个类被加载后，既会在方法区（元空间）中构建对应的运行时数据结构，同时还会在内存中生成一个 `java.lang.Class` 实例，该对象内部包含指向元信息的引用，我们可以通过其提供的方法访问和获取该类的详细信息。
+
+---
+
+
+#### 类加载器
+
+---
+
+
+### 验证阶段
+
+验证阶段是链接阶段中的第一个阶段，其主要包含：
+1. 文件格式验证
+	1. 检查字节码是否符合 Class 文件格式的规范，是否以魔数 `0xCAFEBABE` 开头。
+	2. 确保主版本号和副版本号在 JVM 支持的范围内。
+	3. 检查文件结构，如常量池、字段表、方法表等是否符合规范。
+2. 元数据验证
+	1. 这个类是否有父类（除了 `java.lang.Object`，所有类都应该有父类）
+	2. 这个类的父类是否是 `final` 的（`final` 类不允许被继承）
+	3. 这个类是否实现了它所声明实现的所有接口的方法
+	4. 类中的字段和方法是否与父类或接口的规范保持一致
+	5. 确保类、字段和方法访问权限的正确性（例如，不能覆盖一个 `final` 方法）
+3. 字节码验证
+	1. 控制流分析
+		1. 确保方法体内的控制流是合法的，例如，不会出现跳转到方法体外的指令，或者指令序列是连贯的
+	2. 类型检查
+		1. 确保在操作数栈上的操作是合法的，例如，不会将一个整数类型的值赋值给一个引用类型的变量，或者对一个非对象类型进行方法调用
+	3. 栈帧验证
+		1. 验证在方法执行过程中，栈帧（Stack Frame）的操作是正确的，例如，操作数栈的深度不会溢出，局部变量表的索引是合法的
+	4. 方法调用验证
+		1. 确保方法调用时参数的数量和类型都与目标方法的签名匹配
+	5. 异常处理验证
+		1. 确保异常处理器（exception handler）是合法的，并且能够正确处理抛出的异常
+4. 符号引用验证
+	1. 符号引用中描述的全限定名是否能找到对应的类、字段或方法。
+	2. 符号引用中描述的类、字段或方法是否具有访问权限（例如，是否尝试访问一个 `private` 成员）
+	3. 引用的字段或方法是否与被引用的类兼容（例如，对一个接口调用其未定义的方法）
+
+> [!NOTE] 注意事项
+> 1. 实际上，文件格式验证发生在加载阶段之前，而符号引用验证则是在解析阶段进行的。
+
+---
+
+
+### 2.3. 准备阶段
+
+准备阶段是链接阶段的第二个子阶段，在这一阶段，JVM 的主要任务是：
+1. 为类的静态变量（static 变量）分配内存
+	1. 内存空间会被分配在方法区中
+2. 并为类的静态变量赋予默认初始值
+	1. 整型（byte、short、int、long）
+		1. 0
+	2. 浮点型（float、double）
+		1. 0.0
+	3. char
+		1. \u0000（即 0）
+	4. boolean
+		1. false
+	5. 引用类型
+		1. null
+
+例如这个代码：
+```
+public class Test {
+
+    // 1. 静态基本数据类型变量
+    public static int staticBasicTypeValue = 50000;
+
+    // 2. 静态字符串类型变量 1
+    public static String staticStringTypeValue1 = "abc";
+
+    // 3. 静态字符串类型变量 2
+    public static String staticStringTypeValue2 = new String("def");
+
+    // 4. 静态字符串类型变量 3
+    public static String staticStringTypeValue3 = staticStringTypeValue2.intern();
+
+    // 5. 静态引用类型变量
+    public static Demo staticReferenceTypeValue = new Demo();
+
+
+    public static void main(String[] args) {
+        Test test = new Test();
+
+        System.out.println("1. staticBasicTypeValue = " + Test.staticBasicTypeValue); // 50000
+        System.out.println("2. staticStringTypeValue1 = " + Test.staticStringTypeValue1); // abc
+        System.out.println("3. staticStringTypeValue2 = " + Test.staticStringTypeValue2); // def
+        System.out.println("4. staticStringTypeValue3 = " + Test.staticStringTypeValue3); // def
+        System.out.println("5. staticReferenceTypeValue = " + Test.staticReferenceTypeValue); // org.example.test.Demo@58372a00
+    }
+}
+```
+
+在准备阶段时为：
+![](image-20250728231307024.png)
+
+> [!NOTE] 注意事项
+> 1. 准备阶段的作用是为静态变量提供一个 “安全” 的初始状态，防止出现野指针或非法内存访问
+> 2. 对于静态常量（static 和 final 同时修饰），并且是基本数据类型和字符串类型的静态常量，其值在编译期就已确定，因此在准备阶段就会被直接初始化为其编译期常量值，而不是默认值
+> 	1. 其他值为什么要等到 clinit 呢？别的对象是什么时候创建的呢？
+> 	2. 额，现在好像哪些运行时常量池还没有进行直接引用，好像是在下一个阶段，现在这个阶段是不是只是static 这些域指向？
+```
+// 静态基本数据类型常量
+public static final int staticBasicTypeValue = 50000;
+
+
+// 静态字符串类型常量 
+public static final String staticStringTypeValue1 = "abc";
+```
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 3. 对象实例化
+
+### 3.1. 实例
+
+![](image-20250727210546488.png)
+
+
+
+
+
+
+
+> [!NOTE] 注意事项
+>5. Java 类里各种变量的 “诞生” 与 “存活” 流程
+>	1. 在下面的例子中，变量会经历以下几个阶段：
+>		1. 类加载阶段
+>			1. 准备阶段
+>				1. JVM 将 `Demo.class` 文件加载到内存，并为静态变量 `staticVar` 分配内存，并赋予默认值 0
+>				2. 该静态变量存储在方法区（元空间、Metaspace）（坏事了，jdk1.7 之前确实是方法区，jdk 1.8 之后是放到堆内存，直接放到老年代，那准备阶段对象都还没创建呢，啊对，静态变量与对象根本没关系，而是而是属于类本身的，不用等对象）
+>				3. 准备阶段不执行任何代码，也不调用任何方法，只是为静态变量提供一个 “安全” 的初始状态，避免野指针或未定义行为。
+>			2. 初始化阶段
+>				1. 执行静态变量的显式赋值语句（如 `staticVar = 10;`）和静态代码块（`static {}`）中的代码。
+>		2. 对象创建阶段
+>			1. JVM 在堆内存中为对象 `demo` 分配空间，所有成员变量（如 `instanceVar`）都被分配内存并赋予默认值（0、false、null）
+>			2. 然后执行赋值？、、、显构造方法，可以对成员变量进行显式初始化或逻辑处理。
+>			3. 简单来说就是属性的默认初始化、显示初始化、构造器初始化
+>		3. 方法调用阶段
+>			1. JVM 在栈内存中为方法调用创建一个新的栈帧
+>			2. 因为是实例方法，槽位 0 用于存放 `this` 引用，指向当前调用方法的 `demo` 对象。
+>			3. 槽位 1 用于存放方法参数 `param`，槽位 2 存放局部变量 `localVar`。
+>			4. 需要注意的是，局部变量和方法参数不会像静态变量或成员变量那样自动初始化默认值。
+>			5. 如果你只是声明了一个局部变量（如 `int localVar;`），但没有显式赋值（如 `localVar = 5`），那么就会编译报错。
+```
+public class Demo {
+
+    // 静态变量（类变量）
+    static int staticVar = 10;
+
+    // 成员变量（实例变量）
+    int instanceVar;
+    
+	// 方法参数
+    public void method(int param) {
+    
+	    // 局部变量
+        int localVar = 5;
+        
+        System.out.println(localVar);
+    }
+}
+```
+
+---
+
+
+### 3.2. 实例变量
+
+以如下代码为例：
+```
+public class Test {
+		
+    // 1. 实例基本数据类型变量
+    public int instanceBasicTypeValue = 50000;
+		
+    // 2. 实例字符串类型变量 1
+    public String instanceStringTypeValue1 = "abc";
+		
+    // 3. 实例字符串类型变量 2
+    public String instanceStringTypeValue2 = new String("def");
+		
+    // 4. 实例字符串类型变量 3
+    public String instanceStringTypeValue3 = instanceStringTypeValue2.intern();
+		
+    // 5. 实例引用类型变量
+    public Demo instanceReferenceTypeValue = new Demo();
+		
+    public static void main(String[] args) {
+        Test test = new Test();
+		
+        System.out.println("1. instanceBasicTypeValue = " + test.instanceBasicTypeValue); // 5
+        System.out.println("2. instanceStringTypeValue1 = " + test.instanceStringTypeValue1); // abc
+        System.out.println("3. instanceStringTypeValue2 = " + test.instanceStringTypeValue2); // def
+        System.out.println("4. instanceStringTypeValue3 = " + test.instanceStringTypeValue3); // def
+        System.out.println("5. instanceReferenceTypeValue = " + test.instanceReferenceTypeValue); // org.example.test.Demo@7699a589
+		
+    }
+}
+```
+
+在 `Main` 线程的 `main` 方法中执行 `Test test = new Test();` 时，`new Test()` 这一操作对应的字节码是：
+```
+ 0 aload_0
+ 1 invokespecial #1 <java/lang/Object.<init> : ()V>
+
+/**
+ * ============================================
+ * 1. 处理 instanceBasicTypeValue
+ * --------------------------------------------
+ * aload_0
+ * - 将当前对象的引用（this）压入操作数栈
+ *
+ * ldc #7
+ * - 从运行时常量池中加载整数常量 50000，并将其压入操作数栈
+ * - 对于较小的数值，JVM 不需要通过 ldc 指令加载，而是直接使用 iconst、bipush 或 sipush 等指令将常量压入操作数栈。
+ *
+ * putfield #8
+ * - 将栈顶的 50000 赋值给当前对象（this）的 instanceBasicTypeValue 字段
+ * ============================================
+ */
+ 4 aload_0
+ 5 ldc #7 <50000>
+ 7 putfield #8 <org/example/test/Test.instanceBasicTypeValue : I>
+
+ 
+/**
+ * ============================================
+ * 2. 处理 instanceStringTypeValue1
+ * --------------------------------------------
+ * aload_0
+ * - 将当前对象的引用（this）压入操作数栈
+ *
+ * ldc #14
+ * - 从运行时常量池加载常量池中的 "abc" String 对象的引用并压入操作数栈
+ *
+ * putfield #16
+ * - 将栈顶的 "abc" String 对象的引用赋值给当前对象（this）的 instanceBasicTypeValue1 字段
+ * ============================================
+ */
+10 aload_0
+11 ldc #14 <abc>
+13 putfield #16 <org/example/test/Test.instanceStringTypeValue1 : Ljava/lang/String;>
+
+
+/**
+ * ============================================
+ * 3. 处理 instanceStringTypeValue2
+ * --------------------------------------------
+ * aload_0
+ * - 将当前对象的引用（this）压入操作数栈
+ *
+ * new #20
+ * - 在堆区分配一个 String 对象的空间（此时仅分配内存，尚未初始化，类型由方法区的元数据 #20 指定为 String 类型）
+ * - JVM 的一个基本原则是：在创建对象时，必须明确知道对象的大小，以便在堆中分配合适的内存块。这个大小信息在类的元数据中就已经确定了。
+ * - 你可能会好奇：如果对象中有一个 List 属性，那在对象创建后我不断向这个 List 添加元素，JVM 怎么知道我最终需要多少内存？
+ * - 别忘了，我们在对象中保存的只是对 List 实例的引用，这个引用的大小是固定不变的。那你又好奇了：为什么 List 能动态扩容？
+ * - 其实本质是：当容量不足时，会新建一个更大的数组对象，把原有内容复制进去，然后让 elementData 字段指向新的数组。
+ *
+ * dup
+ * - 复制该 String 对象的引用以备后续初始化。
+ *
+ * ldc #22
+ * - 从运行时常量池加载 "def" String 对象的引用并压入操作数栈
+ *
+ * invokespecial #24
+ * - 调用 String 构造方法，在堆内存中创建新的 String 实例。
+ *
+ * putfield #27
+ * - 将栈顶的 新创建的 String 实例的引用 赋值给当前对象（this）的 instanceBasicTypeValue2 字段
+ * ============================================
+ */
+16 aload_0
+17 new #20 <java/lang/String>
+20 dup
+21 ldc #22 <def>
+23 invokespecial #24 <java/lang/String.<init> : (Ljava/lang/String;)V>
+26 putfield #27 <org/example/test/Test.instanceStringTypeValue2 : Ljava/lang/String;>
+
+
+// 4. 处理 instanceStringTypeValue3
+29 aload_0
+30 aload_0
+31 getfield #27 <org/example/test/Test.instanceStringTypeValue2 : Ljava/lang/String;>
+34 invokevirtual #30 <java/lang/String.intern : ()Ljava/lang/String;>
+37 putfield #34 <org/example/test/Test.instanceStringTypeValue3 : Ljava/lang/String;>
+
+
+/**
+ * ============================================
+ * 5. 处理 instanceReferenceTypeValue
+ * --------------------------------------------
+ * aload_0
+ * - 将当前对象的引用（this）压入操作数栈
+ *
+ * new #37
+ * - 在堆区分配一个 Demo 对象的空间（此时仅分配内存，尚未初始化，类型由方法区的元数据 #37 指定为 Demo 类）
+ *
+ * dup
+ * - 复制该 Demo 对象的引用以备后续初始化。
+*
+ * invokespecial #39
+ * - 调用 Demo 构造方法，在堆内存中创建新的 Demo 实例。
+ *
+ * putfield #40
+ * - 将栈顶的 新创建的 Demo 实例的引用 赋值给当前对象（this）的 instanceReferenceTypeValue 字段
+ * ============================================
+ */
+40 aload_0
+41 new #37 <org/example/test/Demo>
+44 dup
+45 invokespecial #39 <org/example/test/Demo.<init> : ()V>
+48 putfield #40 <org/example/test/Test.instanceReferenceTypeValue : Lorg/example/test/Demo;>
+
+51 return
+```
+
+其详细流程为：
+![](image-20250727224126808.png)
+
+![](image-20250728084644718.png)
+
+最终执行结果为：
+![](image-20250727163945675.png)
+
+> [!NOTE] 注意事项
+> 1. intern() 方法的作用是，返回字符串常量池中 “内容相同” 的 String 对象的引用，如果常量池中没有这个内容，就把当前 String 对象加入常量池，并返回它的引用（不会让当前的 String 对象消失）
+> 2. 为什么执行 System.out.println(instanceStringTypeValue) 时，打印出的内容是字符串，而按理说应该像 instanceReferenceTypeValue 那样打印引用地址才对？
+> 	1. 这是因为 System.out.println() 先调用对象的 toString() 方法
+> 	2. 而 String 类重写了 toString()，直接返回自身（即 return this），所以直接打印字符串内容。
+> 	3. 其他对象如果没有重写 toString()，则打印的是类似 @1a2b3c4d 这样的内存地址形式
+```
+// 源码
+public String instanceStringTypeValue1 = "abc";
+System.out.println("2. instanceStringTypeValue1 = " + test.instanceStringTypeValue1);
+
+
+// 等价于
+System.out.println("2. instanceStringTypeValue1 = " + test.instanceStringTypeValue1.toString());
+
+
+// 但是 String 对象重写 toString() 方法
+public String toString() {
+    return this;
+}
+```
+
+---
+
+
+### 3.3. 静态变量
+
+以如下代码为例：
+```
+public class Test {
+
+    // 1. 静态基本数据类型变量
+    public static int staticBasicTypeValue = 50000;
+
+    // 2. 静态字符串类型变量 1
+    public static String staticStringTypeValue1 = "abc";
+
+    // 3. 静态字符串类型变量 2
+    public static String staticStringTypeValue2 = new String("def");
+
+    // 4. 静态字符串类型变量 3
+    public static String staticStringTypeValue3 = staticStringTypeValue2.intern();
+
+    // 5. 静态引用类型变量
+    public static Demo staticReferenceTypeValue = new Demo();
+
+
+    public static void main(String[] args) {
+        Test test = new Test();
+
+        System.out.println("1. staticBasicTypeValue = " + Test.staticBasicTypeValue); // 50000
+        System.out.println("2. staticStringTypeValue1 = " + Test.staticStringTypeValue1); // abc
+        System.out.println("3. staticStringTypeValue2 = " + Test.staticStringTypeValue2); // def
+        System.out.println("4. staticStringTypeValue3 = " + Test.staticStringTypeValue3); // def
+        System.out.println("5. staticReferenceTypeValue = " + Test.staticReferenceTypeValue); // org.example.test.Demo@58372a00
+    }
+}
+```
+
+其 `clinit` 字节码是：
+```
+/**
+ * ============================================
+ * 1. 处理 staticBasicTypeValue
+ * --------------------------------------------
+ * ldc #53
+ * - 将运行时常量池中索引 52 处的 int 值 50000 推入操作数栈
+ *
+ * putstatic #16
+ * - 将栈顶的 50000 存入 Test 类的静态 int 字段 staticBasicTypeValue
+ * ============================================
+ */
+ 0 ldc #52 <50000>
+ 2 putstatic #16 <org/example/test/Test.staticBasicTypeValue : I>
+
+
+/**
+ * ============================================
+ * 2. 处理 staticStringTypeValue1
+ * --------------------------------------------
+ * ldc #53
+ * - 将运行时常量池中索引 53 处的 "abc" String 对象的引用推入操作数栈
+ *
+ * putstatic #30
+ * - 将栈顶的 "abc" String 对象的引用存入 Test 类的静态 String 字段 staticStringTypeValue1
+ * ============================================
+ */
+ 5 ldc #53 <abc>
+ 7 putstatic #30 <org/example/test/Test.staticStringTypeValue1 : Ljava/lang/String;>
+
+
+/**
+ * ============================================
+ * 3. 处理 staticStringTypeValue2
+ * --------------------------------------------
+ * new #55
+ * - 在堆上为 java/lang/String 对象分配空间（仅分配内存，不执行构造方法）
+ * - 然后把那个刚分配但尚未初始化的对象引用压入操作数栈
+ *
+ * dup
+ * - 复制栈顶的对象引用
+ * - 现在操作数栈中有两份对象引用：[ uninitRef, uninitRef ]
+ * 
+ * ldc #57
+ * - 将运行时常量池中索引 57 处的 "def" String 对象的引用推入操作数栈
+ * - 现在操作数栈的内容有：[ uninitRef, uninitRef, defRef ]
+ * 
+ * 
+ * invokespecial #59
+ * - 调用 java/lang/String 的构造方法，消费最顶上的 [ uninitRef, defRef ] 两个操作数
+ * - 然后初始化这个 String 对象，即第一个 uninitRef
+ * - 初始化后只留下一个已经构造好的对象引用：[ initRef ]
+ * 
+ * putstatic #37
+ * - 将栈顶的 String 对象的引用存入 Test 类的静态 String 字段 staticStringTypeValue2
+ * ============================================
+ */
+10 new #55 <java/lang/String>
+13 dup
+14 ldc #57 <def>
+16 invokespecial #59 <java/lang/String.<init> : (Ljava/lang/String;)V>
+19 putstatic #37 <org/example/test/Test.staticStringTypeValue2 : Ljava/lang/String;>
+
+
+// 4. 处理staticStringTypeValue3
+22 getstatic #37 <org/example/test/Test.staticStringTypeValue2 : Ljava/lang/String;>
+25 invokevirtual #61 <java/lang/String.intern : ()Ljava/lang/String;>
+28 putstatic #41 <org/example/test/Test.staticStringTypeValue3 : Ljava/lang/String;>
+
+
+// 5. 处理 staticReferenceTypeValue
+31 new #65 <org/example/test/Demo>
+34 dup
+35 invokespecial #67 <org/example/test/Demo.<init> : ()V>
+38 putstatic #45 <org/example/test/Test.staticReferenceTypeValue : Lorg/example/test/Demo;>
+
+41 return
+```
+
+其 `init` 字节码是：
+```
+0 aload_0
+1 invokespecial #1 <java/lang/Object.<init> : ()V>
+4 return
+```
+
+其 `main` 字节码是：
+```
+// 1. Test test = new Test();
+ 0 new #7 <org/example/test/Test>
+ 3 dup
+ 4 invokespecial #9 <org/example/test/Test.<init> : ()V>
+ 7 astore_1
+
+
+// 2. System.out.println("1. staticBasicTypeValue = " + Test.staticBasicTypeValue);
+ 8 getstatic #10 <java/lang/System.out : Ljava/io/PrintStream;>
+11 getstatic #16 <org/example/test/Test.staticBasicTypeValue : I>
+14 invokedynamic #20 <makeConcatWithConstants, BootstrapMethods #0>
+19 invokevirtual #24 <java/io/PrintStream.println : (Ljava/lang/String;)V>
+
+
+// 3. System.out.println("2. staticStringTypeValue1 = " + Test.staticStringTypeValue1);
+22 getstatic #10 <java/lang/System.out : Ljava/io/PrintStream;>
+25 getstatic #30 <org/example/test/Test.staticStringTypeValue1 : Ljava/lang/String;>
+28 invokedynamic #34 <makeConcatWithConstants, BootstrapMethods #1>
+33 invokevirtual #24 <java/io/PrintStream.println : (Ljava/lang/String;)V>
+
+
+// 4. System.out.println("3. staticStringTypeValue2 = " + Test.staticStringTypeValue2);
+36 getstatic #10 <java/lang/System.out : Ljava/io/PrintStream;>
+39 getstatic #37 <org/example/test/Test.staticStringTypeValue2 : Ljava/lang/String;>
+42 invokedynamic #40 <makeConcatWithConstants, BootstrapMethods #2>
+47 invokevirtual #24 <java/io/PrintStream.println : (Ljava/lang/String;)V>
+
+
+// 5. System.out.println("4. staticStringTypeValue3 = " + Test.staticStringTypeValue3);
+50 getstatic #10 <java/lang/System.out : Ljava/io/PrintStream;>
+53 getstatic #41 <org/example/test/Test.staticStringTypeValue3 : Ljava/lang/String;>
+56 invokedynamic #44 <makeConcatWithConstants, BootstrapMethods #3>
+61 invokevirtual #24 <java/io/PrintStream.println : (Ljava/lang/String;)V>
+
+
+// 6. System.out.println("5. staticReferenceTypeValue = " + Test.staticReferenceTypeValue);
+64 getstatic #10 <java/lang/System.out : Ljava/io/PrintStream;>
+67 getstatic #45 <org/example/test/Test.staticReferenceTypeValue : Lorg/example/test/Demo;>
+70 invokedynamic #49 <makeConcatWithConstants, BootstrapMethods #4>
+75 invokevirtual #24 <java/io/PrintStream.println : (Ljava/lang/String;)V>
+78 return
+```
+
+其详细流程为：
+![](image-20250728164742955.png)
+![](image-20250728211035839.png)
+
+---
+
+
+### 3.4. 普通常量
+
+普通常量的赋值方式与实例变量相同，而 `final` 则额外引入了 “只能赋值一次” 的限制。`final` 变量一旦初始化，其值就被锁定。如果是引用类型，锁定的是引用本身，而不是引用所指向对象的内容。
+
+以如下代码为例：
+```
+public class Test {
+
+    // 1. 基本数据类型常量
+    public final int finalBasicTypeValue = 15;
+	
+    // 2. 字符串类型常量 1
+    public final String finalStringTypeValue1 = "abc";
+	
+    // 3. 字符串类型常量 2
+    public final String finalStringTypeValue2 = new String("def");
+	
+    // 4. 字符串类型常量 3
+    public final String finalStringTypeValue3 = finalStringTypeValue2.intern();
+	
+    // 5. 引用类型常量
+    public final Demo finalReferenceTypeValue = new Demo();
+	
+    public static void main(String[] args) {
+        Test test = new Test();
+	
+        System.out.println("1. finalBasicTypeValue = " + test.finalBasicTypeValue); // 15
+        System.out.println("2. finalStringTypeValue1 = " + test.finalStringTypeValue1); // abc
+        System.out.println("3. finalStringTypeValue2 = " + test.finalStringTypeValue2); // def
+        System.out.println("4. finalStringTypeValue3 = " + test.finalStringTypeValue3); // def
+        System.out.println("5. finalReferenceTypeValue = " + test.finalReferenceTypeValue); // org.example.test.Demo@4dd8dc3
+    }
+}
+```
+
+在 `Main` 线程的 `main` 方法中执行 `Test test = new Test();` 时，`new Test()` 这一操作对应的字节码是：
+```
+ 0 aload_0
+ 1 invokespecial #1 <java/lang/Object.<init> : ()V>
+ 4 aload_0
+ 5 bipush 15
+ 7 putfield #7 <org/example/test/Test.finalBasicTypeValue : I>
+10 aload_0
+11 ldc #13 <abc>
+13 putfield #15 <org/example/test/Test.finalStringTypeValue1 : Ljava/lang/String;>
+16 aload_0
+17 new #19 <java/lang/String>
+20 dup
+21 ldc #21 <def>
+23 invokespecial #23 <java/lang/String.<init> : (Ljava/lang/String;)V>
+26 putfield #26 <org/example/test/Test.finalStringTypeValue2 : Ljava/lang/String;>
+29 aload_0
+30 aload_0
+31 getfield #26 <org/example/test/Test.finalStringTypeValue2 : Ljava/lang/String;>
+34 invokevirtual #29 <java/lang/String.intern : ()Ljava/lang/String;>
+37 putfield #33 <org/example/test/Test.finalStringTypeValue3 : Ljava/lang/String;>
+40 aload_0
+41 new #36 <org/example/test/Demo>
+44 dup
+45 invokespecial #38 <org/example/test/Demo.<init> : ()V>
+48 putfield #39 <org/example/test/Test.finalReferenceTypeValue : Lorg/example/test/Demo;>
+51 return
+```
+
+最终执行结果为：
+![](image-20250728115451360.png)
+
+---
+
+
+
+
+
+
+
+
+
+### 3.5. 静态常量
+
+静态常量与静态变量的区别在于：对于基本数据类型和字符串类型的静态常量（如 1、2），它们是**编译期常量**，其值在编译阶段就已确定，因此在 JVM 的**准备阶段**就会被直接初始化为最终值，而不是默认的零值或 `null`。
+
+而对于其他静态变量（如 3、4、5），它们会先被赋默认值，然后在再**初始化阶段**通过执行类的 `<clinit>` 方法来最终的赋值。
+
+以如下代码为例：
+```
+public class Test {
+
+    // 1. 静态基本数据类型常量
+    public static final int staticBasicTypeValue = 50000;
+
+    // 2. 静态字符串类型常量 1
+    public static final String staticStringTypeValue1 = "abc";
+
+    // 3. 静态字符串类型常量 2
+    public static final String staticStringTypeValue2 = new String("def");
+
+    // 4. 静态字符串类型常量 3
+    public static final String staticStringTypeValue3 = staticStringTypeValue2.intern();
+
+    // 5. 静态引用类型常量
+    public static final Demo staticReferenceTypeValue = new Demo();
+    
+    public static void main(String[] args) {
+        Test test = new Test();
+
+        System.out.println("1. staticBasicTypeValue = " + Test.staticBasicTypeValue); // 10
+        System.out.println("2. staticStringTypeValue1 = " + Test.staticStringTypeValue1); // abc
+        System.out.println("3. staticStringTypeValue2 = " + Test.staticStringTypeValue2); // def
+        System.out.println("4. staticStringTypeValue3 = " + Test.staticStringTypeValue3); // def
+        System.out.println("5. staticReferenceTypeValue = " + Test.staticReferenceTypeValue); // org.example.test.Demo@58372a00
+    }
+}
+```
+
+最终执行结果为：
+![](image-20250728141057463.png)
+
+---
+
+
+## 4. 运行时数据区
+
+### 4.1. 运行时数据区一览图
 
 ![](image-20250724223952607.png)
 
@@ -22,7 +827,7 @@ layout: post
 ----
 
 
-### 1.2. 程序计数器（PC 寄存器）
+### 4.2. 程序计数器（PC 寄存器）
 
 在 CPU 中，寄存器专门用于存储指令执行相关的现场信息，CPU 只有将数据加载到寄存器后才能执行指令。而在 JVM 中，PC 寄存器的全称是 Program Counter Register，中文通常译为 “程序计数器”，它是对物理寄存器的一种抽象。尽管名称相似，但它与物理 CPU 寄存器在功能上并不相同。
 
@@ -47,16 +852,16 @@ PC 寄存器是一块极小的内存区域，几乎可以忽略不计，因为�
 ---
 
 
-### 1.3. 虚拟机栈
+### 4.3. 虚拟机栈
 
-#### 1.3.1. 虚拟机栈一览图
+#### 4.3.1. 虚拟机栈一览图
 
 ![](图像清晰化.png)
 
 ----
 
 
-#### 1.3.2. 虚拟机栈概述
+#### 4.3.2. 虚拟机栈概述
 
 
 > [!NOTE] 注意事项
@@ -73,7 +878,7 @@ PC 寄存器是一块极小的内存区域，几乎可以忽略不计，因为�
 
 
 
-#### 1.3.3. 局部变量表
+#### 4.3.3. 局部变量表
 
 局部变量表是一个一维的数字数组，用于保存**方法参数**和**方法体内部定义的局部变量**。它可以存储多种数据类型，包括基本数据类型和对象引用（reference），在 JDK5 之前还包含一种 returnAddress 类型（了解即可）。
 
@@ -147,9 +952,9 @@ public class Test {
 ----
 
 
-#### 1.3.4. 操作数栈
+#### 4.3.4. 操作数栈
 
-##### 1.3.4.1. 操作数栈概述
+##### 4.3.4.1. 操作数栈概述
 
 操作数栈是 JVM 执行引擎的一个工作区，会根据方法中的字节码指令，向栈中写入数据或提取数据，这些操作被称为入栈和出栈。它主要用于保存计算过程中的中间结果，同时作为变量的临时存储空间。
 
@@ -226,7 +1031,7 @@ public class Test {
 ---
 
 
-##### 1.3.4.2. 栈顶缓存技术
+##### 4.3.4.2. 栈顶缓存技术
 
 JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放操作数并参与计算，而是依赖操作数栈（Operand Stack）来完成大部分运算。因此，JVM 的指令通常不携带操作数，比如 `iadd`（整数加法）会默认从栈顶弹出两个数，相加后再将结果压回栈中，使字节码更加简洁紧凑。
 
@@ -251,33 +1056,33 @@ JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放�
 ----
 
 
-#### 1.3.5. 动态链接
+#### 4.3.5. 动态链接
 
 ---
 
-#### 1.3.6. 虚拟机栈异常示例
-
----
-
-
-### 1.4. 本地方法栈
-
-
-
+#### 4.3.6. 虚拟机栈异常示例
 
 ---
 
 
-### 1.5. 堆区
+### 4.4. 本地方法栈
 
-#### 1.5.1. 堆区一览图
+
+
+
+---
+
+
+### 4.5. 堆区
+
+#### 4.5.1. 堆区一览图
 
 ![](image-20250725114229098.png)
 
 ----
 
 
-#### 1.5.2. 堆区概述
+#### 4.5.2. 堆区概述
 
 在一个 JVM 实例中，只存在一块堆内存，堆是 Java 内存管理的核心区域，也是整个内存结构中最大的一块，几乎所有的对象实例和数组，在运行时都会被分配到堆上（需考虑逃逸分析的优化可能），Java 堆是所有线程共享的（但需考虑线程私有的 TLAB 缓冲区机制）。
 
@@ -339,23 +1144,25 @@ JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放�
 
 
 
-#### 1.5.3. 堆区异常示例
+#### 4.5.3. 堆区异常示例
 
 ----
 
 
-### 1.6. 方法区
+### 4.6. 方法区
 
-#### 方法区一览图
+#### 4.6.1. 方法区一览图
+
+![](image-20250728230347749.png)
 
 ---
 
 
-#### 方法区概述
+#### 4.6.2. 方法区概述
 
 
 
-下面是方法区（Metaspace）中存储的**各种类型信息的详细分类**，每一项都是 JVM 加载类时产生并保存在方法区中的元数据。
+下面是方法区（Metaspace）中存储的**各种类元信息的详细分类**，每一项都是 JVM 加载类时产生并保存在方法区中的元数据。
 
 |区域/结构|存储内容说明|示例/说明|
 |---|---|---|
@@ -424,7 +1231,7 @@ JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放�
 ---
 
 
-#### 常量池
+#### 4.6.3. 常量池
 
 
 
@@ -606,9 +1413,9 @@ SourceFile: "Test.java"
 
 
 
-方法区用于存储已被虚拟机加载的 类型信息、域信息、方法信息、
+方法区用于存储已被虚拟机加载的 类元信息、域信息、方法信息、
 
-<font color="#92d050">1. 类型信息</font>
+<font color="#92d050">1. 类元信息</font>
 
 |  信息内容   | 说明  | 注意事项 |
 | :-----: | :-: | :--: |
@@ -708,39 +1515,32 @@ JVM 的虚拟内存难道不是使用的本地内存嘛？
 ---
 
 
+## 5. 垃圾回收（GC）
 
+### 5.1. 垃圾回收概述
 
+垃圾回收是指在程序运行过程中，对堆区中没有任何指针指向的对象进行回收，对在方法区中主要涉及到常量池回收和类的卸载。
 
+对方法区的回收，主要涉及到：
+1. 常量池的回收
+2. 类的卸载
+	1. 类的卸载比较严格，当满足以下三个条件时，一个类及与其关联的数据才有可能被卸载：
+		1. 该类的所有实例都已被回收
+		2. 加载该类的 `ClassLoader` 已经被回收
+		3. 该类对应的 `java.lang.Class` 对象没有在任何地方被引用
+	2. 多数情况下，一个类的 `ClassLoader` 和 `Class` 对象都会被长期引用
 
-
-
-
-
-
-
-
-
-
-
-
-
-## 2. 垃圾回收（GC）
-
-### 2.1. 垃圾回收概述
-
-垃圾回收是指在程序运行过程中，对堆区中没有任何指针指向的对象进行回收，对在方法区中卸载那些其对应类加载器已不再存活的类。
-
-其中，堆区是垃圾收集器的主要工作区域，从回收频率上看，通常遵循以下规律：
+但是，堆区是垃圾收集器的主要工作区域，这里我们主要研究堆区的垃圾收集，从回收频率上看，通常遵循以下规律：
 1. 频繁收集新生代
 2. 较少收集老年代
-3. 基本不懂永久代（方法区、元空间）
+3. 基本不动永久代（方法区、元空间）
 
 ---
 
 
-### 垃圾标记算法
+### 5.2. 垃圾标记算法
 
-#### 垃圾标记概述
+#### 5.2.1. 垃圾标记概述
 
 在堆中存放着几乎所有的 Java 对象实例，在 GC 执行垃圾回收之前，首先需要区分内存中哪些是存活的对象，哪些是已经死亡的对象。
 
@@ -749,7 +1549,7 @@ JVM 的虚拟内存难道不是使用的本地内存嘛？
 ---
 
 
-#### 引用计数法
+#### 5.2.2. 引用计数法
 
 引用计数算法是为每一个对象维护一个整型的引用计数器**属性**，用于记录该对象被引用的次数。例如，对于一个对象 A，只要有其他任何对象引用了 A，则 A 的引用计数器就加 1；当引用失效时，计数器减 1。当 A 的引用计数器为 0 时，说明该对象已经无法再被访问，可以被回收。
 
@@ -796,9 +1596,9 @@ public class RefCountGC {
 ---
 
 
-#### 可达性分析算法（根搜索方法、追踪性垃圾收集）
+#### 5.2.3. 可达性分析（根搜索方法、追踪性垃圾收集）
 
-##### 可达性分析算法概述
+##### 5.2.3.1. 可达性分析概述
 
 可达性分析算法是以根对象集合（GC Roots，一组始终处于活跃状态的引用）为起始点，自上而下地搜索与这些根对象相关联的目标对象是否可达，内存中的所有存活对象，都会被根对象集合直接或间接连接。
 
@@ -812,22 +1612,146 @@ public class RefCountGC {
 ---
 
 
-##### 常见 GC Roots
+##### 5.2.3.2. 常见 GC Roots
+
+<font color="#92d050">1. 虚拟机栈中引用的对象</font>
+
+
+
+
 
 ---
 
 
-##### 查看 GC Roots
+##### 5.2.3.3. 查看 GC Roots
 
 ---
 
 
-### 垃圾清除算法
+### 5.3. 垃圾清除算法
+
+#### 5.3.1. 标记-清除算法
+
+标记-清除算法是垃圾回收中最基本和最古老的一种算法，也是许多现代垃圾回收算法的基础。它的工作原理正如其名称所示，分为两个主要阶段：**标记 (Mark)** 和 **清除 (Sweep)**
+1. 标记：
+	1. 垃圾回收器从一组被称为 **GC Roots** 的对象出发，遍历所有从 GC Roots 可达的对象，并**标记**这些对象为“存活”或“in use”（通常通过在对象头中设置一个标记位 `mark bit` 来实现）
+	2. 这个遍历过程通常采用递归的深度优先搜索（DFS）或广度优先搜索（BFS）方式，沿着对象引用链不断向下，直到所有可达对象都被标记完毕。
+2. 清楚：
+	1. 垃圾回收器会遍历整个堆内存。
+	2. 对于那些在标记阶段**未被标记**的对象（即不可达对象），它们的内存会被回收，并把这些地址加入到空闲内存列表中，供后续的新对象分配使用
+	3. 对于已标记为存活的对象，它们的标记位会在此阶段被清除，为下一次垃圾回收做准备。
+
+![](image-20250728174155278.png)
+
+其优点是：
+1. 实现简单：
+	1. 标记-清除算法逻辑比较直观，容易实现
+2. 能够处理循环引用
+
+其缺点是：
+1. 内存碎片化：
+	1. 回收后的内存空间不连续，产生大量的内存碎片
+	2. 需要额外维护一个空闲列表用于记录空闲地址，增加内存开销
+	3. 当后续需要分配较大对象时，即使总的空闲内存足够，也可能因为没有足够大的连续空间而导致分配失败
+2. 回收效率中等：
+	1. 标记阶段的工作量，与**存活对象的数量及其引用关系复杂程度**成正比，如果堆中绝大部分是垃圾，那么标记的开销相对较小（这个工作量，所有垃圾清除算法都一样）
+	2. 但清除阶段的工作量，与**整个堆内存的大小**成正比，无论堆中有多少存活对象，清除阶段都需要线性扫描整个堆，从而导致效率不算高
+
+> [!NOTE] 注意事项
+> 1. 无论采用哪种垃圾回收算法，也无论使用哪种垃圾回收器，都不可避免地会存在 STW（Stop The World），即暂停所有应用线程以执行垃圾回收操作。
+> 2. 一个优秀的垃圾回收器，必须在吞吐量与响应速度之间取得良好平衡，既能高效回收内存，又不会严重影响程序的响应性能。
 
 ---
 
 
-### 对象的 finalization 机制
+#### 5.3.2. 复制算法
+
+复制算法同样基于可达性分析，从 From 空间中识别出所有存活对象。一旦找到这些对象，GC 会将它们复制到 To 空间中，并按顺序紧凑排列，从而自然地消除了内存碎片。并且在复制的同时更新所有引用，确保指向已移动对象的指针保持正确。
+
+复制完成后，From 空间中未被复制的对象（即不可达对象）被视为垃圾，整个 From 空间会被整体清空。下一次垃圾回收时，From 和 To 空间将交换角色，继续重复同样的回收流程。
+
+总结来说，复制算法以牺牲空间换取了时间，并彻底解决了内存碎片问题。
+![](image-20250728181214127.png)
+
+其优点是：
+1. 实现简单：
+	1. 相比于复杂的标记-整理算法，复制算法的基本逻辑相对直观，容易实现
+2. 消除内存碎片化
+3. 回收效率最高：
+	1. 标记阶段的工作量，与**存活对象的数量及其引用关系复杂程度**成正比，如果堆中绝大部分是垃圾，那么标记的开销相对较小（这个工作量，所有垃圾清除算法都一样）
+	2. 复制阶段的工作量，涉及到对象的复制和引用的更新，与**存活对象的数量**成正比
+	3. 简单来说，复制算法的 “清除” 是批量化的，一旦存活对象被复制到新的空间，旧空间中的所有对象（包括大量垃圾）就被直接整块废弃，无需逐个遍历和回收。
+	4. 因此其适用于**垃圾对象占多数**的场景，需要移动的存活对象越少，其开销就越低；当存活对象较多时，复制的开销会显著增加
+4. 能够处理循环引用
+
+其缺点是：
+1. 内存空间利用率低：
+	1. 这是复制算法最大的缺点，它需要将可用的内存空间一分为二，每次只使用一半。
+2. 不适用于存活对象占多数的场景
+	1. 需要移动的存活对象越少，其开销就越低
+	2. 当存活对象较多时，复制的开销会显著增加
+
+---
+
+
+#### 5.3.3. 标记-整理算法
+
+标记-整理算法是垃圾回收领域中一种重要的算法，它融合了标记-清除算法的优点，同时解决了其所带来的**内存碎片问题**。因此，它常被视为标记-清除算法的升级版，即“标记-清除 plus”。
+
+在标记阶段，标记-整理算法与标记-清除算法一样，**基于可达性分析**，对所有存活对象进行标记。标记完成后，垃圾回收器会遍历整个堆，将所有标记为存活的对象**按顺序移动到堆的一端**（通常是起始地址），在移动过程中同步**更新所有引用**，确保指针始终指向对象的新位置。
+
+当对象移动完成后，堆的另一端（尚未占用的区域）就成为**连续的空闲内存空间**，原位置中未被移动的对象（即不可达对象）也随之被 “清除”。
+![](image-20250728182811254.png)
+
+其优点是：
+1. 消除内存碎片化
+2. 内存利用率高：
+	1. 不像复制算法需要牺牲一半的内存空间
+	2. 标记-整理算法可以充分利用整个堆空间进行对象分配
+3. 能够处理循环引用
+
+其缺点是：
+1. 实现复杂：
+	1. 相比标记-清除或复制算法，标记-整理算法的实现复杂性更高
+2. 回收效率最低：
+	1. 标记阶段的工作量，与**存活对象的数量及其引用关系复杂程度**成正比，如果堆中绝大部分是垃圾，那么标记的开销相对较小（这个工作量，所有垃圾清除算法都一样）
+	2. 整理阶段的工作量，涉及到对象的复制和引用的更新，与**存活对象的数量**成正比
+
+---
+
+
+### 5.4. 垃圾回收思想
+
+#### 5.4.1. 分代思想
+
+分代思想的提出基于两个重要的对象生命周期假说：
+1. 弱代假说（Weak Generational Hypothesis）：
+	1. 绝大多数对象都是朝生夕死的  
+2. 强代假说（Strong Generational Hypothesis）： 
+	1. 熬过越多次垃圾回收过程的对象就越难以被回收
+
+基于这两个假说，如果每次垃圾回收都针对整个堆，效率会非常低下。因此，分代思想将 Java 堆内存划分为几个不同的区域，每个区域根据其对象的特点（生命周期）采用最适合的 GC 算法，避免了 “大而全” 的低效全堆回收
+
+> [!NOTE] 注意事项：跨代引用
+
+
+
+#### 5.4.2. 分区思想
+
+---
+
+
+#### 5.4.3. 增量收集思想
+
+---
+
+
+
+
+
+
+
+### 5.5. 对象的 finalization 机制
 
 ---
 
@@ -863,7 +1787,7 @@ public class RefCountGC {
 
 
 
-### 2.2. GC 常用 JVM 参数
+### 5.6. GC 常用 JVM 参数
 
 > [!NOTE] 注意事项
 > 1. GC 常用的 JVM 参数有：
@@ -877,437 +1801,12 @@ public class RefCountGC {
 
 
 
-## 3. 对象实例化流程
 
-### 实例
 
-![](image-20250727210546488.png)
 
+## 6. 字节码
 
-
-
-
-
-
-> [!NOTE] 注意事项
->5. Java 类里各种变量的 “诞生” 与 “存活” 流程
->	1. 在下面的例子中，变量会经历以下几个阶段：
->		1. 类加载阶段
->			1. 准备阶段
->				1. JVM 将 `Demo.class` 文件加载到内存，并为静态变量 `staticVar` 分配内存，并赋予默认值 0
->				2. 该静态变量存储在方法区（元空间、Metaspace）（坏事了，jdk1.7 之前确实是方法区，jdk 1.8 之后是放到堆内存，直接放到老年代，那准备阶段对象都还没创建呢，啊对，静态变量与对象根本没关系，而是而是属于类本身的，不用等对象）
->				3. 准备阶段不执行任何代码，也不调用任何方法，只是为静态变量提供一个 “安全” 的初始状态，避免野指针或未定义行为。
->			2. 初始化阶段
->				1. 执行静态变量的显式赋值语句（如 `staticVar = 10;`）和静态代码块（`static {}`）中的代码。
->		2. 对象创建阶段
->			1. JVM 在堆内存中为对象 `demo` 分配空间，所有成员变量（如 `instanceVar`）都被分配内存并赋予默认值（0、false、null）
->			2. 然后执行赋值？、、、显构造方法，可以对成员变量进行显式初始化或逻辑处理。
->			3. 简单来说就是属性的默认初始化、显示初始化、构造器初始化
->		3. 方法调用阶段
->			1. JVM 在栈内存中为方法调用创建一个新的栈帧
->			2. 因为是实例方法，槽位 0 用于存放 `this` 引用，指向当前调用方法的 `demo` 对象。
->			3. 槽位 1 用于存放方法参数 `param`，槽位 2 存放局部变量 `localVar`。
->			4. 需要注意的是，局部变量和方法参数不会像静态变量或成员变量那样自动初始化默认值。
->			5. 如果你只是声明了一个局部变量（如 `int localVar;`），但没有显式赋值（如 `localVar = 5`），那么就会编译报错。
-```
-public class Demo {
-
-    // 静态变量（类变量）
-    static int staticVar = 10;
-
-    // 成员变量（实例变量）
-    int instanceVar;
-    
-	// 方法参数
-    public void method(int param) {
-    
-	    // 局部变量
-        int localVar = 5;
-        
-        System.out.println(localVar);
-    }
-}
-```
-
----
-
-
-
-
-### 代码大全
-
-```
-public class Test {
-
-    // 1. 实例基本数据类型变量
-    public int instanceBasicTypeValue = 5;
-
-    // 2. 实例字符串类型变量 1
-    public String instanceStringTypeValue1 = "abc";
-
-    // 3. 实例字符串类型变量 2
-    public String instanceStringTypeValue2 = new String("def");
-
-    // 4. 实例字符串类型变量 3
-    public String instanceStringTypeValue3 = instanceStringTypeValue2.intern();
-
-    // 5. 实例引用类型变量
-    public Demo instanceReferenceTypeValue = new Demo();
-
-    // 6. 静态基本数据类型变量
-    public static int staticBasicTypeValue = 10;
-
-    // 7. 静态字符串类型变量 1
-    public static String staticStringTypeValue1 = "abc";
-
-    // 8. 静态字符串类型变量 2
-    public static String staticStringTypeValue2 = new String("def");
-
-    // 9. 静态字符串类型变量 3
-    public static String staticStringTypeValue3 = staticStringTypeValue2.intern();
-
-    // 10. 静态引用类型变量
-    public static Demo staticReferenceTypeValue = new Demo();
-
-    // 11. 基本数据类型常量
-    public final int finalBasicTypeValue = 15;
-
-    // 12. 字符串类型常量 1
-    public final String finalStringTypeValue1 = "abc";
-
-    // 13. 字符串类型常量 2
-    public final String finalStringTypeValue2 = new String("def");
-
-    // 14. 字符串类型常量 3
-    public final String finalStringTypeValue3 = finalStringTypeValue2.intern();
-
-    // 15. 引用类型常量
-    public final Demo finalReferenceTypeValue = new Demo();
-
-    // 16. 静态基本数据类型常量
-    public static final int staticFinalBasicTypeValue = 20;
-
-    // 17. 静态字符串类型常量 1
-    public static final String staticFinalStringTypeValue1 = "abc";
-
-    // 18. 静态字符串类型常量 2
-    public static final String staticFinalStringTypeValue2 = new String("def");
-
-    // 19. 静态字符串类型常量 3
-    public static final String staticFinalStringTypeValue3 = staticFinalStringTypeValue2.intern();
-
-    // 20. 静态引用类型常量
-    public static final Demo staticFinalReferenceTypeValue = new Demo();
-
-    // 方法参数
-    public void method(int param) {
-        // 局部变量
-        int localValue = 25;
-        System.out.println(localValue);
-    }
-
-    public static void main(String[] args) {
-        Test test = new Test();
-
-        System.out.println("instanceBasicTypeValue = " + test.instanceBasicTypeValue); // 5
-        System.out.println("instanceStringTypeValue1 = " + test.instanceStringTypeValue1); // abc
-        System.out.println("instanceStringTypeValue2 = " + test.instanceStringTypeValue2); // def
-        System.out.println("instanceStringTypeValue3 = " + test.instanceStringTypeValue3); // def
-        System.out.println("instanceReferenceTypeValue = " + test.instanceReferenceTypeValue); // org.example.test.Demo@7699a589
-
-        System.out.println("staticBasicTypeValue = " + Test.staticBasicTypeValue); // 10
-        System.out.println("staticStringTypeValue1 = " + Test.staticStringTypeValue1); // abc
-        System.out.println("staticStringTypeValue2 = " + Test.staticStringTypeValue2); // def
-        System.out.println("staticStringTypeValue3 = " + Test.staticStringTypeValue3); // def
-        System.out.println("staticReferenceTypeValue = " + Test.staticReferenceTypeValue); // org.example.test.Demo@58372a00
-
-        System.out.println("finalBasicTypeValue = " + test.finalBasicTypeValue); // 15
-        System.out.println("finalStringTypeValue1 = " + test.finalStringTypeValue1); // abc
-        System.out.println("finalStringTypeValue2 = " + test.finalStringTypeValue2); // def
-        System.out.println("finalStringTypeValue3 = " + test.finalStringTypeValue3); // def
-        System.out.println("finalReferenceTypeValue = " + test.finalReferenceTypeValue); // org.example.test.Demo@4dd8dc3
-
-        System.out.println("staticFinalBasicTypeValue = " + Test.staticFinalBasicTypeValue); // 20
-        System.out.println("staticFinalStringTypeValue1 = " + Test.staticFinalStringTypeValue1); // abc
-        System.out.println("staticFinalStringTypeValue2 = " + Test.staticFinalStringTypeValue2); // def
-        System.out.println("staticFinalStringTypeValue3 = " + Test.staticFinalStringTypeValue3); // def
-        System.out.println("staticFinalReferenceTypeValue = " + Test.staticFinalReferenceTypeValue); // org.example.test.Demo@6d03e736
-    }
-}
-```
-
-
-### 实例变量
-
-以如下代码为例：
-```
-public class Test {
-		
-    // 1. 实例基本数据类型变量
-    public int instanceBasicTypeValue = 5000;
-		
-    // 2. 实例字符串类型变量 1
-    public String instanceStringTypeValue1 = "abc";
-		
-    // 3. 实例字符串类型变量 2
-    public String instanceStringTypeValue2 = new String("def");
-		
-    // 4. 实例字符串类型变量 3
-    public String instanceStringTypeValue3 = instanceStringTypeValue2.intern();
-		
-    // 5. 实例引用类型变量
-    public Demo instanceReferenceTypeValue = new Demo();
-		
-    public static void main(String[] args) {
-        Test test = new Test();
-		
-        System.out.println("1. instanceBasicTypeValue = " + test.instanceBasicTypeValue); // 5
-        System.out.println("2. instanceStringTypeValue1 = " + test.instanceStringTypeValue1); // abc
-        System.out.println("3. instanceStringTypeValue2 = " + test.instanceStringTypeValue2); // def
-        System.out.println("4. instanceStringTypeValue3 = " + test.instanceStringTypeValue3); // def
-        System.out.println("5. instanceReferenceTypeValue = " + test.instanceReferenceTypeValue); // org.example.test.Demo@7699a589
-		
-    }
-}
-```
-
-在 `Main` 线程的 `main` 方法中执行 `Test test = new Test();` 时，`new Test()` 这一操作对应的字节码是：
-```
- 0 aload_0
- 1 invokespecial #1 <java/lang/Object.<init> : ()V>
- 4 aload_0
- 5 ldc #7 <50000>
- 7 putfield #8 <org/example/test/Test.instanceBasicTypeValue : I>
-10 aload_0
-11 ldc #14 <abc>
-13 putfield #16 <org/example/test/Test.instanceStringTypeValue1 : Ljava/lang/String;>
-16 aload_0
-17 new #20 <java/lang/String>
-20 dup
-21 ldc #22 <def>
-23 invokespecial #24 <java/lang/String.<init> : (Ljava/lang/String;)V>
-26 putfield #27 <org/example/test/Test.instanceStringTypeValue2 : Ljava/lang/String;>
-29 aload_0
-30 aload_0
-31 getfield #27 <org/example/test/Test.instanceStringTypeValue2 : Ljava/lang/String;>
-34 invokevirtual #30 <java/lang/String.intern : ()Ljava/lang/String;>
-37 putfield #34 <org/example/test/Test.instanceStringTypeValue3 : Ljava/lang/String;>
-40 aload_0
-41 new #37 <org/example/test/Demo>
-44 dup
-45 invokespecial #39 <org/example/test/Demo.<init> : ()V>
-48 putfield #40 <org/example/test/Test.instanceReferenceTypeValue : Lorg/example/test/Demo;>
-51 return
-```
-
-其详细流程为：
-![](image-20250727224126808.png)
-
-![](image-20250727224146335.png)
-
-字节码详细解析为：
-```
- 0 aload_0
- 1 invokespecial #1 <java/lang/Object.<init> : ()V>
-
-/**
- * ============================================
- * 1. 处理 instanceBasicTypeValue
- * --------------------------------------------
- * aload_0
- * - 将当前对象的引用（this）压入操作数栈
- *
- * ldc #7
- * - 从运行时常量池中加载整数常量 5000，并将其压入操作数栈
- *
- * putfield #8
- * - 将栈顶的 5000 赋值给当前对象（this）的 instanceBasicTypeValue 字段
- * ============================================
- */
- 4 aload_0
- 5 ldc #7 <50000>
- 7 putfield #8 <org/example/test/Test.instanceBasicTypeValue : I>
-
- 
-/**
- * ============================================
- * 2. 处理 instanceStringTypeValue1
- * --------------------------------------------
- * aload_0
- * - 将当前对象的引用（this）压入操作数栈
- *
- * ldc #14
- * - 从运行时常量池加载常量池中的 "abc" String 对象的引用并压入操作数栈
- *
- * putfield #16
- * - 将栈顶的 "abc" String 对象的引用赋值给当前对象（this）的 instanceBasicTypeValue1 字段
- * ============================================
- */
-10 aload_0
-11 ldc #14 <abc>
-13 putfield #16 <org/example/test/Test.instanceStringTypeValue1 : Ljava/lang/String;>
-
-
-/**
- * ============================================
- * 3. 处理 instanceStringTypeValue2
- * --------------------------------------------
- * aload_0
- * - 将当前对象的引用（this）压入操作数栈
- *
- * new #20
- * - 在堆区分配一个 String 对象的空间（此时仅分配内存，尚未初始化，类型由方法区的元数据 #20 指定为 String 类型）
- * - JVM 的一个基本原则是：在创建对象时，必须明确知道对象的大小，以便在堆中分配合适的内存块。这个大小信息在类的元数据中就已经确定了。
- * - 你可能会好奇：如果对象中有一个 List 属性，那在对象创建后我不断向这个 List 添加元素，JVM 怎么知道我最终需要多少内存？
- * - 别忘了，我们在对象中保存的只是对 List 实例的引用，这个引用的大小是固定不变的。那你又好奇了：为什么 List 能动态扩容？
- * - 其实本质是：当容量不足时，会新建一个更大的数组对象，把原有内容复制进去，然后让 elementData 字段指向新的数组。
- *
- * dup
- * - 复制该 String 对象的引用以备后续初始化。
- *
- * ldc #22
- * - 从运行时常量池加载 "def" String 对象的引用并压入操作数栈
- *
- * invokespecial #24
- * - 调用 String 构造方法，在堆内存中创建新的 String 实例。
- *
- * putfield #27
- * - 将栈顶的 新创建的 String 实例的引用 赋值给当前对象（this）的 instanceBasicTypeValue2 字段
- * ============================================
- */
-16 aload_0
-17 new #20 <java/lang/String>
-20 dup
-21 ldc #22 <def>
-23 invokespecial #24 <java/lang/String.<init> : (Ljava/lang/String;)V>
-26 putfield #27 <org/example/test/Test.instanceStringTypeValue2 : Ljava/lang/String;>
-
-
-// 4. 处理 instanceStringTypeValue3
-29 aload_0
-30 aload_0
-31 getfield #27 <org/example/test/Test.instanceStringTypeValue2 : Ljava/lang/String;>
-34 invokevirtual #30 <java/lang/String.intern : ()Ljava/lang/String;>
-37 putfield #34 <org/example/test/Test.instanceStringTypeValue3 : Ljava/lang/String;>
-
-
-/**
- * ============================================
- * 5. 处理 instanceReferenceTypeValue
- * --------------------------------------------
- * aload_0
- * - 将当前对象的引用（this）压入操作数栈
- *
- * new #37
- * - 在堆区分配一个 Demo 对象的空间（此时仅分配内存，尚未初始化，类型由方法区的元数据 #37 指定为 Demo 类）
- *
- * dup
- * - 复制该 Demo 对象的引用以备后续初始化。
-*
- * invokespecial #39
- * - 调用 Demo 构造方法，在堆内存中创建新的 Demo 实例。
- *
- * putfield #40
- * - 将栈顶的 新创建的 Demo 实例的引用 赋值给当前对象（this）的 instanceReferenceTypeValue 字段
- * ============================================
- */
-40 aload_0
-41 new #37 <org/example/test/Demo>
-44 dup
-45 invokespecial #39 <org/example/test/Demo.<init> : ()V>
-48 putfield #40 <org/example/test/Test.instanceReferenceTypeValue : Lorg/example/test/Demo;>
-
-51 return
-```
-
-最终执行结果为：
-![](image-20250727163945675.png)
-
-> [!NOTE] 注意事项
-> 1. intern() 方法的作用是，返回字符串常量池中 “内容相同” 的 String 对象的引用，如果常量池中没有这个内容，就把当前 String 对象加入常量池，并返回它的引用（不会让当前的 String 对象消失）
-> 2. 为什么执行 System.out.println(instanceStringTypeValue) 时，打印出的内容是字符串，而按理说应该像 instanceReferenceTypeValue 那样打印引用地址才对？
-> 	1. 这是因为 System.out.println() 先调用对象的 toString() 方法
-> 	2. 而 String 类重写了 toString()，直接返回自身（即 return this），所以直接打印字符串内容。
-> 	3. 其他对象如果没有重写 toString()，则打印的是类似 @1a2b3c4d 这样的内存地址形式
-```
-// 源码
-public String instanceStringTypeValue1 = "abc";
-System.out.println("2. instanceStringTypeValue1 = " + test.instanceStringTypeValue1);
-
-
-// 等价于
-System.out.println("2. instanceStringTypeValue1 = " + test.instanceStringTypeValue1.toString());
-
-
-// 但是 String 对象重写 toString() 方法
-public String toString() {
-    return this;
-}
-```
-
----
-
-
-### 静态变量
-
-以如下代码为例：
-```
-public class Test {
-
-    // 1. 静态基本数据类型变量
-    public static int staticBasicTypeValue = 10;
-
-    // 2. 静态字符串类型变量 1
-    public static String staticStringTypeValue1 = "abc";
-
-    // 3. 静态字符串类型变量 2
-    public static String staticStringTypeValue2 = new String("def");
-
-    // 4. 静态字符串类型变量 3
-    public static String staticStringTypeValue3 = staticStringTypeValue2.intern();
-
-    // 5. 静态引用类型变量
-    public static Demo staticReferenceTypeValue = new Demo();
-
-
-    public static void main(String[] args) {
-        Test test = new Test();
-
-        System.out.println("1. staticBasicTypeValue = " + Test.staticBasicTypeValue); // 10
-        System.out.println("2. staticStringTypeValue1 = " + Test.staticStringTypeValue1); // abc
-        System.out.println("3. staticStringTypeValue2 = " + Test.staticStringTypeValue2); // def
-        System.out.println("4. staticStringTypeValue3 = " + Test.staticStringTypeValue3); // def
-        System.out.println("5. staticReferenceTypeValue = " + Test.staticReferenceTypeValue); // org.example.test.Demo@58372a00
-    }
-}
-```
-
-在 `Main` 线程的 `main` 方法中执行 `Test test = new Test();` 时，`new Test()` 这一操作对应的字节码是：
-```
-0 aload_0
-1 invokespecial #1 <java/lang/Object.<init> : ()V>
-4 return
-```
-
-其详细流程为：
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 字节码
-
-### 符号引用
+### 6.1. 符号引用
 
 JVM 在解析它后会把符号引用转换成 直接引用
 
@@ -1350,7 +1849,7 @@ JVM 在解析它后会把符号引用转换成 直接引用
 
 
 
-### iconst_n
+### 6.2. iconst_n
 
 把小整数常量（-1 ~ 5）推入栈顶，例如：
 1. iconst_m1
@@ -1371,7 +1870,7 @@ JVM 在解析它后会把符号引用转换成 直接引用
 ---
 
 
-### bipush
+### 6.3. bipush
 
 把一个 8 位带符号整数常量（byte 类型，-128 ~ 127）推入栈顶，例如：
 1. binpush -30
@@ -1380,7 +1879,7 @@ JVM 在解析它后会把符号引用转换成 直接引用
 ---
 
 
-### sipush
+### 6.4. sipush
 
 把一个 16 位带符号整数常量（short 类型，-32768 ~ 32767）推入栈顶，例如：
 1. sipush 20000

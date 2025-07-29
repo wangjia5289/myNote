@@ -13,6 +13,10 @@
       "path": "Excalidraw/JVM_对象实例化流程_实例变量.md"
     },
     {
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
+    },
+    {
       "basename": "笔记：Spring 整合 Minio",
       "path": "source/_posts/笔记：Spring 整合 Minio.md"
     },
@@ -195,10 +199,6 @@
     {
       "basename": "image-20250310171902656",
       "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171902656.png"
-    },
-    {
-      "basename": "image-20250310171747324",
-      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310171747324.png"
     }
   ],
   "omittedPaths": [],

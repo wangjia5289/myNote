@@ -34,18 +34,6 @@
               "icon": "lucide-file",
               "title": "笔记：阿里云代码规约"
             }
-          },
-          {
-            "id": "5e7d4e3ab2b4b3d8",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/JVM_对象实例化流程_实例变量.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "JVM_对象实例化流程_实例变量"
-            }
           }
         ]
       }
@@ -256,6 +244,7 @@
                   "kanban-plugin": "board",
                   "list-collapse": [
                     false,
+                    false,
                     false
                   ]
                 }
@@ -285,24 +274,25 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "75fee5262daf945e",
+  "active": "a2ce064672098ea6",
   "lastOpenFiles": [
-    "source/_posts/笔记：JVM/image-20250727224146335.png",
+    "source/_posts/笔记：JVM/image-20250728231307024.png",
+    "source/_posts/笔记：JVM/image-20250728230347749.png",
+    "source/_posts/笔记：JVM/image-20250728230311438.png",
+    "source/_posts/笔记：JVM/image-20250728230223168.png",
+    "source/_posts/笔记：JVM/image-20250728225858057.png",
+    "source/_posts/笔记：JVM/image-20250728224145179.png",
     "source/_posts/笔记：阿里云代码规约.md",
     "Excalidraw/JVM_对象实例化流程_实例变量.md",
     "source/_posts/笔记：JVM.md",
-    "source/_posts/笔记：JVM/image-20250727224126808.png",
+    "Todo 看板.md",
+    "source/_posts/笔记：JVM/image-20250728211035839.png",
+    "source/_posts/笔记：JVM/image-20250728210901175.png",
+    "source/_posts/笔记：JVM/image-20250728182811254.png",
+    "source/_posts/笔记：JVM/image-20250728181214127.png",
+    "source/_posts/笔记：JVM/image-20250728174155278.png",
     "source/_posts/笔记：Spring 整合 Minio.md",
     "source/_posts/笔记：Java 数据类型.md",
-    "source/_posts/笔记：JVM/image-20250727223437242.png",
-    "Excalidraw/attachments/Pasted Image 20250727222656_265.png",
-    "Excalidraw/attachments/Pasted Image 20250727214857_507.png",
-    "Excalidraw/attachments/Pasted Image 20250727214302_751.png",
-    "Excalidraw/attachments/Pasted Image 20250727214018_066.png",
-    "Excalidraw/attachments/Pasted Image 20250727213845_635.png",
-    "source/_posts/笔记：JVM/image-20250727210546488.png",
-    "source/_posts/笔记：JVM/image-20250727181821578.png",
-    "Excalidraw/attachments/Pasted Image 20250727181744_043.png",
     "source/_posts/笔记：ElasticSearch 基础.md",
     "templates/临时：es.md",
     "Excalidraw/firstTest.md",
@@ -332,7 +322,6 @@
     "templates/NFS 挂载参数.md",
     "templates/速度.md",
     "templates/马士兵.md",
-    "templates/临时：OAUth.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]

@@ -6,6 +6,7 @@ kanban-plugin: board
 
 ## Todo
 
+- [ ] JVM：主版本号和副版本号
 - [ ] JUC 看完看另一个 JUC 适配
 - [ ] Spring Security
 - [ ] Java 生成密钥与加密解密
@@ -29,13 +30,21 @@ kanban-plugin: board
 ## Done
 
 **完成**
+
+
+## JVM
+
+
+
+***
+
+## 归档
+
+- [ ] 主版本号和副版本号
 - [x] Spring Security 中，匿名用户访问受限制资源，究竟是抛那个异常？
-
-
-
 
 %% kanban:settings
 ```
-{"kanban-plugin":"board","list-collapse":[false,false],"lane-width":332}
+{"kanban-plugin":"board","list-collapse":[false,false,false],"lane-width":332}
 ```
 %%
