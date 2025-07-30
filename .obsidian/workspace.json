@@ -277,59 +277,11 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "floating": {
-    "id": "9141b6afc92dbc88",
-    "type": "floating",
-    "children": [
-      {
-        "id": "a414ee0d10324616",
-        "type": "window",
-        "children": [
-          {
-            "id": "12e3e2de807ec0b3",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "ffb1c1cf893f72be",
-                "type": "leaf",
-                "state": {
-                  "type": "kanban",
-                  "state": {
-                    "file": "Todo 看板.md",
-                    "kanbanViewState": {
-                      "kanban-plugin": "board",
-                      "list-collapse": [
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false
-                      ]
-                    }
-                  },
-                  "icon": "lucide-trello",
-                  "title": "Todo 看板"
-                }
-              }
-            ]
-          }
-        ],
-        "direction": "vertical",
-        "x": 256,
-        "y": 32,
-        "width": 1024,
-        "height": 800,
-        "maximize": false,
-        "zoom": 0.5
-      }
-    ]
-  },
-  "active": "ffb1c1cf893f72be",
+  "active": "945897dce8bac126",
   "lastOpenFiles": [
+    "Todo 看板.md",
     "source/_posts/笔记：分布式 ID.md",
     "source/_posts/笔记：编解码、加解密、加密校验.md",
-    "Todo 看板.md",
     "source/_posts/笔记：Spring Security.md",
     "source/_posts/笔记：单位换算.md",
     "source/_posts/笔记：Spring AI.md",
