@@ -9,8 +9,20 @@
       "path": "source/_posts/笔记：JUC.md"
     },
     {
+      "basename": "笔记：单位换算",
+      "path": "source/_posts/笔记：单位换算.md"
+    },
+    {
       "basename": "笔记：Java 数据类型",
       "path": "source/_posts/笔记：Java 数据类型.md"
+    },
+    {
+      "basename": "Drawing 2025-07-30 15.36.49.excalidraw",
+      "path": "Excalidraw/Drawing 2025-07-30 15.36.49.excalidraw.md"
+    },
+    {
+      "basename": "笔记：Java 注解",
+      "path": "source/_posts/笔记：Java 注解.md"
     },
     {
       "basename": "Todo 看板",
@@ -35,10 +47,6 @@
     {
       "basename": "笔记：Spring Security",
       "path": "source/_posts/笔记：Spring Security.md"
-    },
-    {
-      "basename": "笔记：单位换算",
-      "path": "source/_posts/笔记：单位换算.md"
     },
     {
       "basename": "笔记：Spring AI",
@@ -191,14 +199,6 @@
     {
       "basename": "image-20250310173524507",
       "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310173524507.png"
-    },
-    {
-      "basename": "image-20250310172731797",
-      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310172731797.png"
-    },
-    {
-      "basename": "image-20250310172624881",
-      "path": "source/_posts/笔记：Hexo + Obsidian +GitHub Pages/image-20250310172624881.png"
     }
   ],
   "omittedPaths": [],
