@@ -8,31 +8,31 @@
         "type": "tabs",
         "children": [
           {
-            "id": "a2ce064672098ea6",
+            "id": "945897dce8bac126",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：JVM.md",
+                "file": "source/_posts/笔记：分布式 ID.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：JVM"
+              "title": "笔记：分布式 ID"
             }
           },
           {
-            "id": "7e2f1a0c3f642cce",
+            "id": "512ccdbb0e2aebd4",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：阿里云代码规约.md",
+                "file": "source/_posts/笔记：编解码、加解密、加密校验.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：阿里云代码规约"
+              "title": "笔记：编解码、加解密、加密校验"
             }
           }
         ]
@@ -245,6 +245,9 @@
                   "list-collapse": [
                     false,
                     false,
+                    false,
+                    false,
+                    false,
                     false
                   ]
                 }
@@ -274,25 +277,77 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "a2ce064672098ea6",
+  "floating": {
+    "id": "9141b6afc92dbc88",
+    "type": "floating",
+    "children": [
+      {
+        "id": "a414ee0d10324616",
+        "type": "window",
+        "children": [
+          {
+            "id": "12e3e2de807ec0b3",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "ffb1c1cf893f72be",
+                "type": "leaf",
+                "state": {
+                  "type": "kanban",
+                  "state": {
+                    "file": "Todo 看板.md",
+                    "kanbanViewState": {
+                      "kanban-plugin": "board",
+                      "list-collapse": [
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false
+                      ]
+                    }
+                  },
+                  "icon": "lucide-trello",
+                  "title": "Todo 看板"
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "vertical",
+        "x": 256,
+        "y": 32,
+        "width": 1024,
+        "height": 800,
+        "maximize": false,
+        "zoom": 0.5
+      }
+    ]
+  },
+  "active": "ffb1c1cf893f72be",
   "lastOpenFiles": [
-    "source/_posts/笔记：JVM/image-20250728231307024.png",
-    "source/_posts/笔记：JVM/image-20250728230347749.png",
-    "source/_posts/笔记：JVM/image-20250728230311438.png",
-    "source/_posts/笔记：JVM/image-20250728230223168.png",
-    "source/_posts/笔记：JVM/image-20250728225858057.png",
-    "source/_posts/笔记：JVM/image-20250728224145179.png",
+    "source/_posts/笔记：分布式 ID.md",
+    "source/_posts/笔记：编解码、加解密、加密校验.md",
+    "Todo 看板.md",
+    "source/_posts/笔记：Spring Security.md",
+    "source/_posts/笔记：单位换算.md",
+    "source/_posts/笔记：Spring AI.md",
+    "source/_posts/笔记：JVM.md",
+    "source/_posts/笔记：Java 数据类型.md",
+    "source/_posts/笔记：JVM/image-20250729191932730.png",
+    "source/_posts/笔记：JVM/image-20250729191615514.png",
+    "source/_posts/笔记：JVM/image-20250729191438334.png",
+    "source/_posts/笔记：JVM/image-20250729191420526.png",
+    "source/_posts/笔记：JVM/image-20250729184405223.png",
+    "source/_posts/笔记：JVM/image-20250729170742826.png",
+    "source/_posts/笔记：JVM/image-20250729170655851.png",
+    "source/_posts/笔记：JVM/image-20250729162455405.png",
+    "source/_posts/笔记：JVM/image-20250729161918851.png",
+    "source/_posts/笔记：JVM/image-20250729130341869.png",
     "source/_posts/笔记：阿里云代码规约.md",
     "Excalidraw/JVM_对象实例化流程_实例变量.md",
-    "source/_posts/笔记：JVM.md",
-    "Todo 看板.md",
-    "source/_posts/笔记：JVM/image-20250728211035839.png",
-    "source/_posts/笔记：JVM/image-20250728210901175.png",
-    "source/_posts/笔记：JVM/image-20250728182811254.png",
-    "source/_posts/笔记：JVM/image-20250728181214127.png",
-    "source/_posts/笔记：JVM/image-20250728174155278.png",
     "source/_posts/笔记：Spring 整合 Minio.md",
-    "source/_posts/笔记：Java 数据类型.md",
     "source/_posts/笔记：ElasticSearch 基础.md",
     "templates/临时：es.md",
     "Excalidraw/firstTest.md",
@@ -318,10 +373,6 @@
     "source/_posts/提高图片清晰度.md",
     "source/about/index.md",
     "source/_posts/笔记：Spring Aop.md",
-    "templates/redis 临时.md",
-    "templates/NFS 挂载参数.md",
-    "templates/速度.md",
-    "templates/马士兵.md",
     "未命名.canvas",
     "Excalidraw/未命名.canvas"
   ]

@@ -6,6 +6,7 @@ kanban-plugin: board
 
 ## Todo
 
+- [ ] JVM：程序计数器注解
 - [ ] JVM：主版本号和副版本号
 - [ ] JUC 看完看另一个 JUC 适配
 - [ ] Spring Security
@@ -27,12 +28,24 @@ kanban-plugin: board
 - [ ] JAVA 数据类型
 
 
+## JVM
+
+
+
 ## Done
 
 **完成**
 
 
-## JVM
+## JUC
+
+
+
+## Minio
+
+
+
+## 加解密、编解码
 
 
 
@@ -45,6 +58,6 @@ kanban-plugin: board
 
 %% kanban:settings
 ```
-{"kanban-plugin":"board","list-collapse":[false,false,false],"lane-width":332}
+{"kanban-plugin":"board","list-collapse":[false,false,false,false,false,false],"lane-width":332}
 ```
 %%
