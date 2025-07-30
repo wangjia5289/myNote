@@ -1,12 +1,32 @@
 {
   "recentFiles": [
     {
-      "basename": "笔记：分布式 ID",
-      "path": "source/_posts/笔记：分布式 ID.md"
+      "basename": "笔记：JVM",
+      "path": "source/_posts/笔记：JVM.md"
+    },
+    {
+      "basename": "笔记：JUC",
+      "path": "source/_posts/笔记：JUC.md"
+    },
+    {
+      "basename": "笔记：Java 数据类型",
+      "path": "source/_posts/笔记：Java 数据类型.md"
     },
     {
       "basename": "Todo 看板",
       "path": "Todo 看板.md"
+    },
+    {
+      "basename": "笔记：分布式 ID",
+      "path": "source/_posts/笔记：分布式 ID.md"
+    },
+    {
+      "basename": "笔记：AutoHotKey",
+      "path": "source/_posts/笔记：AutoHotKey.md"
+    },
+    {
+      "basename": "CHANGES",
+      "path": "node_modules/highlight.js/CHANGES.md"
     },
     {
       "basename": "笔记：编解码、加解密、加密校验",
@@ -23,14 +43,6 @@
     {
       "basename": "笔记：Spring AI",
       "path": "source/_posts/笔记：Spring AI.md"
-    },
-    {
-      "basename": "笔记：JVM",
-      "path": "source/_posts/笔记：JVM.md"
-    },
-    {
-      "basename": "笔记：Java 数据类型",
-      "path": "source/_posts/笔记：Java 数据类型.md"
     },
     {
       "basename": "笔记：阿里云代码规约",
@@ -101,20 +113,8 @@
       "path": "Excalidraw/attachments/Pasted Image 20250727180120_060.png"
     },
     {
-      "basename": "笔记：AutoHotKey",
-      "path": "source/_posts/笔记：AutoHotKey.md"
-    },
-    {
       "basename": "笔记：Java SE",
       "path": "source/_posts/笔记：Java SE.md"
-    },
-    {
-      "basename": "笔记：JUC",
-      "path": "source/_posts/笔记：JUC.md"
-    },
-    {
-      "basename": "CHANGES",
-      "path": "node_modules/highlight.js/CHANGES.md"
     },
     {
       "basename": "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流",

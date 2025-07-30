@@ -8,6 +8,7 @@ kanban-plugin: board
 
 - [ ] JVM：程序计数器注解
 - [ ] JVM：主版本号和副版本号
+- [ ] JVM：类加载的时机
 - [ ] JUC 看完看另一个 JUC 适配
 - [ ] Spring Security
 - [ ] Java 生成密钥与加密解密
@@ -26,6 +27,7 @@ kanban-plugin: board
 - [ ] JSON 序列化、反序列化为对象
 - [ ] Spring Security 可以有多个过滤器链，按路径进行匹配
 - [ ] JAVA 数据类型
+- [ ] 数据库：UUID v4 不适合做主键的原因
 
 
 ## JVM

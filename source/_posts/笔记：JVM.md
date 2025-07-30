@@ -170,7 +170,9 @@ JVM 规范严格规定了有且只有以下五种情况（在 JDK 7 中增加了
 	2. 确保主版本号和副版本号在 JVM 支持的范围内。
 	3. 检查文件结构，如常量池、字段表、方法表等是否符合规范。
 2. 元数据验证
-	1. 这个类是否有父类（除了 `java.lang.Object`，所有类都应该有父类）
+	1. 这个类是否有父类
+		1. 除了 `java.lang.Object`，所有类都应该有父类
+		2. 注意接口 `interface` 也没有父类
 	2. 这个类的父类是否是 `final` 的（`final` 类不允许被继承）
 	3. 这个类是否实现了它所声明实现的所有接口的方法
 	4. 类中的字段和方法是否与父类或接口的规范保持一致
@@ -254,8 +256,6 @@ public class Test {
 > [!NOTE] 注意事项
 > 1. 准备阶段的作用是为静态变量提供一个 “安全” 的初始状态，防止出现野指针或非法内存访问
 > 2. 对于静态常量（static 和 final 同时修饰），并且是基本数据类型和字符串类型的静态常量，其值在编译期就已确定，因此在准备阶段就会被直接初始化为其编译期常量值，而不是默认值
-> 	1. 其他值为什么要等到 clinit 呢？别的对象是什么时候创建的呢？
-> 	2. 额，现在好像哪些运行时常量池还没有进行直接引用，好像是在下一个阶段，现在这个阶段是不是只是static 这些域指向？
 ```
 // 静态基本数据类型常量
 public static final int staticBasicTypeValue = 50000;
@@ -736,6 +736,7 @@ public class Test {
 在对象实例化时，JVM 会在堆内存中为该对象分配空间，所有成员变量都会分配内存并赋予默认值（**默认初始化**）。随后，开始执行对象的初始化逻辑，即调用其 `<init>` 方法，具体包括以下步骤：
 1. 调用父类的构造器
 	1. 如果存在父类（除了 `java.lang.Object` 之外，所有类都应有父类）
+	2. 注意接口 `interface` 也没有父类
 2. 执行实例变量、普通常量的赋值（**显示初始化**）
 3. 执行实例代码块
 	1. 例如 `{xxxx}`
@@ -1544,26 +1545,191 @@ JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放�
 
 ![](image-20250729130316083.png)
 
+> [!NOTE] 注意事项
+> 1. 每一个在堆中的实例对象，都会持有一个指向其类元数据（位于方法区）的指针。我们知道，在对象头中存在一个名为 `Klass Word` 的字段，它正是用于存储这个类元数据的指针。
+
 ---
 
 
 #### 4.6.2. 方法区概述
 
+方法区是用来存储已经被 JVM 加载的各种类的元数据信息、类的静态变量，以及即时编译器（JIT）编译后生成的代码缓存。
+
+方法区和堆区一样，都是所有线程共享的内存区域。其底层物理内存可以是非连续的，但在逻辑上应被视为连续的空间。
+
+JDK1.7 之前的永久代、JDK1.8 之后的元空间，都是对 JVM 规范中方法区的实现，其最大的区别在于：元空间不再使用 JVM 虚拟机设置的堆内存，而是改为使用本地内存，因此更少发生 OOM异常。
+1. 永久代（PermGen） 是 JVM 内存的一部分，大小由 `-XX:PermSize` 和 `-XX:MaxPermSize` 限制，默认值往往较小（比如几十 MB），而且很容易超过上限，从而导致 OOM
+2. 元空间（Metaspace） 使用的是 本地内存（Native memory），大小可以远远超过 JVM 堆的限制，甚至可以动态扩展至整个物理内存的上限
 
 
-下面是方法区（Metaspace）中存储的**各种类元信息的详细分类**，每一项都是 JVM 加载类时产生并保存在方法区中的元数据。
 
-|区域/结构|存储内容说明|示例/说明|
-|---|---|---|
-|**1. 类结构信息**|每个类或接口的定义信息|类的名称、访问标志、父类、接口、字段、方法等|
-|├─ 类的全限定名|如 `java/lang/String`||
-|├─ 类加载器引用|负责加载该类的 ClassLoader 对象引用|用于类的隔离和卸载|
-|├─ 父类引用|超类元数据的引用|支持继承关系|
-|├─ 接口列表|当前类实现的所有接口|存储为接口元数据的引用|
-|├─ 访问标志（修饰符）|`public`、`abstract`、`final`、`interface` 等|决定类或接口的属性|
-|├─ 源文件名|用于调试信息：来自 `SourceFile` 常量|如 `MyClass.java`|
+> [!NOTE] 注意事项
+> 2. 方法区既会发生 GC，也会抛出 OOM，常见有：
+> 	1. java.lang.OutOfMemoryError: Metaspace
+> 		1. 
+> 	2. java.lang.OutOfMemoryError: PermGen space
+> 		1. 
+> 3. 方法区的大小可以通过 JVM 参数手动指定，包括初始空间和最大空间，且在运行时具有动态扩展能力
+> 	1. 永久代
+> 		1. -XX:PermSize=64m
+> 			1. 用于设置方法区的初始内存大小
+> 			2. 例如：java -XX:PermSize=64m -XX:MaxPermSize=128m -jar MyApp.jar
+> 			3. 默认值：20.75m
+> 			4. 常用单位：k、m、g
+> 		2. -XX:MaxPermSize=128m
+> 			1. 用于设置方法区的最大内存大小
+> 			2. 例如：java -XX:PermSize=64m -XX:MaxPermSize=128m -jar MyApp.jar
+> 			3. 默认值：32 位机器默认是 64 M，64 位机器默认是 82 M
+> 	2. 元空间
+> 		1. -XX:MetaspaceSize=128m
+> 			1. 用于设置方法区的初始内存大小
+> 			2. 例如：java -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -jar MyApp.jar
+> 			3. 默认值：21m
+> 			4. 注意事项：
+> 				1. 如果初始高水位线（-XX:MetaspaceSize）设置过低，可能会导致 Full GC 频繁触发，建议将其设置为一个相对较高的值以减少不必要的 GC 开销。
+> 		2. -XX:MaxMetaspaceSize=256m
+> 			1. 用于设置方法区的最大内存大小
+> 			2. 例如：java -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -jar MyApp.jar
+> 			3. 默认值：-1，既没有限制
 
 ---
+
+
+#### 类元信息
+
+以下是类元信息中通常包含的关键内容：
+1. 类的全限定名
+	1. 例如：`java/lang/String`
+	2. 注意事项：
+		1. 当我们日常编写时，类的全限定名是用点号，例如：`java.lang.String`
+		2. 但是在 JVM 内部、字节码文件（.class 文件）以及 JNI 描述符中，是使用斜杠 **/**
+2. 直接父类的全限定名
+	1. 除了 `java.lang.Object`，所有类都应该有父类
+	2. 注意接口 `interface` 也没有父类
+3. 直接实现的接口的全限定名列表
+	1. 因为可能实现很多接口，所以这里用列表进行记录
+4. 类的修饰符
+	1. 访问修饰符
+		1. public
+			1. 任何地方都可以访问
+		2. protect
+			1. 同一个包内可以访问
+			2. 不同包的**子类**可以访问
+		3. package-private（默认）
+			1. 只能在同一个包内访问
+			2. 如果不指定任何访问修饰符，则为默认访问级别
+		4. private
+			1. 只能在定义它的类内部访问
+			2. 这也是为什么当我们为字段添加 `private` 修饰符时，需要编写相应的 Getter 和 Setter 方法，因为除了该类自身，其他类根本无法直接访问这个字段。
+	2. 非访问修饰符
+		1. abstract
+			1. 抽象类，不能被实例化，必须被继承。
+		2. final
+			1. 最终类，不能被继承
+		3. static
+			1. 静态嵌套类
+			2. 这个修饰符不能直接用于外部类，只能用于**嵌套类 (Nested Classes)**
+	3. 类型本身的种类标识符
+		1. class
+		2. interface
+		3. enum
+		4. @interface
+		5. 虽然我们通常认为 `enum` 是一种特殊的 `class`，`@interface` 是一种特殊的 `interface`，但本质上它们都是处于同一级别的关键字，并在字节码层面**通过不同的访问标志加以区分**
+	4. 这些信息在 `.class` 文件中都包含在 `access_flags` 字段。
+5. 类加载器引用
+	1. 指向加载这个类的那个类加载器实例的引用
+
+> [!NOTE] 注意事项
+> 1. 无论是类、接口还是枚举、注解，在 JVM 的底层实现和运行层面，它们最终都被表示为 **Class**，因此都会在类的元数据信息中占有一席之地。
+
+---
+
+#### 域信息（方法信息）
+
+
+
+
+
+
+### 主要的类元信息
+
+以下是类元信息中通常包含的关键内容：
+
+- **类的全限定名 (Fully Qualified Name)**：
+    
+    - 例如 `java.lang.Object` 或 `com.example.MyClass`。这是唯一标识一个类的名称。
+        
+- **直接父类的全限定名 (Fully Qualified Name of Superclass)**：
+    
+    - 每个类（除了 `java.lang.Object`）都有一个直接父类。这个信息用于实现继承。
+        
+- **直接实现的接口的全限定名列表 (List of Fully Qualified Names of Implemented Interfaces)**：
+    
+    - 如果类实现了接口，这里会记录所有直接实现的接口的名称。
+        
+- **类的修饰符 (Modifiers)**：
+    
+    - 例如 `public`, `private`, `protected`, `static`, `final`, `abstract`, `interface` 等。这些修饰符定义了类的访问权限、行为特性等。
+        
+- **字段信息 (Field Information)**：
+    
+    - 类的所有字段（包括从父类继承的和自身定义的）的详细信息。对于每个字段，会存储：
+        
+        - **字段名称 (Name)**
+            
+        - **字段类型 (Type)**（例如 `int`, `String`, `MyObject` 等）
+            
+        - **字段修饰符 (Modifiers)**（例如 `public`, `private`, `static`, `final`, `volatile`, `transient` 等）
+            
+- **方法信息 (Method Information)**：
+    
+    - 类的所有方法（包括从父类继承的和自身定义的）的详细信息。对于每个方法，会存储：
+        
+        - **方法名称 (Name)**
+            
+        - **方法返回类型 (Return Type)**
+            
+        - **方法参数列表 (Parameter List)**（每个参数的类型、数量）
+            
+        - **方法修饰符 (Modifiers)**（例如 `public`, `private`, `static`, `final`, `abstract`, `synchronized`, `native` 等）
+            
+        - **方法字节码 (Method Bytecode)**：这是方法区中最核心的部分之一，存储了方法的实际执行逻辑（Java 字节码指令）。
+            
+        - **异常表 (Exception Table)**：方法中定义的异常处理信息。
+            
+- **运行时常量池 (Runtime Constant Pool)**：
+    
+    - 这是方法区的一部分，存储了编译期生成的各种字面量（如字符串常量、数值常量）和符号引用（如类、字段、方法的引用）。这些符号引用在程序运行时会被解析为直接引用。
+        
+- **类加载器引用 (Class Loader Reference)**：
+    
+    - 指向加载这个类的那个类加载器实例的引用。这对于理解和实现自定义类加载器以及模块化系统非常重要。
+        
+- **超类型指针 (Supertype Pointers)**：
+    
+    - 用于快速查找继承链上的父类和接口，以便实现方法重写和多态性。
+        
+
+---
+
+### 类元信息的作用
+
+这些类元信息对于 JVM 的正常运行至关重要：
+
+- **执行方法调用和多态性**：JVM 需要知道一个对象属于哪个类，该类有哪些方法，以及如何根据对象的实际类型来调度正确的方法实现。
+    
+- **字段访问**：通过字段信息，JVM 能够正确地定位和访问对象的实例字段或类的静态字段。
+    
+- **类型检查与转换**：在进行类型转换（如强制类型转换）时，JVM 依靠类元信息来验证转换的合法性。
+    
+- **反射机制**：Java 的反射 API（`java.lang.reflect` 包）正是通过访问这些存储在方法区中的类元信息来实现运行时动态获取类信息和操作对象的。
+    
+- **垃圾回收**：垃圾收集器在遍历对象图时，需要依赖类元信息来确定对象的布局和大小，从而正确地标记和回收不再使用的对象。
+
+
+简而言之，类元信息就是 JVM 的“说明书”，告诉它一个类是什么样子的、有哪些成员、以及如何与它交互。
+
+
 
 |区域/结构|存储内容说明|示例/说明|
 |---|---|---|
@@ -1617,23 +1783,110 @@ JVM 是基于栈的架构，它不像物理 CPU 那样通过寄存器来存放�
 |├─ 行号表（LineNumberTable）|字节码 → 源代码行映射|支持调试|
 |├─ 局部变量表|每个局部变量在局部变量表中的位置、作用范围|IDE 调试时显示变量名|
 
+
+
+
+方法区用于存储已被虚拟机加载的 类元信息、域信息、方法信息、
+
+<font color="#92d050">1. 类元信息</font>
+
+|  信息内容   | 说明  | 注意事项 |
+| :-----: | :-: | :--: |
+|  类的名称   |     |      |
+| 类加载器的引用 |     |      |
+|         |     |      |
+
+
+
+
+
+```
+public class Example {
+
+    // 1. 静态常量：属于类，编译期常量，可能会放入常量池
+    public static final String CONST = "Hello, JVM";
+
+    // 2. 静态变量：属于类，变量的值存储在堆中
+    public static int staticCount = 42;
+
+    // 3. 实例变量：属于对象，完全存储在堆中
+    private int instanceValue = 100;
+
+    // 4. 实例方法：属于类结构的一部分，方法信息存储在方法区
+    public void printInstanceValue() {
+        System.out.println("Instance value: " + instanceValue);
+    }
+
+    // 5. 静态方法：方法结构存在方法区，不属于某个对象
+    public static void printStatic() {
+        System.out.println("Static count: " + staticCount);
+    }
+
+    public static void main(String[] args) {
+        // 类加载时，类的结构被加载到方法区
+        Example obj = new Example(); // 对象在堆中分配
+        obj.printInstanceValue();    // 调用实例方法
+        Example.printStatic();       // 调用静态方法
+        System.out.println(CONST);   // 访问静态常量
+    }
+}
+
+```
+
+
+
+
+
+永久代、元空间
+
+使用本地内存，就更不容易出现 OOM
+
+JVM 的虚拟内存难道不是使用的本地内存嘛？
+
+
+
+
+
+
+
 ---
 
 
 #### 4.6.3. 常量池
 
 
+#### 方法区 GC 过程
+
+当方法区（Metaspace 或 PermGen）的使用量，触及初始高水位线（即默认的 -XX:MetaspaceSize）时，JVM 会尝试触发一次 Full GC
+
+Full GC 会对新生代、老年代、方法区进行垃圾回收，其中在方法区中主要涉及到：
+1. 常量池的回收
+2. 类的卸载
+	1. 类的卸载比较严格，当满足以下三个条件时，一个类及与其关联的数据才有可能被卸载：
+		1. 该类的所有实例都已被回收
+		2. 加载该类的 `ClassLoader` 已经被回收
+		3. 该类对应的 `java.lang.Class` 对象没有在任何地方被引用
+	2. 多数情况下，一个类的 `ClassLoader` 和 `Class` 对象都会被长期引用
+
+触发 Full GC 后，高水位线会被动态调整，新的高水位线取决于 GC 后释放了多少空间：
+1. 如果释放的空间不足，在不超过 MaxMetaspaceSize 限制时，会适当提高高水位线
+2. 如果释放的空间过多，则会适当降低高水位线
+
+如果 Full GC 后空间依然不足，且超过了 MaxMetaspaceSize 限制，则 JVM 会抛出 OOM 异常：
+1. java.lang.OutOfMemoryError: PermGen space
+	1. 永久代内存不足
+2. java.lang.OutOfMemoryError: Metaspace
+	1. 元空间内存不足
+
+> [!NOTE] 注意事项
+> 1. 如果初始高水位线（-XX:MetaspaceSize）设置过低，可能会导致 Full GC 频繁触发，建议将其设置为一个相对较高的值以减少不必要的 GC 开销。
+
+---
 
 
+#### 方法区常用 JVM 参数
 
-
-
-
-
-
-
-
-
+---
 
 
 
@@ -1801,105 +2054,6 @@ SourceFile: "Test.java"
 
 
 
-
-方法区用于存储已被虚拟机加载的 类元信息、域信息、方法信息、
-
-<font color="#92d050">1. 类元信息</font>
-
-|  信息内容   | 说明  | 注意事项 |
-| :-----: | :-: | :--: |
-|  类的名称   |     |      |
-| 类加载器的引用 |     |      |
-|         |     |      |
-
-
-
-
-
-```
-public class Example {
-
-    // 1. 静态常量：属于类，编译期常量，可能会放入常量池
-    public static final String CONST = "Hello, JVM";
-
-    // 2. 静态变量：属于类，变量的值存储在堆中
-    public static int staticCount = 42;
-
-    // 3. 实例变量：属于对象，完全存储在堆中
-    private int instanceValue = 100;
-
-    // 4. 实例方法：属于类结构的一部分，方法信息存储在方法区
-    public void printInstanceValue() {
-        System.out.println("Instance value: " + instanceValue);
-    }
-
-    // 5. 静态方法：方法结构存在方法区，不属于某个对象
-    public static void printStatic() {
-        System.out.println("Static count: " + staticCount);
-    }
-
-    public static void main(String[] args) {
-        // 类加载时，类的结构被加载到方法区
-        Example obj = new Example(); // 对象在堆中分配
-        obj.printInstanceValue();    // 调用实例方法
-        Example.printStatic();       // 调用静态方法
-        System.out.println(CONST);   // 访问静态常量
-    }
-}
-
-```
-
-
-
-
-
-永久代、元空间
-
-使用本地内存，就更不容易出现 OOM
-
-JVM 的虚拟内存难道不是使用的本地内存嘛？
-
-
-> [!NOTE] 注意事项
-> 1. 方法区既会发生 GC，也会抛出 OOM，常见有：
-> 	1. java.lang.OutOfMemoryError: Metaspace
-> 		1. 
-> 	2. java.lang.OutOfMemoryError: PermGen space
-> 		1. 
-> 2. JDK1.7 之前的永久代、JDK1.8 之后的元空间，都是对 JVM 规范中方法区的实现，其最大的区别在于：元空间不再使用 JVM 虚拟机设置的堆内存，而是改为使用本地内存，因此更少发生 OOM异常。
-> 	1. 永久代（PermGen） 是 JVM 内存的一部分，大小由 `-XX:PermSize` 和 `-XX:MaxPermSize` 限制，默认值往往较小（比如几十 MB），而且很容易超过上限，从而导致 OOM
-> 	2. 元空间（Metaspace） 使用的是 本地内存（Native memory），大小可以远远超过 JVM 堆的限制，甚至可以动态扩展至整个物理内存的上限
-> 3. 方法区在 JVM 启动时被创建，其实际的物理内存可以是不连续的内存空间
-> 4. 方法区的大小可以通过 JVM 参数手动指定，包括初始空间和最大空间，且在运行时具有动态扩展能力
-> 	1. JDK1.7 之前
-> 		1. -XX:PermSize=64m
-> 			1. 用于设置方法区的初始内存大小
-> 			2. 例如：java -XX:PermSize=64m -XX:MaxPermSize=128m -jar MyApp.jar
-> 			3. 默认值：20.75m
-> 			4. 常用单位：k、m、g
-> 		2. -XX:MaxPermSize=128m
-> 			1. 用于设置方法区的最大内存大小
-> 			2. 例如：java -XX:PermSize=64m -XX:MaxPermSize=128m -jar MyApp.jar
-> 			3. 默认值：32 位机器默认是 64 M，64 位机器默认是 82 M
-> 	2. JDK1.8 之前
-> 		1. -XX:MetaspaceSize=128m
-> 			1. 用于设置方法区的初始内存大小
-> 			2. 例如：java -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -jar MyApp.jar
-> 			3. 默认值：21m
-> 			4. 注意事项：
-> 				1. 如果初始高水位线（-XX:MetaspaceSize）设置过低，可能会导致 Full GC 频繁触发，建议将其设置为一个相对较高的值以减少不必要的 GC 开销。
-> 		2. -XX:MaxMetaspaceSize=256m
-> 			1. 用于设置方法区的最大内存大小
-> 			2. 例如：java -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -jar MyApp.jar
-> 			3. 默认值：-1，既没有限制
-> 5. 方法区的 GC 过程：
-> 	1. 当方法区（Metaspace 或 PermGen）的使用量，触及初始高水位线（即默认的 -XX:MetaspaceSize）时，JVM 会尝试触发一次 Full GC（不会触发 Minor GC）
-> 	2. Full GC 会对新生代、老年代、方法区进行垃圾回收，其中在方法区中会卸载那些对应类加载器不再存活的类
-> 	3. 触发 GC 后，高水位线会被动态调整，新的高水位线取决于 GC 后释放了多少空间：
-> 		1. 如果释放的空间不足，在不超过 MaxMetaspaceSize 限制时，会适当提高高水位线
-> 		2. 如果释放的空间过多，则会适当降低高水位线
-> 	4. 如果 Full GC 后空间依然不足，且超过了 MaxMetaspaceSize 限制，则 JVM 会抛出 OOM 异常
-> 	5. 如果初始高水位线（-XX:MetaspaceSize）设置过低，可能会导致 Full GC 频繁触发，建议将其设置为一个相对较高的值以减少不必要的 GC 开销。
 
 ---
 
