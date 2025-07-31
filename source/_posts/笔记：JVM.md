@@ -2368,19 +2368,53 @@ putfield #8 <org/example/test/Test.instanceBasicTypeValue : I>
 ---
 
 
+### 远程连接
+
+<font color="#92d050">1. 启动远程 Java 程序</font>
+这里使用 JMX 进行远程连接，你需要在远程服务器上的 Java 程序加上这些 JVM 参数：
+2. -Dcom.sun.management.jmxremote
+	1. 启用 JMX 远程管理
+3. -Djava.rmi.server.hostname=192.168.136.8
+	1. 远程服务器 IP
+4. -Dcom.sun.management.jmxremote.port=9999
+	1. JMX 监听的端口号
+	2. 需要开发防火墙和安全组，确保我们能够正常连接
+5. -Dcom.sun.management.jmxremote.ssl=false
+	1. 禁用 SSL 加密
+	2. 在生产环境中强烈建议启用 SSL 加密
+6. -Dcom.sun.management.jmxremote.authenticate=false
+	1. 禁用身份验证
+	2. 在生产环境中强烈建议启用身份验证
 
 
+<font color="#92d050">2. 添加远程主机</font>
+![](image-20250731092919578.png)
 
 
+<font color="#92d050">3. 添加 JMX 连接</font>
+![](image-20250731093012593.png)
+
+![](image-20250731093109639.png)
+
+---
 
 
+### 主要功能
+
+#### 生成 / 读取 dump 快照
+
+<font color="#92d050">1. 生成 dump 快照</font>
+![](image-20250731093332816.png)
 
 
+<font color="#92d050">2. 保存 dump 快照</font>
+![](image-20250731093412812.png)
 
 
+<font color="#92d050">3. 读取内存快照</font>
+![](image-20250731093617255.png)
 
-
-
+---
 
 
 

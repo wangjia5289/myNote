@@ -18,174 +18,8 @@ layout: post
 
 ## 3. 创建线程
 
-### 3.1. 直接使用 Thread
-
-```
-// 1. 创建线程对象
-Thread myThread = new Thread("myThread") {
-	@Override
-	public void run() {
-		// 本线程要执行的任务
-	}
-};
-
-// 2. 启动线程
-myThread.start();
-```
-
 ----
 
-
-### 3.2. 使用 Runnable + Thread
-
-直接使用 `Thread` 相当于将线程控制与具体任务耦合在一起，为了具有更好的灵活性，也为了更容易与线程池等高级并发 API 配合使用，我们可以使用 `Runnable` 实现了线程与任务的分离。
-
-`Runnable` 是一个接口，其源码如下所示：
-```
-@FunctionalInterface
-public interface Runnable {
-    public abstract void run();
-}
-```
-
-接下来我们可以通过如下方式创建一个线程：
-```
-// 1. 创建 Runnable 接口对象
-Runnable runnable = new Runnable() {
-	@Override
-	public void run() {
-		// 本 Runnable 要执行的任务
-	}
-};
-
-// 2. 创建线程对象，传入 Runnable 接口对象。线程将执行 Runnable 中指定的 run 方法
-Thread myThread = new Thread(runnable, "myThread");
-
-// 3. 启动线程
-myThread.start();
-```
-
-> [!NOTE] 注意事项
-> 1. 在 Java 中，只包含一个抽象方法的接口可以加上 `@FunctionalInterface` 注解，表示该接口是一个函数式接口，从而可以使用 lambda 表达式进行简洁书写（只有一个抽象方法，但还可能存在几个 default 方法）
-> 2. 如果 lambda 表达式中有多条语句，必须使用花括号 `{}` 包裹；如果只有一条语句，则可以省略花括号。
-```
-// 1. Runnable 源码
-@FunctionalInterface
-public interface Runnable {
-    public abstract void run();
-}
-
-
-// 2. lambda 表达式创建 Runnable
-Runnable runnable = () -> {
-	// 本 Runnable 要执行的任务
-};
-```
-
-> [!NOTE] 注意事项
-> 3. Runnable 是一个接口，而创建 Runnable 接口通常有三种常见玩法：
-
-```
-// 1. 直接 new 出接口对象
-Runnable runnable = new Runnable() {
-    @Override
-    public void run() {
-        System.out.println("运行中");
-    }
-};
-
-
-// 2. 向上转型 new 出接口对象
-class MyRunnable implements Runnable {
-    @Override
-    public void run() {
-        System.out.println("运行中");
-    }
-}
-
-Runnable runnable = new MyRunnable();
-
-
-// 3. new 出实现类（MyRunnable）类型的对象
-class MyRunnable implements Runnable {  
-    @Override  
-    public void run() {  
-        System.out.println("运行中");  
-    }  
-}  
-  
-MyRunnable myRunnable = new MyRunnable();
-```
-
-----
-
-
-### 3.3. 使用 FutureTask + Thread
-
-#### 3.3.1. Runnable 的缺陷
-
-无论是使用 Runnable + Thread，还是直接使用 Thread，我们都会发现只能执行无返回值的方法。也就是说，方法执行完成后无法获取返回值，而有时我们确实需要返回值来进行错误处理。
-
-除此之外，我们也发现，使用 Runnable 时也无法抛出受检异常（checked Exception）。
-
----
-
-
-#### 3.3.2. Callable 的引入
-
-Callable 和 Runnable 类似，都是用来定义任务的接口。不同的是，Callable 定义了带返回值且可抛异常的 `V call()` 方法。
-
-但需要注意的是，Thread 构造方法只能接收 Runnable 类型的对象，因此 Callable 不能像 Runnable 那样直接传给 Thread 使用。
-```
-@FunctionalInterface
-public interface Callable<V> {
-    V call() throws Exception;
-}
-```
-
----
-
-
-#### 3.4. 使用 FutureTask + Thread 
-
-```
-// 1. 创建 Callable 接口对象
-Callable<Integer> task = new Callable<Integer>() {
-	@Override
-	public Integer call() throws Exception {
-		return 1 + 2;
-	}
-};
-
-// 2. 创建 FutureTask 对象，传入 Callable 接口对象。
-FutureTask<Integer> futureTask = new FutureTask<>(task);
-
-// 3. 创建线程对象，传入 FutureTask 对象。线程将执行 Callable 中指定的 call 方法，并能调用 FutureTask 的方法进行相关操作
-Thread myThread = new Thread(futureTask, "myThread");
-
-// 4. 启动线程
-myThread.start();
-
-// 5. 调用 FutureTask  相关方法
-try {
-    Integer result = futureTask.get();  // 阻塞等待任务执行完成，获取返回值
-    System.out.println("任务返回结果: " + result);
-} catch (InterruptedException | ExecutionException e) {
-    e.printStackTrace();
-}
-```
-
-> [!NOTE] 注意事项
-> 1. 创建 FutureTask 对象时，可直接使用 Lambda 表达式，无需单独创建 Callable 接口对象
-```
-FutureTask<Integer> futureTask = new FutureTask<>(() -> 1 + 2);
-
-Thread myThread = new Thread(futureTask, "myThread");
-
-myThread.start();
-```
-
-----
 
 
 ## 4. 线程的状态
@@ -1623,7 +1457,6 @@ public class PooledJedisClient {
 }
 ```
 
-
 > [!NOTE] 注意事项
 > 1. `Netty` 好像也能处理这个事情，Redis 就是使用的这个方式，还维护自己的一套nid 线程池？不理解不理解
 
@@ -2056,26 +1889,266 @@ public void actor2() {
 
 ----
 
+# JUC 基础
+
+## 线程基础
+
+### 串行、并发、并行
+
+<font color="#92d050">1. 串行</font>
+串行是指任务按顺序一个接一个地执行，只有当前一个任务执行完成，后一个任务才会开始执行，严格遵循任务提交的先后顺序。即便系统拥有多个 CPU 核心，在串行模式下，任意时刻也只会有一个线程在运行。
 
 
+<font color="#92d050">2. 并发</font>
+并发是指多个线程看起来像是在同时运行，其是通过时间片轮转机制实现，通过快速切换线程，让每个线程都获得运行机会，因此并发特性在单核环境中体现得尤为明显。
+
+而在多核 CPU 上，线程有可能被分配到不同的核心上并行执行，但当线程数量多于核心数量时，CPU 仍需通过时间片轮转进行调度，以确保所有线程都能获得执行机会。
 
 
+<font color="#92d050">3. 并行</font>
+并行是指多个线程在真正意义上同时运行，分别占用不同的 CPU 核心，在同一时刻执行各自的任务，体现出真正的同时处理能力。
+
+---
 
 
+### 同步、异步、阻塞、非阻塞
+
+我们通常将操作分为下面的操作：
+1. 同步操作
+	1. 同步简单操作
+	2. 同步阻塞操作
+
+2. ==同步操作==：
+	1. <font color="#00b0f0">同步简单操作</font>：
+		1. 快速执行、无明显耗时、不涉及复杂计算或 I/O
+	2. <font color="#00b0f0">同步阻塞操作</font>：
+		1. 设计耗时计算或潜在阻塞操作（如 I/O），但是在当前线程同步执行
+3. ==异步操作==：
+	1. <font color="#00b0f0">异步阻塞操作</font>：
+		1. 将同步阻塞操作通过异步机制（如线程池）执行，“伪非阻塞” 操作
+	2. <font color="#00b0f0">异步非阻塞操作</font>：
+		1. 完全非阻塞，通常是基于时间驱动或回调，依赖外部异步机制（如 `WebClient`、 `R2DBC`、`CompletableFuture`）
+4. ==补充：I/O==：
+	1. I/O，即输入/输出（Input/Output），是指计算机与外部世界的信息交换过程，包括但不限于：
+		1. <font color="#00b0f0">网络请求</font>：
+			1. 如调用其他 HTTP API 接口（RestTemplate、WebClient）、JDBC、R2DBC 等等
+		2. <font color="#00b0f0">文件操作</font>：
+			1. 读取或写入硬盘上的文件
+		3. <font color="#00b0f0">用户交互</font>：
+			1. 键盘、鼠标等输入设备的信号获取，以及向显示器等输出设备发送信息。
+		4. <font color="#00b0f0">硬件通信</font>：
+			1. 与打印机、扫描仪等外部设备的数据交换
+
+---
 
 
+### 线程的创建
+
+#### 继承 Thread 类，重写 run 方法
+
+此景难得，我们就以这个场景为例，来举一举类的几种常见玩法：
+
+<font color="#92d050">1. 使用匿名内部类的方式继承 Thread 类，并重写 run 方法</font>
+```
+public class Demo {  
+  
+    public static void main(String[] args) {  
+    
+		// 创建线程对象
+        Thread myThread = new Thread("myThread") {  
+            @Override  
+            public void run() {  
+                // 本线程要执行的任务  
+            }  
+        };  
+          
+        // 启动线程  
+        myThread.start();  
+    }  
+}
+```
+
+类只能被继承，接口只能被实现。在这种写法中，看似直接 new 了一个 Thread 对象，实际上这是典型的匿名内部类（四种内部类之一）的声明方式。匿名内部类是专门用来继承某个类或实现某个接口，我们省去了单独定义一个类（因为它是匿名的），代码更简洁。
+
+匿名内部类的本质是：在编译时，编译器会自动生成两个字节码文件，一个是 `Demo.class`，另一个是 `Demo$1.class`。这个自动生成的类继承了 Thread 类，并重写了 `run` 方法。
+
+当执行到 `Thread myThread = new Thread("myThread") { ... };` 时，JVM 会像处理普通类一样，将 `Demo$1.class` 加载到方法区，并在堆区创建这个对象实例，赋值给变量 `myThread`。
+
+> [!NOTE] 注意事项
+> 1. 使用匿名类创建了临时的类对象，方法执行完后如果栈帧中没有对该对象的引用，它可能会在下一次 GC 时就被回收
+> 2. 但它对应的类信息仍然会加载到方法区，而且我们知道方法区中的类卸载条件非常严格，所以必须明确匿名类的适用范围：
+> 	1. 如果只是临时封装逻辑，使用匿名类是合适的
+> 		1. 但如果需要在两处及以上复用同一段逻辑，匿名类就不太合适
+> 	2. 匿名类不支持灵活传参，若需要传参灵活，建议避免使用匿名类
+> 	3. 在事件驱动或回调场景中，匿名类则非常适用
 
 
+<font color="#92d050">2. 使用显示声明类的方式继承 Thread 类，并重写 run 方法</font>
+显式声明类，是指无论你是直接定义一个类对象，还是在某个类中编写成员内部类、静态内部类、局部内部类等嵌套类，总之你都是明确地定义了一个具名类
+```
+public class MyThread extends Thread{  
+  
+    @Override  
+    public void run() {  
+        // 本线程要执行的任务  
+  
+    }  
+}
+```
+
+然后我们去创建线程对象：
+```
+public class Demo {  
+  
+    public static void main(String[] args) {  
+  
+        // 1. 正常创建 MyThread 类型的线程对象  
+        MyThread myThread1 = new MyThread();  
+  
+        // 2. 向上转型创建 Thread 类型的线程对象
+        Thread myThread2 = new MyThread();  
+  
+        // 启动线程  
+        myThread1.start();  
+        myThread2.start();  
+    }  
+  
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 这个示例不太适合作为演示 “向下转型” 的例子，详见笔记：Java SE
+> 2. 我们在继承类并重写方法的时候，通常会自动写一个 super.run()，这个是指调用父类的 run() 方法例如：
+```
+public class MyThread extends Thread{  
+  
+    @Override  
+    public void run() {  
+        super.run();
+    }  
+}
+```
+
+---
 
 
+#### 3.2. 使用 Runnable + Thread
+
+直接使用 `Thread` 相当于将线程控制与具体任务耦合在一起，为了具有更好的灵活性，也为了更容易与线程池等高级并发 API 配合使用，我们可以使用 `Runnable` 实现了线程与任务的分离。
+
+`Runnable` 是一个接口，其源码如下所示：
+```
+@FunctionalInterface
+public interface Runnable {
+    public abstract void run();
+}
+```
+
+接下来我们可以通过如下方式创建一个线程对象：
+```
+// 1. 创建 Runnable 接口对象
+Runnable runnable = new Runnable() {
+	@Override
+	public void run() {
+		// 本 Runnable 要执行的任务
+	}
+};
+
+// 2. 创建线程对象，传入 Runnable 接口对象。线程将执行 Runnable 中指定的 run 方法
+Thread myThread = new Thread(runnable, "myThread");
+
+// 3. 启动线程
+myThread.start();
+```
+
+> [!NOTE] 注意事项
+> 1. 在 Java 中，只包含一个抽象方法的接口可以加上 `@FunctionalInterface` 注解，表示该接口是一个函数式接口，从而可以使用 lambda 表达式进行简洁书写（只有一个抽象方法，但还可能存在几个 default 方法）
+> 2. 需要注意的是，如果 lambda 表达式中有多条语句，必须使用花括号 `{}` 包裹；如果只有一条语句，则可以省略花括号。
+```
+// lambda 表达式创建 Runnable
+Runnable runnable = () -> {
+	// 本 Runnable 要执行的任务
+};
+```
+
+---
 
 
+#### 3.3. 使用 FutureTask + Thread
+
+##### 3.3.1. Runnable 的缺陷
+
+无论是使用 Runnable + Thread，还是直接使用 Thread，我们都会发现只能执行无返回值的方法。也就是说，方法执行完成后无法获取返回值，而有时我们确实需要返回值来进行错误处理。
+
+除此之外，我们也发现，使用 Runnable 时也无法抛出受检异常（checked Exception）。
+
+---
 
 
+##### 3.3.2. Callable 的引入
+
+Callable 和 Runnable 类似，都是用来定义任务的接口。不同的是，Callable 定义了带返回值且可抛异常的 `V call()` 方法。
+
+但需要注意的是，Thread 构造方法只能接收 Runnable 类型的对象，因此 Callable 不能像 Runnable 那样直接传给 Thread 使用。
+```
+@FunctionalInterface
+public interface Callable<V> {
+    V call() throws Exception;
+}
+```
+
+---
 
 
+##### 3.4. 使用 FutureTask + Thread 
+
+关于 Runnable、Callable、Future 的详细解释，详见下文：异步编程。这里我们先了解如何通过这种方式来创建线程
+
+```
+// 1. 创建 Callable 接口对象
+Callable<Integer> task = new Callable<Integer>() {
+	@Override
+	public Integer call() throws Exception {
+		return 1 + 2;
+	}
+};
+
+// 2. 创建 FutureTask 对象，传入 Callable 接口对象。
+FutureTask<Integer> futureTask = new FutureTask<>(task);
+
+// 3. 创建线程对象，传入 FutureTask 对象。线程将执行 Callable 中指定的 call 方法，并能调用 FutureTask 的方法进行相关操作
+Thread myThread = new Thread(futureTask, "myThread");
+
+// 4. 启动线程
+myThread.start();
+
+// 5. 调用 FutureTask  相关方法
+try {
+    Integer result = futureTask.get();  // 阻塞等待任务执行完成，获取返回值
+    System.out.println("任务返回结果: " + result);
+} catch (InterruptedException | ExecutionException e) {
+    e.printStackTrace();
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 创建 FutureTask 对象时，可直接使用 Lambda 表达式，无需单独创建 Callable 接口对象
+```
+FutureTask<Integer> futureTask = new FutureTask<>(() -> 1 + 2);
+
+Thread myThread = new Thread(futureTask, "myThread");
+
+myThread.start();
+```
+
+----
 
 
+##### 基于线程池
+
+这部分内容，详见下文：线程池
+
+---
 
 
 

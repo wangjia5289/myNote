@@ -40,6 +40,11 @@ kanban-plugin: board
 - [ ] JUC：脑壳有点况博主视频
 
 
+## Java SE
+
+- [ ] Java SE：类和接口的向上转型、向下转型
+
+
 ## Minio
 
 
@@ -57,6 +62,6 @@ kanban-plugin: board
 
 %% kanban:settings
 ```
-{"kanban-plugin":"board","list-collapse":[false,false,false,false,false],"lane-width":332}
+{"kanban-plugin":"board","list-collapse":[false,false,false,false,false,false],"lane-width":332}
 ```
 %%
