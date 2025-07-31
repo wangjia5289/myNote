@@ -6,10 +6,6 @@ kanban-plugin: board
 
 ## Todo
 
-- [ ] JVM：程序计数器注解
-- [ ] JVM：主版本号和副版本号
-- [ ] JVM：类加载的时机
-- [ ] JUC 看完看另一个 JUC 适配
 - [ ] Spring Security
 - [ ] Java 生成密钥与加密解密
 - [ ] Spring Security 集成 Oauth2，要看视频：尚硅谷 Spring Security + OAuth2、Spring AuthorizationServer 极简入门
@@ -23,24 +19,25 @@ kanban-plugin: board
 - [ ] Http 连接池、MySQL 连接池、线程池
 - [ ] Builder 是什么返回类型，GetObjectArgs.builder().bucket().object().build()
 - [ ] @Deprecated 标签是什么标签
+- [ ] Spring Security 可以有多个过滤器链，按路径进行匹配
 - [ ] minio 用户管理
 - [ ] JSON 序列化、反序列化为对象
-- [ ] Spring Security 可以有多个过滤器链，按路径进行匹配
 - [ ] JAVA 数据类型
 - [ ] 数据库：UUID v4 不适合做主键的原因
 
 
 ## JVM
 
-
-
-## Done
-
-**完成**
+- [ ] JVM：程序计数器注解
+- [ ] JVM：主版本号和副版本号
+- [ ] JVM：类加载的时机
 
 
 ## JUC
 
+- [ ] JUC：黑马课
+- [ ] JUC：马士兵课
+- [ ] JUC：脑壳有点况博主视频
 
 
 ## Minio
@@ -60,6 +57,6 @@ kanban-plugin: board
 
 %% kanban:settings
 ```
-{"kanban-plugin":"board","list-collapse":[false,false,false,false,false,false],"lane-width":332}
+{"kanban-plugin":"board","list-collapse":[false,false,false,false,false],"lane-width":332}
 ```
 %%

@@ -2326,6 +2326,10 @@ putfield #8 <org/example/test/Test.instanceBasicTypeValue : I>
 
 ## JConsole
 
+
+
+
+
 ---
 
 
@@ -2343,8 +2347,9 @@ putfield #8 <org/example/test/Test.instanceBasicTypeValue : I>
 
 #### 安装插件
 
+![](image-20250730214613670.png)
 
-
+---
 
 
 #### 集成 IDEA
@@ -2352,6 +2357,15 @@ putfield #8 <org/example/test/Test.instanceBasicTypeValue : I>
 <font color="#92d050">1. 下载 VisualVM Launcher 插件</font>
 ![](image-20250730210053342.png)
 
+
+<font color="#92d050">2. 进行插件配置</font>
+![](image-20250730214937797.png)
+
+
+<font color="#92d050">3. 使用插件</font>
+![](image-20250730214912560.png)
+
+---
 
 
 

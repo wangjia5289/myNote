@@ -16,102 +16,6 @@ layout: post
 ----
 
 
-## 2. 查看线程
-
-### 2.1. Windows
-
-<font color="#92d050">1. 任务管理器</font>
-快捷键为：Ctrl + Shift + Esc
-
-
-<font color="#92d050">2. 命令行工具</font>
-```
-// 1. 查看进程
-tasklist
-"""
-1. 注意事项
-	1. 可以使用 tasklist | findstr <进程名> 来筛选特定进程
-"""
-
-
-// 2. 杀死进程
-taskkill /F /PID <进程 ID>
-```
-
-----
-
-
-### 2.2. Linux
-
-<font color="#92d050">1. ps 命令</font>
-```
-// 1. 查看所有进程
-ps -ef
-
-
-// 2. 查看某个进程（PID）下的所有线程
-ps -fT -p <进程 ID>
-```
-
-
-<font color="#92d050">2. top 命令</font>
-```
-// 1. 实时查看进程资源占用情况
-top
-"""
-1. 注意事项：
-	1. 按下大写 H 可切换是否显示线程视图
-"""
-
-
-// 2. 实时查看某个进程（PID）下的线程资源占用
-top -H -p <进程 ID>
-```
-
-
-<font color="#92d050">3. kill 命令</font>
-```
-// 1. 请求进程优雅退出（发送 SIGTERM）
-kill <进程 ID>
-"""
-1. 注意事项：
-	1. 进程可捕获此信号，用于执行资源释放、状态保存等清理操作
-"""
-
-
-// 2. 强制终止进程（发送 SIGKILL）
-kill -9 <进程ID>
-"""
-1. 注意事项：
-	1. 用于强制终止卡死、无法响应的进程，不会触发清理逻辑
-"""
-```
-
-----
-
-
-### 2.3. Java 专属命令
-
-```
-// 1. 查看所有 Java 进程
-jps
-
-
-// 2. 查看某个 Java 进程（PID）下的所有线程
-jstack <Java 进程 ID>
-```
-
-
-> [!NOTE] 注意事项
-> 1. Windows 系统中的 `jconsole` 是一个图形化工具，可用于查看 Java 进程中各线程的运行状态与资源使用情况
-> 2. 该工具默认只能查看本地 Windows 机器上的 Java 进程线程。如果要远程监控，需要用以下命令启动目标机器上的 jar 包：
-```
-java -Djava.rmi.server.hostname='<ip 地址>' -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port='<连接端口>' -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -jar yourapp.jar
-```
-
-----
-
-
 ## 3. 创建线程
 
 ### 3.1. 直接使用 Thread
@@ -177,7 +81,10 @@ Runnable runnable = () -> {
 	// 本 Runnable 要执行的任务
 };
 ```
->3. Runnable 是一个接口，而创建 Runnable 接口通常有三种常见玩法：
+
+> [!NOTE] 注意事项
+> 3. Runnable 是一个接口，而创建 Runnable 接口通常有三种常见玩法：
+
 ```
 // 1. 直接 new 出接口对象
 Runnable runnable = new Runnable() {
@@ -239,7 +146,7 @@ public interface Callable<V> {
 ---
 
 
-### 3.4. FutureTask + Thread 的使用
+#### 3.4. 使用 FutureTask + Thread 
 
 ```
 // 1. 创建 Callable 接口对象
@@ -253,7 +160,7 @@ Callable<Integer> task = new Callable<Integer>() {
 // 2. 创建 FutureTask 对象，传入 Callable 接口对象。
 FutureTask<Integer> futureTask = new FutureTask<>(task);
 
-// 3. 创建线程对象，传入 FutureTask 对象。线程将指向 Callable 中指定的 call 方法，并能调用 FutureTask 的方法进行相关操作
+// 3. 创建线程对象，传入 FutureTask 对象。线程将执行 Callable 中指定的 call 方法，并能调用 FutureTask 的方法进行相关操作
 Thread myThread = new Thread(futureTask, "myThread");
 
 // 4. 启动线程
@@ -1721,6 +1628,106 @@ public class PooledJedisClient {
 > 1. `Netty` 好像也能处理这个事情，Redis 就是使用的这个方式，还维护自己的一套nid 线程池？不理解不理解
 
 ----
+
+
+
+## 2. 查看线程
+
+### 2.1. Windows
+
+<font color="#92d050">1. 任务管理器</font>
+快捷键为：Ctrl + Shift + Esc
+
+
+<font color="#92d050">2. 命令行工具</font>
+```
+// 1. 查看进程
+tasklist
+"""
+1. 注意事项
+	1. 可以使用 tasklist | findstr <进程名> 来筛选特定进程
+"""
+
+
+// 2. 杀死进程
+taskkill /F /PID <进程 ID>
+```
+
+----
+
+
+### 2.2. Linux
+
+<font color="#92d050">1. ps 命令</font>
+```
+// 1. 查看所有进程
+ps -ef
+
+
+// 2. 查看某个进程（PID）下的所有线程
+ps -fT -p <进程 ID>
+```
+
+
+<font color="#92d050">2. top 命令</font>
+```
+// 1. 实时查看进程资源占用情况
+top
+"""
+1. 注意事项：
+	1. 按下大写 H 可切换是否显示线程视图
+"""
+
+
+// 2. 实时查看某个进程（PID）下的线程资源占用
+top -H -p <进程 ID>
+```
+
+
+<font color="#92d050">3. kill 命令</font>
+```
+// 1. 请求进程优雅退出（发送 SIGTERM）
+kill <进程 ID>
+"""
+1. 注意事项：
+	1. 进程可捕获此信号，用于执行资源释放、状态保存等清理操作
+"""
+
+
+// 2. 强制终止进程（发送 SIGKILL）
+kill -9 <进程ID>
+"""
+1. 注意事项：
+	1. 用于强制终止卡死、无法响应的进程，不会触发清理逻辑
+"""
+```
+
+----
+
+
+### 2.3. Java 专属命令
+
+```
+// 1. 查看所有 Java 进程
+jps
+
+
+// 2. 查看某个 Java 进程（PID）下的所有线程
+jstack <Java 进程 ID>
+```
+
+
+> [!NOTE] 注意事项
+> 1. Windows 系统中的 `jconsole` 是一个图形化工具，可用于查看 Java 进程中各线程的运行状态与资源使用情况
+> 2. 该工具默认只能查看本地 Windows 机器上的 Java 进程线程。如果要远程监控，需要用以下命令启动目标机器上的 jar 包：
+```
+java -Djava.rmi.server.hostname='<ip 地址>' -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port='<连接端口>' -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -jar yourapp.jar
+```
+
+----
+
+
+
 
 
 # ----------
