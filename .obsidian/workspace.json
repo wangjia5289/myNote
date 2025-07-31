@@ -49,8 +49,7 @@
               "title": "笔记：Java SE"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -292,11 +291,11 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "70d800c917f88118",
+  "active": "92d694cf8c3fd791",
   "lastOpenFiles": [
+    "source/_posts/笔记：Java SE.md",
     "source/_posts/笔记：阿里云代码规约.md",
     "source/_posts/笔记：JUC.md",
-    "source/_posts/笔记：Java SE.md",
     "Todo 看板.md",
     "source/_posts/笔记：Spring WebFlux.md",
     "source/_posts/笔记：Hexo + Obsidian +GitHub Pages.md",
