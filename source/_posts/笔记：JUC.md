@@ -21,490 +21,6 @@ layout: post
 ----
 
 
-
-## 4. 线程的状态
-
-### 4.1. 操作系统层面
-
-![](image-20250717222336285.png)
-
-----
-
-
-### 4.2. Java 层面
-
-![](image-20250717201013757.png)
-1. NEW
-
-
----
-
-
-## 5. JUC 常用方法
-
-### 5.1. 常用方法一览表
-
-| 方法名                         | static | 说明                                                             | 注意事项                                                                                                                                                                                                                                                                                                |
-| --------------------------- | ------ | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Thread static 方法            |        |                                                                |                                                                                                                                                                                                                                                                                                     |
-| Thread.sleep(long)          | static | 让当前执行的线程休眠 n 毫秒（从运行状态进入 Timed Waiting 状态），休眠时会让出 cpu 的时间片给其它线程 | 1. 其他线程可以通过 `interrupt` 方法打断当前正在睡眠的线程，此时 `sleep` 方法会抛出 `InterruptedException`。如果你未捕获并处理该异常，线程可能会直接终止；<br><br>2. 如果线程在睡眠结束或被中断（并正确处理了异常），将会从 `TIMED_WAITING` 状态被唤醒，转入就绪状态，等待 CPU 分配时间片继续执行。<br><br>3. 建议使用 TimeUnit 的 sleep 代替 Thread 的 sleep，两者功能相同，但前者可读性更强，单位更清晰。<br><br>4. 以 毫秒 为单位，1000 毫秒是 1 秒 |
-| Thread.yield()              | static | 提示线程调度器让出当前执行的线程对 CPU 的使用，线程从运行状态进入就绪状态                        | 1. 主要是为了测试和调试<br><br>2. yield 方法仅是建议性提示，是否生效取决于具体的调度策略；<br><br>3. 与 `sleep()` 方法的区别在于：`yield()` 让出时间片后，线程会处于就绪状态，如果没有其他可运行的线程，当前线程仍有可能被继续调度执行；而 `sleep()` 会使线程进入`TIMED_WAITING`，不能随即就被调度                                                                                                            |
-| Thread 实例方法                 |        |                                                                |                                                                                                                                                                                                                                                                                                     |
-| xxThread.start()            |        | 启动一个新线程，在新的线程运行 run 方法中的代码                                     | 1. start 方法只是让线程从初始状态进入就绪状态，里面代码不一定立刻运行（需要CPU 将时间片分配给它）<br><br>2. 每个线程对象的 start 方法只能调用一次（即使线程已终止），如果调用多次会出现 IllegalThreadStateException<br><br>3.`static` 方法是通过类名调用，如 `Thread.xxx`；非 `static` 方法是通过实例对象调用，如 `myThread.xxx`。                                                                         |
-| xxThread.setPriority(int)   |        | 修改某线程的优先级                                                      | 1. Java 中规定线程优先级为 1~10 之间的整数，数值越大，表示该线程被 CPU 调度的概率越高；<br><br>2. 该优先级仅是建议性提示，是否生效取决于具体的调度策略；<br><br>3. 当 CPU 忙碌时，高优先级线程通常会获得更多时间片；但在 CPU 空闲时，优先级对调度几乎无影响。                                                                                                                                            |
-| xxThread.join()             |        | 等待某线程运行结束                                                      |                                                                                                                                                                                                                                                                                                     |
-| xxThread.join(long)         |        | 等待某线程运行结束，最多等待 n 毫秒                                            | 1. 超时后，代码不再等待，继续向下执行；<br><br>2. 以 毫秒 为单位，1000 毫秒是 1 秒                                                                                                                                                                                                                                               |
-| xxThread.setDaemon(boolean) |        | 将某线程（用户线程）设置为守护线程                                              | 1. 主线程和我们创建的线程默认都是用户线程。很多人误以为“主线程一结束，JVM 就会退出”，但实际上并非如此，即使主线程结束，只要还有其他用户线程存活，JVM 就不会退出。<br><br>2. 而守护线程的行为则不同，当所有非守护线程（即用户线程）都结束后，JVM 会自动退出，无需等待守护线程执行完毕。<br><br>3. 守护线程常用于后台服务，例如垃圾回收、心跳监控、日志清理等任务                                                                                                 |
-| Object 实例方法                 |        |                                                                |                                                                                                                                                                                                                                                                                                     |
-|                             |        |                                                                |                                                                                                                                                                                                                                                                                                     |
-|                             |        |                                                                |                                                                                                                                                                                                                                                                                                     |
-|                             |        |                                                                |                                                                                                                                                                                                                                                                                                     |
-|                             |        |                                                                |                                                                                                                                                                                                                                                                                                     |
-
-----
-
-
-### 5.2. Thread static 方法
-
-#### 5.2.1. sleep(long) 方法
-
-| 方法名                | static | 说明                                                             | 注意事项                                                                                                                                                                                                                                                                                                |
-| ------------------ | ------ | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Thread.sleep(long) | static | 让当前执行的线程休眠 n 毫秒（从运行状态进入 Timed Waiting 状态），休眠时会让出 cpu 的时间片给其它线程 | 1. 其他线程可以通过 `interrupt` 方法打断当前正在睡眠的线程，此时 `sleep` 方法会抛出 `InterruptedException`。如果你未捕获并处理该异常，线程可能会直接终止；<br><br>2. 如果线程在睡眠结束或被中断（并正确处理了异常），将会从 `TIMED_WAITING` 状态被唤醒，转入就绪状态，等待 CPU 分配时间片继续执行。<br><br>3. 建议使用 TimeUnit 的 sleep 代替 Thread 的 sleep，两者功能相同，但前者可读性更强，单位更清晰。<br><br>4. 以 毫秒 为单位，1000 毫秒是 1 秒 |
-
-```
-public class Main {
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-
-        Callable<Integer> task = new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-            
-                // 执行本方法的线程进行 sleep
-                try {
-                    Thread.sleep(50000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                return 1 + 2;
-            }
-        };
-
-        FutureTask<Integer> futureTask = new FutureTask<>(task);
-
-        Thread myThread = new Thread(futureTask, "myThread");
-
-        myThread.start();
-
-        // Main 线程 sleep
-        Thread.sleep(1000);
-        
-        myThread.interrupt();
-    }
-}
-```
-
-> [!NOTE] 注意事项
-> 1. 使用 TimeUnit：
-```
-public class Main {
-
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-
-        Callable<Integer> task = new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-            
-                // 执行本方法的线程 sleep
-                try {
-                    TimeUnit.HOURS.sleep(5);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                return 1 + 2;
-            }
-        };
-
-        FutureTask<Integer> futureTask = new FutureTask<>(task);
-
-        Thread myThread = new Thread(futureTask, "myThread");
-
-        myThread.start();
-
-        // Main 线程 sleep
-        TimeUnit.MILLISECONDS.sleep(5000);
-
-        myThread.interrupt();
-    }
-}
-```
-
-----
-
-
-#### 5.2.2. yield() 方法
-
-| 方法名            | static | 说明                                      | 注意事项                                                                                                                                                                                     |
-| -------------- | ------ | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Thread.yield() | static | 提示线程调度器让出当前执行的线程对 CPU 的使用，线程从运行状态进入就绪状态 | 1. 主要是为了测试和调试<br><br>2. yield 方法仅是建议性提示，是否生效取决于具体的调度策略；<br><br>3. 与 `sleep()` 方法的区别在于：`yield()` 让出时间片后，线程会处于就绪状态，如果没有其他可运行的线程，当前线程仍有可能被继续调度执行；而 `sleep()` 会使线程进入`TIMED_WAITING`，不能随即就被调度 |
-
-```
-public class Main {
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-
-        Runnable runnable1 = new Runnable() {
-            @Override
-            public void run() {
-                Thread.yield();
-                while (true){
-                    System.out.println("----->1");
-                }
-            }
-        };
-        Runnable runnable2 = new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    System.out.println("       ----->2");
-                }
-            }
-        };
-
-        Thread myThread1 = new Thread(runnable1, "myThread1");
-
-        Thread myThread2 = new Thread(runnable2, "myThread2");
-        
-        myThread1.start();
-        
-        myThread2.start();
-    }
-}
-```
-
-> [!NOTE] 注意事项
-> 1. 该代码在多核处理器上效果可能不明显，但在单核环境中其调度行为将更为明显
-
----
-
-
-### 5.3. Thread 实例方法
-
-#### 5.3.1. start() 方法
-
-| 方法名              | static | 说明                         | 注意事项                                                                                                                                                                                                                        |
-| ---------------- | ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| xxThread.start() |        | 启动一个新线程，在新的线程运行 run 方法中的代码 | 1. start 方法只是让线程从初始状态进入就绪状态，里面代码不一定立刻运行（需要CPU 将时间片分配给它）<br><br>2. 每个线程对象的 start 方法只能调用一次（即使线程已终止），如果调用多次会出现 IllegalThreadStateException<br><br>3.`static` 方法是通过类名调用，如 `Thread.xxx`；非 `static` 方法是通过实例对象调用，如 `myThread.xxx`。 |
-
-```
-public class Main {
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-        
-        Callable<Integer> task = new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return 1 + 2;
-            }
-        };
-        
-        FutureTask<Integer> futureTask = new FutureTask<>(task);
-        
-        Thread myThread = new Thread(futureTask, "myThread");
-        
-        myThread.start();
-        
-    }
-}
-```
-
----
-
-
-#### 5.3.2. setPriority(int) 方法
-
-| 方法名                       | static | 说明        | 注意事项                                                                                                                                                     |
-| ------------------------- | ------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| xxThread.setPriority(int) |        | 修改某线程的优先级 | 1. Java 中规定线程优先级为 1~10 之间的整数，数值越大，表示该线程被 CPU 调度的概率越高；<br><br>2. 该优先级仅是建议性提示，是否生效取决于具体的调度策略；<br><br>3. 当 CPU 忙碌时，高优先级线程通常会获得更多时间片；但在 CPU 空闲时，优先级对调度几乎无影响。 |
-```
-public class Main {
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-
-        Runnable runnable1 = new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    System.out.println("----->1");
-                }
-            }
-        };
-        Runnable runnable2 = new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    System.out.println("       ----->2");
-                }
-            }
-        };
-
-        Thread myThread1 = new Thread(runnable1, "myThread1");
-
-        Thread myThread2 = new Thread(runnable2, "myThread2");
-        
-        // 设置线程优先级
-        myThread1.setPriority(Thread.MAX_PRIORITY);
-
-        myThread1.start();
-        
-        myThread2.start();
-    }
-}
-```
-
-----
-
-
-#### 5.3.3. join()、join(long) 方法
-
-| 方法名                 | static | 说明                  | 注意事项                                                  |
-| ------------------- | ------ | ------------------- | ----------------------------------------------------- |
-| xxThread.join()     |        | 等待某线程运行结束           |                                                       |
-| xxThread.join(long) |        | 等待某线程运行结束，最多等待 n 毫秒 | 1. 超时后，代码不再等待，继续向下执行；<br><br>2. 以 毫秒 为单位，1000 毫秒是 1 秒 |
-```
-public class Main {
-    static int repertoryNumber  = 0;
-
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // 模拟从 MySQL 中读取数据，假设独到的是 1500
-                    TimeUnit.MINUTES.sleep(1);
-                    repertoryNumber = 1500;
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-
-        Thread myThread = new Thread(runnable, "myThread");
-
-        myThread.start();
-
-        myThread.join();
-
-        System.out.println("从数据库中读取的数据为："+ repertoryNumber);
-    }
-}
-```
-
-----
-
-
-#### 5.3.4. setDaemon(boolean)
-
-| 方法名                         | static | 说明                | 注意事项                                                                                                                                                                                                |
-| --------------------------- | ------ | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| xxThread.setDaemon(boolean) |        | 将某线程（用户线程）设置为守护线程 | 1. 主线程和我们创建的线程默认都是用户线程。很多人误以为“主线程一结束，JVM 就会退出”，但实际上并非如此，即使主线程结束，只要还有其他用户线程存活，JVM 就不会退出。<br><br>2. 而守护线程的行为则不同，当所有非守护线程（即用户线程）都结束后，JVM 会自动退出，无需等待守护线程执行完毕。<br><br>3. 守护线程常用于后台服务，例如垃圾回收、心跳监控、日志清理等任务 |
-```
-public class Main {  
-    static int repertoryNumber  = 0;  
-  
-    public static void main(String[] args) throws ExecutionException, InterruptedException {  
-  
-        Runnable runnable = new Runnable() {  
-            @Override  
-            public void run() {  
-                while (true){  
-                    if(Thread.currentThread().isInterrupted()){  
-                        break;  
-                    }  
-                }  
-            }  
-        };  
-  
-        Thread myThread = new Thread(runnable, "myThread");  
-  
-        // 设置为守护线程  
-        myThread.setDaemon(true);  
-  
-        myThread.start();  
-  
-        System.out.println("从数据库中读取的数据为："+ repertoryNumber);  
-    }  
-}
-```
-
-> [!NOTE] 注意事项
-> 1. 上面的代码如果没有设置为守护线程，即使 `main` 方法执行完毕，JVM 仍不会停止运行。
-
-----
-
-
-
-
-
-
-
-
-
-
-| 方法名              | static | 说明                                                             | 注意事项                                                                                                                                    |
-| ---------------- | ------ | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| join()           |        | 等待线程运行结束                                                       |                                                                                                                                         |
-| join(long n)     |        | 等待线程运行结束，最多等待 n 毫秒                                             |                                                                                                                                         |
-| start()          |        | 启动一个新线程，在新的线程运行 run 方法中的代码                                     | 1. start 方法只是让线程从初始状态进入就绪状态，里面代码不一定立刻运行（需要CPU 将时间片分配给它）<br><br>2. 每个线程对象的 start 方法只能调用一次（即使线程已终止），如果调用多次会出现 IllegalThreadStateException |
-| sleep(long n)    | static | 让当前执行的线程休眠n 毫秒（从 Running 进入 Timed Waiting），休眠时让出 cpu 的时间片给其它线程 |                                                                                                                                         |
-| yield()          | static | 提示线程调度器让出当前线程对CPU的使用                                           | 主要是为了测试和调试                                                                                                                              |
-| setPriority(int) |        | 修改线程优先级                                                        | java中规定线程优先级是1~10 的整数，较大的优先级能提高该线程被 CPU 调度的机率                                                                                           |
-| getId()          |        | 获取线程长整型的 id                                                    | id 唯一                                                                                                                                   |
-| getName()        |        | 获取线程名                                                          |                                                                                                                                         |
-| setName(String)  |        | 修改线程名                                                          |                                                                                                                                         |
-| getPriority()    |        | 获取线程优先级                                                        |                                                                                                                                         |
-| getState()       |        | 获取线程状态                                                         | Java 中线程状态是用 6 个 enum 表示，分别为：NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED                                                 |
-| isInterrupted()  |        | 判断是否被打断                                                        | 不会清除打断标记                                                                                                                                |
-| isAlive()        |        | 线程是否存活（还没有运行完毕）                                                |                                                                                                                                         |
-| interrupt()      |        | 打断线程                                                           | 如果被打断线程正在 sleep, wait, join 会导致被打断的线程抛出 InterruptedException，并清除打断标记；如果打断的正在运行的线程，则会设置打断标记；park 的线程被打断，也会设置打断标记                         |
-| interrupted()    | static | 判断当前线程是否被打断                                                    | 会清除打断标记                                                                                                                                 |
-| currentThread()  | static | 获取当前正在执行的线程                                                    |                                                                                                                                         |
-
-----
-
-
-### 5.4. Object 实例方法
-
-#### 5.4.1. wait() 方法
-
-| 方法名               | static | 说明                                                                                                      | 注意事项                                                                                                                                                                                                     |
-| ----------------- | ------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Object.wait()     |        | 使当前持有该对象锁的线程进入该对象监视器（Monitor）中的 WaitSet 中等待，同时释放对象锁和 CPU 执行权                                            | 1. 与 `sleep()` 的区别是，`sleep()` 使线程进入 TIMED_WAITING 状态，但不会释放所持有的对象锁；而 `wait()` 会使线程进入 WAITING / TIMED_WAITING 状态，并且会释放对象锁。<br><br>2. `wait()` 一定要放在 `synchronized` 中，否则会抛异常；<br><br>3. 必须获得此对象的锁，才能调用这几个方法 |
-| Object.wait(long) |        | 使当前持有该对象锁的线程进入该对象监视器（Monitor）中的 WaitSet 中等待，同时释放对象锁和 CPU 执行权<br><br>最多等待 n 毫秒后自动醒来，不论是否被 `notify()` 唤醒。 | 1. 单位是毫秒，1000 毫秒是 1 秒                                                                                                                                                                                    |
-
-```
-public class WaitNotifyDemo {
-
-    private static final Object lock = new Object();
-    
-    private static boolean hasData = false;
-
-    // 消费者线程
-    static class Consumer extends Thread {
-        @Override
-        public void run() {
-            synchronized (lock) {
-                while (!hasData) {
-                    try {
-                        System.out.println("消费者：没有数据，等待...");
-                        lock.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                System.out.println("消费者：拿到了数据，消费完成");
-                hasData = false;
-                lock.notify();  // 通知生产者可以继续生产
-            }
-        }
-    }
-
-    // 生产者线程
-    static class Producer extends Thread {
-        @Override
-        public void run() {
-            synchronized (lock) {
-                while (hasData) {
-                    try {
-                        System.out.println("生产者：数据未被消费，等待...");
-                        lock.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                System.out.println("生产者：生产了数据");
-                hasData = true;
-                lock.notify();  // 通知消费者可以消费
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        new Consumer().start();
-        new Producer().start();
-    }
-}
-```
-
-----
-
-
-#### 5.4.2. notify()、notifyAll() 方法
-
-| 方法名                | static | 说明                                | 注意事项                                                                                                                                                                                                                          |
-| ------------------ | ------ | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Object.notify()    |        | 唤醒该对象监视器（Monitor）中 WaitSet 中的一个线程 | 1. 被唤醒的线程进入可运行状态，但尚未持有对象锁，只有在获得 CPU 时间片并成功获取该对象锁后才能继续执行<br><br>2. `notify()` 一定要放在 `synchronized` 中，否则会抛异常。<br><br>3. 被唤醒的线程是此前因调用 `wait()` 而释放该对象锁、并进入等待集的线程；而当前执行 `notify()` 的线程是持有同一个对象锁的线程。<br><br>4. 必须获得此对象的锁，才能调用这几个方法 |
-| Object.notifyAll() |        | 唤醒该对象监视器（Monitor）中 WaitSet 中的全部线程 |                                                                                                                                                                                                                               |
-```
-public class WaitNotifyDemo {
-    private static final Object lock = new Object();
-    private static boolean hasData = false;
-
-    // 消费者线程
-    static class Consumer extends Thread {
-        @Override
-        public void run() {
-            synchronized (lock) {
-	            // 防止线程虚假唤醒
-                while (!hasData) {
-                    try {
-                        System.out.println("消费者：没有数据，等待...");
-                        lock.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                System.out.println("消费者：拿到了数据，消费完成");
-                hasData = false;
-                lock.notify();  // 通知生产者可以继续生产
-            }
-        }
-    }
-
-    // 生产者线程
-    static class Producer extends Thread {
-        @Override
-        public void run() {
-            synchronized (lock) {
-	            // 防止线程虚假唤醒
-                while (hasData) {
-                    try {
-                        System.out.println("生产者：数据未被消费，等待...");
-                        lock.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                System.out.println("生产者：生产了数据");
-                hasData = true;
-                lock.notify();  // 通知消费者可以消费
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        new Consumer().start();
-        new Producer().start();
-    }
-}
-
-```
-
-> [!NOTE] 注意事项：虚假唤醒
-> 1. 虚假唤醒是指线程在没有被明确唤醒（即没有收到 `notify()` / `notifyAll()` 调用）、也没有超时（对 `wait(timeout)` 而言）的情况下恢复到了可运行状态。
-> 2. 这并非 Bug，而是 JVM 设计上的一种容忍，但我们为了防止线程在资源尚未准备好时误以为条件满足，我们通常使用 `while` 循环反复检查条件，从而有效避免虚假唤醒带来的问题。
-
-----
-
-
 ## 6. 线程安全问题
 
 ### 6.1. 临界区概述
@@ -1924,6 +1440,7 @@ public void actor2() {
 		1. 快速执行、无明显耗时、不涉及复杂计算或 I/O
 	2. <font color="#00b0f0">同步阻塞操作</font>：
 		1. 设计耗时计算或潜在阻塞操作（如 I/O），但是在当前线程同步执行
+	3. 同步非阻塞操作
 3. ==异步操作==：
 	1. <font color="#00b0f0">异步阻塞操作</font>：
 		1. 将同步阻塞操作通过异步机制（如线程池）执行，“伪非阻塞” 操作
@@ -1940,6 +1457,82 @@ public void actor2() {
 		4. <font color="#00b0f0">硬件通信</font>：
 			1. 与打印机、扫描仪等外部设备的数据交换
 
+
+
+
+
+这是一个很好的问题，因为这正是 Java 线程状态最容易让人感到困惑的地方。我们来总结一下，哪些常见的操作会导致线程在**操作系统（OS）层面处于阻塞状态**，但在 **Java 层面却依然是 `RUNNABLE`**。
+
+这些操作通常都与 **I/O (输入/输出)** 有关，因为 I/O 操作需要等待外部设备（如硬盘、网卡）的响应，而这个等待过程是由操作系统管理的。
+
+---
+
+### 常见的 I/O 阻塞操作总结
+
+#### 1. 文件 I/O
+
+当线程执行文件读写操作时，如果数据不能立即就绪，就会发生阻塞。
+
+- **操作**：
+    
+    - `FileInputStream.read()`：从文件中读取数据。
+        
+    - `FileOutputStream.write()`：向文件中写入数据。
+        
+- **底层行为**：Java 的 `native` 方法会向操作系统发出系统调用，请求读写磁盘。如果硬盘正在忙碌或数据量大，OS 会将线程挂起，直到 I/O 完成。
+    
+- **Java 线程状态**：**`RUNNABLE`**。
+    
+
+#### 2. 网络 I/O
+
+网络通信是 I/O 阻塞最常见的场景之一。
+
+- **操作**：
+    
+    - `Socket.accept()`：等待客户端连接。
+        
+    - `Socket.connect()`：连接远程服务器。
+        
+    - `Socket.read()` / `Socket.write()`：从网络中读取或写入数据。
+        
+    - `DatagramSocket.receive()`：接收 UDP 数据包。
+        
+- **底层行为**：`native` 方法会向操作系统请求网络资源。当线程在等待网络连接建立、或者等待数据从网络到达时，OS 会将线程挂起。
+    
+- **Java 线程状态**：**`RUNNABLE`**。
+    
+
+#### 3. 数据库 I/O
+
+与数据库的交互本质上也是网络或文件 I/O。
+
+- **操作**：
+    
+    - `Connection.createStatement()`
+        
+    - `Statement.executeQuery()`
+        
+    - `ResultSet.next()`
+        
+- **底层行为**：JDBC 驱动通过网络向数据库服务器发送请求。线程需要等待服务器处理请求并返回结果。
+    
+- **Java 线程状态**：**`RUNNABLE`**。
+    
+
+---
+
+### 为什么这些操作会这样？
+
+核心原因在于 **Java `Thread.State` 的设计哲学**。
+
+- `BLOCKED`, `WAITING`, `TIMED_WAITING` 这些状态，是专门为了反映 **Java 语言层面的同步和等待机制**。它们是 JVM 精心管理和控制的状态，比如等待 `synchronized` 锁或调用 `wait()` 方法。
+    
+- **I/O 阻塞**是一个**操作系统层面的行为**。当 Java 调用 `native` 方法进行 I/O 时，它把控制权交给了 OS。从 JVM 的角度看，线程只是在执行一个 `native` 方法，它并没有通过 Java 自己的机制进入等待。一旦 OS 的 I/O 操作完成，这个 `native` 方法就会返回，线程就能继续执行 Java 代码。因此，JVM 认为这个线程一直都是**可运行**的。
+    
+
+通过理解这个区别，你就能更好地诊断和分析 Java 多线程程序中的性能瓶颈，区分是由于锁竞争（Java `BLOCKED`）还是由于 I/O 等待（Java `RUNNABLE`，OS 阻塞）造成的了。
+
 ---
 
 
@@ -1951,7 +1544,7 @@ public void actor2() {
 
 <font color="#92d050">1. 使用匿名内部类的方式继承 Thread 类，并重写 run 方法</font>
 ```
-public class Demo {  
+public class Main {  
   
     public static void main(String[] args) {  
     
@@ -1999,7 +1592,7 @@ public class MyThread extends Thread{
 
 然后我们去创建线程对象：
 ```
-public class Demo {  
+public class Main {  
   
     public static void main(String[] args) {  
   
@@ -2154,11 +1747,534 @@ myThread.start();
 
 ### 线程的状态
 
+#### 4.1. 操作系统层面
+
+操作系统层面的线程状态，是**操作系统内核对线程的实际调度反映**
+![](image-20250717222336285.png)
+
+----
+
+
+#### 4.2. Java 层面
+
+Java 层面的线程状态，是 JVM 对线程生命周期的抽象和管理，主要**反映线程在 Java 内存模型中的行为**：
+![](image-20250717201013757.png)
+1. 线程状态
+	1. NEW
+		1. 指线程对象已创建，但尚未调用 `start()` 方法处于未启动状态
+		2. 在这一阶段，Java 中的线程对象尚未与底层操作系统的原生线程建立关联
+	2. RUNNABLE
+		1. 可运行状态
+			1. 线程已经准备好运行，但能否真正运行，还要取决于操作系统的调度
+		2. 运行状态
+		3. 阻塞状态
+			1. 一般是我们执行的某些操作，涉及到操作系统层面的线程阻塞，例如 I/O 操作时
+			2. 虽然其真实情况是线程进入阻塞状态，CPU 不再调用这个线程
+			3. 但是从 JVM 的角度看，执行 IO 操作的线程通常仍然停留在 `RUNNABLE` 状态
+			4. 而我们 Java 层面的 Bolcked、WAITING、TIMED_WAITING 主要是我们去调用了 `wait()`、`sleep()`、`join()` 等方法进入的
+			5. 你可以简单理解为，只要不是 `wait()`、`sleep()`、`join()` 等情况，其他的虽然是进入了阻塞状态，但是在 java 层面还是认为是 `RUNNABLE` 状态
+			6. 常见的阻塞 I/O 有：
+				1. 文件 I/O
+				2. 网络 I/O
+				3. 数据库 I/O
+				4. 用户交互
+				5. 需要注意的是，传统的这些操作，都是阻塞 I/O，但随着技术的发展，java 提供了这些操作的 BIO、NIO、AIO 实现。
+	3. BLOCKED
+	4. WAITING
+	5. TIMED_WAINTING
+	6. TERMINATED
+2. 线程状态转换
+	1. NEW ---> 可运行状态
+		1. 当线程对象调用 `start()`方法，Java 中的线程对象就与底层操作系统的原生线程建立关联，就进入了可运行状态
+	2. 运行状态 ---> WAITING
+		1. 调用 Object.wait()
+			1. 当线程适用 synchronized(obj)获取对象锁后，调用 obj.wait()方法时，线程会从运行状态 ---> WAITING / TIMED_WAITING
+			2. 补充：当我们调用 obj.notify()、obj.notifyAll()、xxThread.interrupt() 时，线程会尝试竞争锁：
+				1. 竞争锁成功，线程从 WAITING / TIMED_WAITING ---> 可运行状态
+				2. 竞争锁失败，线程从 WAITING / TIMED_WAITING ---> BOLCKED（线程从 WaitSet 进入了 EntryList）
+		2. 调用 xxThread.join()
+	3. 运行状态 ---> TIMED_WAITING
+		1. 调用 Object.wait(long)
+		2. 调用 xxThread.join(long)
+		3. 调用 xxThread.sleep(long)
+	4. WAININT <---> 可运行状态
+		1. 调用 Object.notify()、Object.notifyAll()、xxThread.interrupt()
+			1. 当线程适用 synchronized(obj)获取对象锁后，调用 obj.wait()方法时，线程会从运行状态 ---> WAITING / TIMED_WAITING
+
+
+---
+
+
+
+
 ---
 
 
 ### 线程的常用方法
 
+#### 5.2. Thread 静态方法
+
+##### 5.2.1. sleep(long)
+
+###### sleep(long) 概述
+
+| 方法名                | static | 说明                                       | 注意事项                                                                                                                                                                                                                                                                                                                                            |
+| ------------------ | ------ | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Thread.sleep(long) | static | 让**当前执行的线程**休眠 n 毫秒，休眠时会让出 cpu 的时间片给其它线程 | 1. 从运行状态 ---> TIMED_WAITING<br><br>2. 其他线程可以通过 `xxThread.interrupt()` 方法打断当前正在睡眠的线程，此时 `sleep` 方法会抛出 `InterruptedException`。如果你未捕获并处理该异常，线程可能会直接终止；<br><br>3. 如果线程在睡眠结束或被中断（并正确处理了异常），将会从 `TIMED_WAITING` ---> 可运行状态，等待 CPU 分配时间片继续执行。<br><br>4. 建议使用 TimeUnit 的 sleep 代替 Thread 的 sleep，两者功能相同，但前者可读性更强，单位更清晰。<br><br>5. 以 毫秒 为单位，1000 毫秒是 1 秒 |
+
+```
+public class Main {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Callable<Integer> task = new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+            
+                // 执行本方法的线程进行 sleep
+                try {
+                    Thread.sleep(50000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                return 1 + 2;
+            }
+        };
+
+        FutureTask<Integer> futureTask = new FutureTask<>(task);
+
+        Thread myThread = new Thread(futureTask, "myThread");
+
+        myThread.start();
+
+        // Main 线程 sleep
+        Thread.sleep(1000);
+        
+        myThread.interrupt();
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 使用 TimeUnit 的 sleep 代替 Thread 的 sleep
+```
+public class Main {
+
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Callable<Integer> task = new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+            
+                // 执行本方法的线程 sleep
+                try {
+                    TimeUnit.HOURS.sleep(5);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                return 1 + 2;
+            }
+        };
+
+        FutureTask<Integer> futureTask = new FutureTask<>(task);
+
+        Thread myThread = new Thread(futureTask, "myThread");
+
+        myThread.start();
+
+        // Main 线程 sleep
+        TimeUnit.MILLISECONDS.sleep(5000);
+
+        myThread.interrupt();
+    }
+}
+```
+
+----
+
+
+###### SLEEP(long) 使用案例
+
+<font color="#92d050">1. 防止 cpu 空转</font>
+
+
+
+
+
+
+
+##### 5.2.2. yield() 方法
+
+| 方法名            | static | 说明                                          | 注意事项                                                                                                                                                                                                    |
+| -------------- | ------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Thread.yield() | static | 提示线程调度器让出**当前执行的线程**对 CPU 的使用，线程从运行状态进入就绪状态 | 1. 运行状态 ---> 可执行状态<br><br>2. 这个方法主要是为了测试和调试，并且仅是建议性提示，是否生效取决于具体的调度策略；<br><br>3. 与 `sleep()` 方法的区别在于：`yield()` 让出时间片后，线程会处于可运行状态，如果没有其他可运行的线程，当前线程仍有可能被继续调度执行；而 `sleep()` 会使线程进入`TIMED_WAITING`，不能随即就被调度 |
+
+```
+public class Main {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Runnable runnable1 = new Runnable() {
+            @Override
+            public void run() {
+                Thread.yield();
+                while (true){
+                    System.out.println("----->1");
+                }
+            }
+        };
+        Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    System.out.println("       ----->2");
+                }
+            }
+        };
+
+        Thread myThread1 = new Thread(runnable1, "myThread1");
+
+        Thread myThread2 = new Thread(runnable2, "myThread2");
+        
+        myThread1.start();
+        
+        myThread2.start();
+    }
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 该代码在多核处理器上效果可能不明显，但在单核环境中其调度行为将更为明显
+
+---
+
+
+#### 5.3. Thread 实例方法
+
+##### 5.3.1. start()
+
+| 方法名              | static | 说明                                                           | 注意事项                                                                                                |
+| ---------------- | ------ | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| xxThread.start() |        | 启动 xxThread 线程对象，使其与底层操作系统的原生线程建立关联，并在新线程中执行 `run()` 方法中的代码。 | 1. NEW ---> 可运行状态<br><br>2. 每个线程对象的 start 方法只能调用一次（即使线程已终止），如果调用多次会出现 `IllegalThreadStateException` |
+
+```
+public class Main {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        
+        Callable<Integer> task = new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return 1 + 2;
+            }
+        };
+        
+        FutureTask<Integer> futureTask = new FutureTask<>(task);
+        
+        Thread myThread = new Thread(futureTask, "myThread");
+        
+        myThread.start();
+        
+    }
+}
+```
+
+---
+
+
+##### interrupt()
+
+| 方法名                  | static | 说明  | 注意事项                                                                                                                                                                                                                                                                               |
+| -------------------- | ------ | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| xxThread.interrupt() |        |     | 1. TIMED_WAITINT ---> 可运行状态 / 程序终止<br><br>2. interrupt() 方法主要用于打断处于等待状态（WAITING / TIMED_WAITING）状态的线程，被打断的线程将处于可运行状态<br><br>3. 如果被打断的线程是处于运行状态的线程，interrupt() 不会中断线程的执行，但是会设置线程的中断标志位（isInterrupted() 为 true），如果线程代码中主动检查了中断状态（例如通过 `Thread.interrupted()`），就可以自行做出响应，比如提前退出或者其他逻辑 |
+
+| interrupt() |     | 打断线程 | 如果被打断线程正在 sleep, wait, join 会导致被打断的线程抛出 InterruptedException，并清除打断标记；如果打断的正在运行的线程，则会设置打断标记；park 的线程被打断，也会设置打断标记 |
+| ----------- | --- | ---- | --------------------------------------------------------------------------------------------------------------- |
+
+---
+
+
+##### 5.3.2. setPriority(int) 方法
+
+| 方法名                       | static | 说明                 | 注意事项                                                                                                                                                     |
+| ------------------------- | ------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| xxThread.setPriority(int) |        | 修改 xxThread 线程的优先级 | 1. Java 中规定线程优先级为 1~10 之间的整数，数值越大，表示该线程被 CPU 调度的概率越高；<br><br>2. 该优先级仅是建议性提示，是否生效取决于具体的调度策略；<br><br>3. 当 CPU 忙碌时，高优先级线程通常会获得更多时间片；但在 CPU 空闲时，优先级对调度几乎无影响。 |
+```
+public class Main {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Runnable runnable1 = new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    System.out.println("----->1");
+                }
+            }
+        };
+        Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    System.out.println("       ----->2");
+                }
+            }
+        };
+
+        Thread myThread1 = new Thread(runnable1, "myThread1");
+
+        Thread myThread2 = new Thread(runnable2, "myThread2");
+        
+        // 设置线程优先级
+        myThread1.setPriority(Thread.MAX_PRIORITY);
+
+        myThread1.start();
+        
+        myThread2.start();
+    }
+}
+```
+
+----
+
+
+#### 5.3.3. join()、join(long) 方法
+
+| 方法名                 | static | 说明                  | 注意事项                                                  |
+| ------------------- | ------ | ------------------- | ----------------------------------------------------- |
+| xxThread.join()     |        | 等待某线程运行结束           |                                                       |
+| xxThread.join(long) |        | 等待某线程运行结束，最多等待 n 毫秒 | 1. 超时后，代码不再等待，继续向下执行；<br><br>2. 以 毫秒 为单位，1000 毫秒是 1 秒 |
+```
+public class Main {
+    static int repertoryNumber  = 0;
+
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // 模拟从 MySQL 中读取数据，假设独到的是 1500
+                    TimeUnit.MINUTES.sleep(1);
+                    repertoryNumber = 1500;
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
+        Thread myThread = new Thread(runnable, "myThread");
+
+        myThread.start();
+
+        myThread.join();
+
+        System.out.println("从数据库中读取的数据为："+ repertoryNumber);
+    }
+}
+```
+
+----
+
+
+#### 5.3.4. setDaemon(boolean)
+
+| 方法名                         | static | 说明                | 注意事项                                                                                                                                                                                                |
+| --------------------------- | ------ | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| xxThread.setDaemon(boolean) |        | 将某线程（用户线程）设置为守护线程 | 1. 主线程和我们创建的线程默认都是用户线程。很多人误以为“主线程一结束，JVM 就会退出”，但实际上并非如此，即使主线程结束，只要还有其他用户线程存活，JVM 就不会退出。<br><br>2. 而守护线程的行为则不同，当所有非守护线程（即用户线程）都结束后，JVM 会自动退出，无需等待守护线程执行完毕。<br><br>3. 守护线程常用于后台服务，例如垃圾回收、心跳监控、日志清理等任务 |
+```
+public class Main {  
+    static int repertoryNumber  = 0;  
+  
+    public static void main(String[] args) throws ExecutionException, InterruptedException {  
+  
+        Runnable runnable = new Runnable() {  
+            @Override  
+            public void run() {  
+                while (true){  
+                    if(Thread.currentThread().isInterrupted()){  
+                        break;  
+                    }  
+                }  
+            }  
+        };  
+  
+        Thread myThread = new Thread(runnable, "myThread");  
+  
+        // 设置为守护线程  
+        myThread.setDaemon(true);  
+  
+        myThread.start();  
+  
+        System.out.println("从数据库中读取的数据为："+ repertoryNumber);  
+    }  
+}
+```
+
+> [!NOTE] 注意事项
+> 1. 上面的代码如果没有设置为守护线程，即使 `main` 方法执行完毕，JVM 仍不会停止运行。
+
+----
+
+
+
+
+
+
+
+
+
+
+| 方法名              | static | 说明                                                             | 注意事项                                                                                                                                    |
+| ---------------- | ------ | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| join()           |        | 等待线程运行结束                                                       |                                                                                                                                         |
+| join(long n)     |        | 等待线程运行结束，最多等待 n 毫秒                                             |                                                                                                                                         |
+| start()          |        | 启动一个新线程，在新的线程运行 run 方法中的代码                                     | 1. start 方法只是让线程从初始状态进入就绪状态，里面代码不一定立刻运行（需要CPU 将时间片分配给它）<br><br>2. 每个线程对象的 start 方法只能调用一次（即使线程已终止），如果调用多次会出现 IllegalThreadStateException |
+| sleep(long n)    | static | 让当前执行的线程休眠n 毫秒（从 Running 进入 Timed Waiting），休眠时让出 cpu 的时间片给其它线程 |                                                                                                                                         |
+| yield()          | static | 提示线程调度器让出当前线程对CPU的使用                                           | 主要是为了测试和调试                                                                                                                              |
+| setPriority(int) |        | 修改线程优先级                                                        | java中规定线程优先级是1~10 的整数，较大的优先级能提高该线程被 CPU 调度的机率                                                                                           |
+| getId()          |        | 获取线程长整型的 id                                                    | id 唯一                                                                                                                                   |
+| getName()        |        | 获取线程名                                                          |                                                                                                                                         |
+| setName(String)  |        | 修改线程名                                                          |                                                                                                                                         |
+| getPriority()    |        | 获取线程优先级                                                        |                                                                                                                                         |
+| getState()       |        | 获取线程状态                                                         | Java 中线程状态是用 6 个 enum 表示，分别为：NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED                                                 |
+| isInterrupted()  |        | 判断是否被打断                                                        | 不会清除打断标记                                                                                                                                |
+| isAlive()        |        | 线程是否存活（还没有运行完毕）                                                |                                                                                                                                         |
+| interrupt()      |        | 打断线程                                                           | 如果被打断线程正在 sleep, wait, join 会导致被打断的线程抛出 InterruptedException，并清除打断标记；如果打断的正在运行的线程，则会设置打断标记；park 的线程被打断，也会设置打断标记                         |
+| interrupted()    | static | 判断当前线程是否被打断                                                    | 会清除打断标记                                                                                                                                 |
+| currentThread()  | static | 获取当前正在执行的线程                                                    |                                                                                                                                         |
+
+----
+
+
+### 5.4. Object 实例方法
+
+#### 5.4.1. wait() 方法
+
+| 方法名               | static | 说明                                                                                                      | 注意事项                                                                                                                                                                                                                                                                                                            |
+| ----------------- | ------ | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Object.wait()     |        | 使当前持有该对象锁的线程进入该对象监视器（Monitor）中的 WaitSet 中等待，同时释放对象锁和 CPU 执行权                                            | 1. 与 `sleep()` 的区别是，`sleep()` 使线程进入 TIMED_WAITING 状态，但不会释放所持有的对象锁；而 `wait()` 会使线程进入 WAITING / TIMED_WAITING 状态，并且会释放对象锁。<br><br>2. `wait()` 一定要放在 `synchronized` 中，否则会抛异常；<br><br>3. 必须获得此对象的锁，才能调用这几个方法<br><br>4. 虽然可运行状态的线程，也可以持有锁，但是调用 wait 方法时，一定是处于运行状态，不运行状态怎么执行方法对吧，所以是运行状态 转化为waiting / timedwaiting 状态 |
+| Object.wait(long) |        | 使当前持有该对象锁的线程进入该对象监视器（Monitor）中的 WaitSet 中等待，同时释放对象锁和 CPU 执行权<br><br>最多等待 n 毫秒后自动醒来，不论是否被 `notify()` 唤醒。 | 1. 单位是毫秒，1000 毫秒是 1 秒                                                                                                                                                                                                                                                                                           |
+
+```
+public class WaitNotifyDemo {
+
+    private static final Object lock = new Object();
+    
+    private static boolean hasData = false;
+
+    // 消费者线程
+    static class Consumer extends Thread {
+        @Override
+        public void run() {
+            synchronized (lock) {
+                while (!hasData) {
+                    try {
+                        System.out.println("消费者：没有数据，等待...");
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println("消费者：拿到了数据，消费完成");
+                hasData = false;
+                lock.notify();  // 通知生产者可以继续生产
+            }
+        }
+    }
+
+    // 生产者线程
+    static class Producer extends Thread {
+        @Override
+        public void run() {
+            synchronized (lock) {
+                while (hasData) {
+                    try {
+                        System.out.println("生产者：数据未被消费，等待...");
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println("生产者：生产了数据");
+                hasData = true;
+                lock.notify();  // 通知消费者可以消费
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new Consumer().start();
+        new Producer().start();
+    }
+}
+```
+
+----
+
+
+#### 5.4.2. notify()、notifyAll() 方法
+
+| 方法名                | static | 说明                                | 注意事项                                                                                                                                                                                                                          |
+| ------------------ | ------ | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Object.notify()    |        | 唤醒该对象监视器（Monitor）中 WaitSet 中的一个线程 | 1. 被唤醒的线程进入可运行状态，但尚未持有对象锁，只有在获得 CPU 时间片并成功获取该对象锁后才能继续执行<br><br>2. `notify()` 一定要放在 `synchronized` 中，否则会抛异常。<br><br>3. 被唤醒的线程是此前因调用 `wait()` 而释放该对象锁、并进入等待集的线程；而当前执行 `notify()` 的线程是持有同一个对象锁的线程。<br><br>4. 必须获得此对象的锁，才能调用这几个方法 |
+| Object.notifyAll() |        | 唤醒该对象监视器（Monitor）中 WaitSet 中的全部线程 |                                                                                                                                                                                                                               |
+```
+public class WaitNotifyDemo {
+    private static final Object lock = new Object();
+    private static boolean hasData = false;
+
+    // 消费者线程
+    static class Consumer extends Thread {
+        @Override
+        public void run() {
+            synchronized (lock) {
+	            // 防止线程虚假唤醒
+                while (!hasData) {
+                    try {
+                        System.out.println("消费者：没有数据，等待...");
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println("消费者：拿到了数据，消费完成");
+                hasData = false;
+                lock.notify();  // 通知生产者可以继续生产
+            }
+        }
+    }
+
+    // 生产者线程
+    static class Producer extends Thread {
+        @Override
+        public void run() {
+            synchronized (lock) {
+	            // 防止线程虚假唤醒
+                while (hasData) {
+                    try {
+                        System.out.println("生产者：数据未被消费，等待...");
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println("生产者：生产了数据");
+                hasData = true;
+                lock.notify();  // 通知消费者可以消费
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new Consumer().start();
+        new Producer().start();
+    }
+}
+
+```
+
+> [!NOTE] 注意事项：虚假唤醒
+> 1. 虚假唤醒是指线程在没有被明确唤醒（即没有收到 `notify()` / `notifyAll()` 调用）、也没有超时（对 `wait(timeout)` 而言）的情况下恢复到了可运行状态。
+> 2. 这并非 Bug，而是 JVM 设计上的一种容忍，但我们为了防止线程在资源尚未准备好时误以为条件满足，我们通常使用 `while` 循环反复检查条件，从而有效避免虚假唤醒带来的问题。
+
+----
 
 
 

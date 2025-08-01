@@ -35,6 +35,9 @@ kanban-plugin: board
 
 ## JUC
 
+- [ ] JUC：线程的常用方法
+- [ ] JUC：线程状态转换
+- [ ] JUC：interrupt 详解
 - [ ] JUC：黑马课
 - [ ] JUC：马士兵课
 - [ ] JUC：脑壳有点况博主视频

@@ -5,16 +5,16 @@
       "path": "source/_posts/笔记：JUC.md"
     },
     {
+      "basename": "Todo 看板",
+      "path": "Todo 看板.md"
+    },
+    {
       "basename": "笔记：Java SE",
       "path": "source/_posts/笔记：Java SE.md"
     },
     {
       "basename": "笔记：阿里云代码规约",
       "path": "source/_posts/笔记：阿里云代码规约.md"
-    },
-    {
-      "basename": "Todo 看板",
-      "path": "Todo 看板.md"
     },
     {
       "basename": "笔记：Spring WebFlux",
