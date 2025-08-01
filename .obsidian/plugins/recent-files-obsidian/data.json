@@ -5,16 +5,24 @@
       "path": "source/_posts/笔记：JUC.md"
     },
     {
+      "basename": "笔记：23 种设计模式",
+      "path": "source/_posts/笔记：23 种设计模式.md"
+    },
+    {
+      "basename": "笔记：阿里云代码规约",
+      "path": "source/_posts/笔记：阿里云代码规约.md"
+    },
+    {
+      "basename": "笔记：并发模式",
+      "path": "source/_posts/笔记：并发模式.md"
+    },
+    {
       "basename": "Todo 看板",
       "path": "Todo 看板.md"
     },
     {
       "basename": "笔记：Java SE",
       "path": "source/_posts/笔记：Java SE.md"
-    },
-    {
-      "basename": "笔记：阿里云代码规约",
-      "path": "source/_posts/笔记：阿里云代码规约.md"
     },
     {
       "basename": "笔记：Spring WebFlux",
@@ -191,14 +199,6 @@
     {
       "basename": "README",
       "path": "node_modules/hexo-deployer-git/node_modules/hexo-util/README.md"
-    },
-    {
-      "basename": "笔记：Markdown 图片路径修复小工具",
-      "path": "source/_posts/笔记：Markdown 图片路径修复小工具.md"
-    },
-    {
-      "basename": "笔记：Git 家族",
-      "path": "source/_posts/笔记：Git 家族.md"
     }
   ],
   "omittedPaths": [],

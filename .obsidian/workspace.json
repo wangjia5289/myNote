@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/笔记：Java SE.md",
+                "file": "source/_posts/笔记：23 种设计模式.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "笔记：Java SE"
+              "title": "笔记：23 种设计模式"
             }
           }
         ]
@@ -246,29 +246,6 @@
               "icon": "clock",
               "title": "Recent Files"
             }
-          },
-          {
-            "id": "cb9ea855252d4550",
-            "type": "leaf",
-            "state": {
-              "type": "kanban",
-              "state": {
-                "file": "Todo 看板.md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
-              },
-              "icon": "lucide-trello",
-              "title": "Todo 看板"
-            }
           }
         ]
       }
@@ -291,12 +268,14 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "fbdd42d532677ed8",
+  "active": "92d694cf8c3fd791",
   "lastOpenFiles": [
-    "Todo 看板.md",
-    "source/_posts/笔记：JUC.md",
-    "source/_posts/笔记：Java SE.md",
+    "source/_posts/笔记：23 种设计模式.md",
     "source/_posts/笔记：阿里云代码规约.md",
+    "source/_posts/笔记：并发模式.md",
+    "Todo 看板.md",
+    "source/_posts/笔记：Java SE.md",
+    "source/_posts/笔记：JUC.md",
     "source/_posts/笔记：Spring WebFlux.md",
     "source/_posts/笔记：Hexo + Obsidian +GitHub Pages.md",
     "source/_posts/笔记：JVM.md",
@@ -328,8 +307,6 @@
     "Excalidraw/Drawing 2025-07-27 17.59.08.excalidraw.md",
     "source/_posts/笔记：Java 数据类型/Map：Java数据类型 1.xmind",
     "使用 Spring OAuth2 Authorization Server 开发授权服务器详细完整流.md",
-    "授权码模式（Authorization Code）+ PKCE（授权码交换的密钥证明）+ OIDC.md",
-    "Categories.md",
     "db.json",
     "public/categories/Java/安全框架/RBAC-规范/index.html",
     "public/categories/Java/安全框架/OAuth-规范/index.html",

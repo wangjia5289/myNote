@@ -1,7 +1,5 @@
 ---
-
 kanban-plugin: board
-
 ---
 
 ## Todo
@@ -41,6 +39,7 @@ kanban-plugin: board
 - [ ] JUC：黑马课
 - [ ] JUC：马士兵课
 - [ ] JUC：脑壳有点况博主视频
+- [ ] JUC：保护性暂停模式
 
 
 ## Java SE
@@ -59,9 +58,6 @@ kanban-plugin: board
 ***
 
 ## 归档
-
-- [ ] 主版本号和副版本号
-- [x] Spring Security 中，匿名用户访问受限制资源，究竟是抛那个异常？
 
 %% kanban:settings
 ```
