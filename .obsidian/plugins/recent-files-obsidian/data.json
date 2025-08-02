@@ -5,12 +5,20 @@
       "path": "source/_posts/笔记：JUC.md"
     },
     {
-      "basename": "笔记：23 种设计模式",
-      "path": "source/_posts/笔记：23 种设计模式.md"
+      "basename": "笔记：分布式 ID",
+      "path": "source/_posts/笔记：分布式 ID.md"
+    },
+    {
+      "basename": "笔记：日期与时间",
+      "path": "source/_posts/笔记：日期与时间.md"
     },
     {
       "basename": "笔记：阿里云代码规约",
       "path": "source/_posts/笔记：阿里云代码规约.md"
+    },
+    {
+      "basename": "笔记：23 种设计模式",
+      "path": "source/_posts/笔记：23 种设计模式.md"
     },
     {
       "basename": "笔记：并发模式",
@@ -55,10 +63,6 @@
     {
       "basename": "笔记：Java 注解",
       "path": "source/_posts/笔记：Java 注解.md"
-    },
-    {
-      "basename": "笔记：分布式 ID",
-      "path": "source/_posts/笔记：分布式 ID.md"
     },
     {
       "basename": "CHANGES",
@@ -195,10 +199,6 @@
     {
       "basename": "笔记：本地图库小工具",
       "path": "source/_posts/笔记：本地图库小工具.md"
-    },
-    {
-      "basename": "README",
-      "path": "node_modules/hexo-deployer-git/node_modules/hexo-util/README.md"
     }
   ],
   "omittedPaths": [],
